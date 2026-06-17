@@ -1,0 +1,45 @@
+name: Update Dashboard UI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "Health_Tracker_Master.csv"
+
+  workflow_dispatch:
+
+jobs:
+  update-dashboard:
+    name: Sync CSV to GitHub Pages
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Copy latest CSV to gh-pages branch
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          cp Health_Tracker_Master.csv /tmp/Health_Tracker_Master.csv
+
+          git fetch origin gh-pages
+          git checkout gh-pages
+
+          cp /tmp/Health_Tracker_Master.csv Health_Tracker_Master.csv
+
+          git add Health_Tracker_Master.csv
+          git diff --staged --quiet \
+            && echo "CSV unchanged — no update needed." \
+            || git commit -m "chore: sync Health_Tracker_Master.csv to dashboard [$(date -u '+%Y-%m-%d %H:%M UTC')]" \
+            && git push origin gh-pages
+
+          echo "Dashboard updated."
