@@ -2,449 +2,352 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Health Tracker</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-  /* ── TOKENS ─────────────────────────────────────────────────────── */
-  :root {
-    --bg:          #0a0c0f;
-    --bg2:         #111418;
-    --bg3:         #181c22;
-    --border:      #232830;
-    --border2:     #2e3540;
-    --text:        #e8ecf0;
-    --text2:       #8892a0;
-    --text3:       #505a68;
 
-    --green:       #22c97a;
-    --green-dim:   rgba(34,201,122,0.15);
-    --yellow:      #f5c842;
-    --yellow-dim:  rgba(245,200,66,0.15);
-    --red:         #f04f4f;
-    --red-dim:     rgba(240,79,79,0.15);
-    --blue:        #4f9cf0;
-    --blue-dim:    rgba(79,156,240,0.12);
-    --orange:      #f07c3a;
-    --orange-dim:  rgba(240,124,58,0.15);
-    --purple:      #9b72f0;
-    --purple-dim:  rgba(155,114,240,0.15);
-    --teal:        #2dcbcb;
-    --teal-dim:    rgba(45,203,203,0.12);
+/* ── TOKENS ──────────────────────────────────────────────────── */
+:root {
+  --bg:           #090c0f;
+  --bg2:          #111418;
+  --bg3:          #181d23;
+  --bg4:          #1e242c;
+  --border:       #1f2630;
+  --border2:      #2a3340;
+  --text:         #e4e9f0;
+  --text2:        #7a8694;
+  --text3:        #404c5a;
 
-    --accent:      #22c97a;
-    --radius:      12px;
-    --radius-sm:   8px;
-  }
+  --green:        #1fd67a;
+  --green-bg:     rgba(31,214,122,0.10);
+  --green-border: rgba(31,214,122,0.25);
+  --yellow:       #f0c93a;
+  --yellow-bg:    rgba(240,201,58,0.10);
+  --yellow-border:rgba(240,201,58,0.25);
+  --red:          #e84d4d;
+  --red-bg:       rgba(232,77,77,0.10);
+  --red-border:   rgba(232,77,77,0.25);
+  --blue:         #4a94e8;
+  --blue-bg:      rgba(74,148,232,0.10);
+  --blue-border:  rgba(74,148,232,0.25);
+  --orange:       #e87a3a;
+  --orange-bg:    rgba(232,122,58,0.10);
+  --orange-border:rgba(232,122,58,0.25);
+  --purple:       #9470e8;
+  --purple-bg:    rgba(148,112,232,0.10);
+  --purple-border:rgba(148,112,232,0.25);
+  --teal:         #28c4c4;
+  --teal-bg:      rgba(40,196,196,0.10);
+  --teal-border:  rgba(40,196,196,0.25);
 
-  /* ── RESET ──────────────────────────────────────────────────────── */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { font-size: 14px; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', system-ui, sans-serif;
-    min-height: 100vh;
-    line-height: 1.5;
-  }
+  --radius:    10px;
+  --radius-sm: 6px;
+  --gap:       10px;
+}
 
-  /* ── LOADING ─────────────────────────────────────────────────────── */
-  #loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    gap: 20px;
-  }
-  .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid var(--border2);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  #loading p { color: var(--text2); font-size: 0.9rem; letter-spacing: 0.05em; }
+/* ── RESET ───────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
 
-  #error-msg {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    gap: 16px;
-    text-align: center;
-    padding: 2rem;
-  }
-  #error-msg h2 { color: var(--red); }
-  #error-msg p { color: var(--text2); max-width: 480px; line-height: 1.7; }
-  #error-msg code { background: var(--bg3); padding: 2px 6px; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 0.85rem; }
+/* ── LOADING ─────────────────────────────────────────────────── */
+#loading {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100vh; gap: 16px;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 2.5px solid var(--border2);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#loading p { color: var(--text2); font-size: 0.82rem; letter-spacing: 0.06em; }
 
-  /* ── MAIN LAYOUT ─────────────────────────────────────────────────── */
-  #app { display: none; }
+#error-msg {
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100vh; gap: 14px;
+  text-align: center; padding: 2rem;
+}
+#error-msg h2 { color: var(--red); font-size: 1.1rem; }
+#error-msg p  { color: var(--text2); max-width: 440px; line-height: 1.7; font-size: 0.85rem; }
+#error-msg code { background: var(--bg3); padding: 2px 6px; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 0.82rem; }
 
-  /* ── TOP NAV ─────────────────────────────────────────────────────── */
-  .topnav {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(10,12,15,0.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 24px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  .topnav-brand {
-    font-family: 'DM Mono', monospace;
-    font-weight: 500;
-    font-size: 0.85rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-    white-space: nowrap;
-  }
-  .topnav-divider { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
-  .date-nav {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .date-nav button {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    color: var(--text2);
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-  }
-  .date-nav button:hover { border-color: var(--border2); color: var(--text); }
-  #current-date {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.82rem;
-    color: var(--text);
-    min-width: 100px;
-    text-align: center;
-  }
-  .topnav-badges {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: auto;
-    flex-wrap: wrap;
-  }
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    border: 1px solid;
-    white-space: nowrap;
-  }
-  .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
-  .badge-green  { color: var(--green);  background: var(--green-dim);  border-color: rgba(34,201,122,0.3);  }
-  .badge-yellow { color: var(--yellow); background: var(--yellow-dim); border-color: rgba(245,200,66,0.3); }
-  .badge-red    { color: var(--red);    background: var(--red-dim);    border-color: rgba(240,79,79,0.3);   }
-  .badge-blue   { color: var(--blue);   background: var(--blue-dim);   border-color: rgba(79,156,240,0.3);  }
-  .badge-orange { color: var(--orange); background: var(--orange-dim); border-color: rgba(240,124,58,0.3); }
-  .badge-purple { color: var(--purple); background: var(--purple-dim); border-color: rgba(155,114,240,0.3);}
-  .badge-teal   { color: var(--teal);   background: var(--teal-dim);   border-color: rgba(45,203,203,0.3); }
+/* ── APP ─────────────────────────────────────────────────────── */
+#app { display: none; width: 100%; }
 
-  /* ── PAGE GRID ───────────────────────────────────────────────────── */
-  .page { max-width: 1400px; margin: 0 auto; padding: 24px; }
+/* ── TOP NAV ─────────────────────────────────────────────────── */
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(9,12,15,0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 14px;
+  height: 50px;
+  display: flex; align-items: center; gap: 12px;
+  width: 100%;
+}
+.topnav-brand {
+  font-family: 'DM Mono', monospace;
+  font-weight: 500; font-size: 0.78rem;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--green); white-space: nowrap; flex-shrink: 0;
+}
+.topnav-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+.date-nav { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.date-nav button {
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text2); width: 26px; height: 26px;
+  border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; flex-shrink: 0;
+}
+.date-nav button:hover { border-color: var(--border2); color: var(--text); }
+#current-date {
+  font-family: 'DM Mono', monospace; font-size: 0.78rem;
+  color: var(--text); min-width: 86px; text-align: center;
+}
+.topnav-badges {
+  display: flex; align-items: center; gap: 6px;
+  margin-left: auto; overflow-x: auto;
+  scrollbar-width: none; -ms-overflow-style: none;
+  flex-shrink: 1; min-width: 0;
+}
+.topnav-badges::-webkit-scrollbar { display: none; }
 
-  /* ── CARDS ───────────────────────────────────────────────────────── */
-  .card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-  }
-  .card-label {
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text3);
-    margin-bottom: 14px;
-  }
-  .card-title {
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text2);
-    margin-bottom: 16px;
-  }
-  .big-number {
-    font-family: 'DM Mono', monospace;
-    font-size: 2.8rem;
-    font-weight: 500;
-    line-height: 1;
-    color: var(--text);
-  }
-  .big-number-sm {
-    font-family: 'DM Mono', monospace;
-    font-size: 1.9rem;
-    font-weight: 500;
-    line-height: 1;
-    color: var(--text);
-  }
-  .unit { font-size: 0.75rem; color: var(--text3); margin-left: 3px; }
-  .sub-label { font-size: 0.72rem; color: var(--text2); margin-top: 4px; }
+/* ── BADGES ──────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 0.67rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  border: 1px solid; white-space: nowrap; flex-shrink: 0;
+}
+.badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.badge-green  { color:var(--green);  background:var(--green-bg);  border-color:var(--green-border);  }
+.badge-yellow { color:var(--yellow); background:var(--yellow-bg); border-color:var(--yellow-border); }
+.badge-red    { color:var(--red);    background:var(--red-bg);    border-color:var(--red-border);    }
+.badge-blue   { color:var(--blue);   background:var(--blue-bg);   border-color:var(--blue-border);   }
+.badge-orange { color:var(--orange); background:var(--orange-bg); border-color:var(--orange-border); }
+.badge-purple { color:var(--purple); background:var(--purple-bg); border-color:var(--purple-border); }
+.badge-teal   { color:var(--teal);   background:var(--teal-bg);   border-color:var(--teal-border);   }
 
-  /* ── SECTION HEADERS ─────────────────────────────────────────────── */
-  .section-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 32px 0 14px;
-  }
-  .section-header h2 {
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text3);
-  }
-  .section-header::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+/* ── PAGE ────────────────────────────────────────────────────── */
+.page {
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 12px var(--gap);
+}
 
-  /* ── GRIDS ───────────────────────────────────────────────────────── */
-  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
-  .grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
-  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
-  .grid-5 { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; }
+/* ── SECTION HEADERS ─────────────────────────────────────────── */
+.section-header {
+  display: flex; align-items: center; gap: 10px;
+  margin: 20px 0 10px;
+}
+.section-header h2 {
+  font-size: 0.65rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--text3); white-space: nowrap;
+}
+.section-header::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── CARDS ───────────────────────────────────────────────────── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex; flex-direction: column;
+  min-width: 0;
+}
+.card-label {
+  font-size: 0.63rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 12px; flex-shrink: 0;
+}
+
+/* ── GRIDS ───────────────────────────────────────────────────── */
+/* Mobile: 1 col. Tablet: 2 col. Desktop: 3 col. */
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+}
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+}
+.grid-5 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+}
+@media (min-width: 640px) {
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-5 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1024px) {
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-5 { grid-template-columns: repeat(5, 1fr); }
   .col-span-2 { grid-column: span 2; }
-  .col-span-3 { grid-column: span 3; }
+}
 
-  /* ── CIRCULAR GAUGE ──────────────────────────────────────────────── */
-  .gauge-wrap { display: flex; align-items: center; gap: 20px; }
-  .gauge-svg-wrap { position: relative; flex-shrink: 0; }
-  .gauge-svg-wrap svg { display: block; }
-  .gauge-center {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  }
-  .gauge-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 1.7rem;
-    font-weight: 500;
-    line-height: 1;
-  }
-  .gauge-sub { font-size: 0.65rem; color: var(--text3); margin-top: 2px; }
-  .gauge-stats { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-  .stat-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-  }
-  .stat-row:last-child { border-bottom: none; padding-bottom: 0; }
-  .stat-key { font-size: 0.72rem; color: var(--text2); }
-  .stat-val {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.85rem;
-    color: var(--text);
-  }
+/* ── NUMBERS ─────────────────────────────────────────────────── */
+.num-xl  { font-family:'DM Mono',monospace; font-size:2.2rem; font-weight:500; line-height:1; }
+.num-lg  { font-family:'DM Mono',monospace; font-size:1.6rem; font-weight:500; line-height:1; }
+.num-md  { font-family:'DM Mono',monospace; font-size:1.2rem; font-weight:500; line-height:1; }
+.num-sm  { font-family:'DM Mono',monospace; font-size:0.95rem; font-weight:500; line-height:1; }
+.unit    { font-size:0.7rem; color:var(--text3); margin-left:3px; }
+.sublabel{ font-size:0.7rem; color:var(--text2); margin-top:4px; }
+.divider { border:none; border-top:1px solid var(--border); margin:12px 0; }
 
-  /* ── FILL BARS ───────────────────────────────────────────────────── */
-  .fill-bar-group { display: flex; flex-direction: column; gap: 12px; }
-  .fill-bar-item {}
-  .fill-bar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 5px;
-  }
-  .fill-bar-name { font-size: 0.75rem; color: var(--text2); }
-  .fill-bar-nums {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--text3);
-  }
-  .fill-bar-nums span { color: var(--text); }
-  .fill-bar-track {
-    height: 8px;
-    border-radius: 4px;
-    background: var(--bg3);
-    overflow: hidden;
-    position: relative;
-  }
-  .fill-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
-    position: relative;
-  }
-  .fill-bar-track.tall { height: 14px; border-radius: 6px; }
+/* ── DATA CELLS ──────────────────────────────────────────────── */
+.data-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.data-cell { background:var(--bg3); border-radius:var(--radius-sm); padding:9px 11px; }
+.dc-label  { font-size:0.62rem; color:var(--text3); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:3px; }
+.dc-val    { font-family:'DM Mono',monospace; font-size:0.92rem; font-weight:500; color:var(--text); }
 
-  /* ── SURPLUS/DEFICIT HERO ────────────────────────────────────────── */
-  .cal-hero {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 20px;
-    align-items: center;
-    padding: 4px 0 16px;
-  }
-  .cal-side { display: flex; flex-direction: column; gap: 4px; }
-  .cal-side-label { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); }
-  .cal-side-num { font-family: 'DM Mono', monospace; font-size: 2rem; font-weight: 500; }
-  .cal-side-sub { font-size: 0.7rem; color: var(--text2); }
-  .cal-divider { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  .net-label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); }
-  .net-result {
-    font-family: 'DM Mono', monospace;
-    font-size: 1.3rem;
-    font-weight: 500;
-    padding: 6px 14px;
-    border-radius: var(--radius-sm);
-    border: 1px solid;
-    text-align: center;
-    white-space: nowrap;
-  }
-  .net-words { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+/* ── GAUGE ───────────────────────────────────────────────────── */
+.gauge-wrap { display:flex; align-items:center; gap:16px; }
+.gauge-svg-wrap { position:relative; flex-shrink:0; }
+.gauge-svg-wrap svg { display:block; }
+.gauge-center {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center;
+}
+.gauge-num  { font-family:'DM Mono',monospace; font-size:1.5rem; font-weight:500; line-height:1; }
+.gauge-sub  { font-size:0.6rem; color:var(--text3); margin-top:2px; }
+.gauge-stats { flex:1; display:flex; flex-direction:column; gap:0; min-width:0; }
+.stat-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:7px 0; border-bottom:1px solid var(--border);
+}
+.stat-row:last-child { border-bottom:none; padding-bottom:0; }
+.stat-key { font-size:0.7rem; color:var(--text2); }
+.stat-val { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--text); }
 
-  /* ── SLEEP STACK BAR ─────────────────────────────────────────────── */
-  .sleep-stack {
-    display: flex;
-    height: 18px;
-    border-radius: 6px;
-    overflow: hidden;
-    gap: 2px;
-    margin: 10px 0;
-  }
-  .sleep-seg { height: 100%; transition: width 0.8s ease; }
-  .sleep-legend {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-  }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: var(--text2); }
-  .legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+/* ── FILL BARS ───────────────────────────────────────────────── */
+.fill-bar-group { display:flex; flex-direction:column; gap:10px; }
+.fill-bar-header {
+  display:flex; justify-content:space-between;
+  align-items:baseline; margin-bottom:4px; gap:8px;
+}
+.fill-bar-name { font-size:0.72rem; color:var(--text2); white-space:nowrap; }
+.fill-bar-nums { font-family:'DM Mono',monospace; font-size:0.68rem; color:var(--text3); text-align:right; }
+.fill-bar-nums span { color:var(--text); }
+.fill-bar-track {
+  height:7px; border-radius:4px;
+  background:var(--bg3); overflow:hidden;
+}
+.fill-bar-track.tall { height:12px; border-radius:5px; }
+.fill-bar-fill { height:100%; border-radius:4px; transition:width 0.8s cubic-bezier(0.4,0,0.2,1); }
 
-  /* ── COACHING CARD ───────────────────────────────────────────────── */
-  .coaching-card {
-    background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius);
-    padding: 22px 24px;
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-  }
-  .coaching-icon { font-size: 1.8rem; flex-shrink: 0; margin-top: 2px; }
-  .coaching-body {}
-  .coaching-headline {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 6px;
-    line-height: 1.4;
-  }
-  .coaching-detail { font-size: 0.8rem; color: var(--text2); line-height: 1.6; }
-  .coaching-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-  .coaching-tag {
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 3px 9px;
-    border-radius: 4px;
-    border: 1px solid;
-  }
+/* ── CALORIE HERO ────────────────────────────────────────────── */
+.cal-hero {
+  display:grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap:12px; align-items:center;
+  padding:4px 0 14px;
+}
+.cal-side { display:flex; flex-direction:column; gap:3px; }
+.cal-side.right { text-align:right; }
+.cal-side-label { font-size:0.63rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text3); }
+.cal-side-num   { font-family:'DM Mono',monospace; font-size:1.7rem; font-weight:500; line-height:1.1; }
+.cal-side-sub   { font-size:0.68rem; color:var(--text2); }
+.cal-divider    { display:flex; flex-direction:column; align-items:center; gap:5px; }
+.net-label      { font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text3); }
+.net-result     {
+  font-family:'DM Mono',monospace; font-size:1.1rem; font-weight:500;
+  padding:5px 12px; border-radius:var(--radius-sm); border:1px solid;
+  text-align:center; white-space:nowrap;
+}
+.net-words { font-size:0.65rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; }
+@media (max-width:400px) {
+  .cal-hero { grid-template-columns:1fr; text-align:center; }
+  .cal-side.right { text-align:left; }
+  .cal-divider { flex-direction:row; justify-content:flex-start; }
+}
 
-  /* ── OVERTRAINING PANEL ──────────────────────────────────────────── */
-  .risk-meter {
-    display: flex;
-    gap: 6px;
-    margin: 12px 0;
-  }
-  .risk-seg {
-    flex: 1;
-    height: 6px;
-    border-radius: 3px;
-    background: var(--bg3);
-  }
-  .risk-seg.active-ok     { background: var(--green); }
-  .risk-seg.active-monitor{ background: var(--yellow); }
-  .risk-seg.active-high   { background: var(--red); }
+/* ── SLEEP STACK ─────────────────────────────────────────────── */
+.sleep-stack {
+  display:flex; height:14px; border-radius:5px;
+  overflow:hidden; gap:2px; margin:8px 0 6px;
+}
+.sleep-seg { height:100%; }
+.sleep-legend { display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; }
+.legend-item { display:flex; align-items:center; gap:4px; font-size:0.67rem; color:var(--text2); }
+.legend-dot  { width:7px; height:7px; border-radius:2px; flex-shrink:0; }
 
-  /* ── TREND CHARTS ────────────────────────────────────────────────── */
-  .chart-wrap { position: relative; height: 180px; }
-  .chart-wrap-tall { position: relative; height: 220px; }
-  .trend-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; }
+/* ── COACHING CARD ───────────────────────────────────────────── */
+.coaching-card {
+  background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 100%);
+  border:1px solid var(--border2); border-radius:var(--radius);
+  padding:16px 18px; display:flex; gap:14px; align-items:flex-start;
+}
+.coaching-icon    { font-size:1.5rem; flex-shrink:0; margin-top:1px; }
+.coaching-headline{ font-size:0.88rem; font-weight:600; color:var(--text); margin-bottom:5px; line-height:1.4; }
+.coaching-detail  { font-size:0.75rem; color:var(--text2); line-height:1.65; }
+.coaching-tags    { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+.coaching-tag {
+  font-size:0.63rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;
+  padding:2px 8px; border-radius:4px; border:1px solid;
+}
 
-  /* ── CV CARD ─────────────────────────────────────────────────────── */
-  .cv-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
-  .cv-metric {}
-  .cv-metric-val { font-family: 'DM Mono', monospace; font-size: 1.4rem; font-weight: 500; }
-  .cv-metric-trend { font-size: 0.72rem; margin-top: 2px; }
-  .trend-up   { color: var(--green); }
-  .trend-down { color: var(--red); }
-  .trend-flat { color: var(--text3); }
+/* ── RISK METER ──────────────────────────────────────────────── */
+.risk-label { font-size:1.3rem; font-weight:600; letter-spacing:0.02em; font-family:'DM Mono',monospace; }
+.risk-meter { display:flex; gap:5px; margin:10px 0; }
+.risk-seg   { flex:1; height:5px; border-radius:3px; background:var(--bg4); }
+.risk-seg.active-ok     { background:var(--green); }
+.risk-seg.active-monitor{ background:var(--yellow); }
+.risk-seg.active-high   { background:var(--red); }
 
-  /* ── DONUT CHART ─────────────────────────────────────────────────── */
-  .donut-wrap { position: relative; height: 180px; }
+/* ── CHARTS ──────────────────────────────────────────────────── */
+.chart-wrap      { position:relative; width:100%; height:160px; }
+.chart-wrap-tall { position:relative; width:100%; height:200px; }
+.donut-wrap      { position:relative; width:100%; height:160px; }
 
-  /* ── DATA GRID (micro stats) ─────────────────────────────────────── */
-  .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .data-cell { background: var(--bg3); border-radius: 8px; padding: 10px 12px; }
-  .data-cell-label { font-size: 0.67rem; color: var(--text3); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
-  .data-cell-val { font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 500; }
+/* ── CV CARD ─────────────────────────────────────────────────── */
+.cv-traj { font-size:1.1rem; font-weight:700; letter-spacing:0.04em; font-family:'DM Mono',monospace; }
+.cv-metrics { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0; }
+.cv-metric-val   { font-family:'DM Mono',monospace; font-size:1.1rem; font-weight:500; }
+.cv-metric-trend { font-size:0.68rem; margin-top:2px; }
+.trend-up   { color:var(--green); }
+.trend-down { color:var(--red);   }
 
-  /* ── RESPONSIVE ──────────────────────────────────────────────────── */
-  @media (max-width: 1100px) {
-    .grid-3 { grid-template-columns: repeat(2,1fr); }
-    .trend-grid { grid-template-columns: repeat(3,1fr); }
-  }
-  @media (max-width: 760px) {
-    .page { padding: 12px; }
-    .grid-3, .grid-2, .grid-4 { grid-template-columns: 1fr; }
-    .col-span-2, .col-span-3 { grid-column: span 1; }
-    .trend-grid { grid-template-columns: repeat(2,1fr); }
-    .cal-hero { grid-template-columns: 1fr; text-align: center; }
-    .cal-divider { flex-direction: row; justify-content: center; }
-    .topnav-badges { display: none; }
-    .big-number { font-size: 2rem; }
-  }
+/* ── UTILITY ─────────────────────────────────────────────────── */
+.green  { color:var(--green);  }
+.yellow { color:var(--yellow); }
+.red    { color:var(--red);    }
+.blue   { color:var(--blue);   }
+.orange { color:var(--orange); }
+.purple { color:var(--purple); }
+.muted  { color:var(--text3);  }
+.mt6  { margin-top:6px;  }
+.mt10 { margin-top:10px; }
+.mt12 { margin-top:12px; }
+.no-data { color:var(--text3); font-size:0.78rem; font-style:italic; padding:16px 0; text-align:center; }
 
-  /* ── UTILITY ─────────────────────────────────────────────────────── */
-  .green { color: var(--green); }
-  .yellow { color: var(--yellow); }
-  .red { color: var(--red); }
-  .blue { color: var(--blue); }
-  .orange { color: var(--orange); }
-  .muted { color: var(--text3); }
-  .mono { font-family: 'DM Mono', monospace; }
-  .no-data { color: var(--text3); font-size: 0.8rem; font-style: italic; padding: 20px 0; text-align: center; }
-  .mt8 { margin-top: 8px; }
-  .mt12 { margin-top: 12px; }
-  .mt16 { margin-top: 16px; }
-  hr.divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
 </style>
 </head>
 <body>
@@ -456,30 +359,29 @@
 
 <div id="error-msg">
   <h2>Could not load data</h2>
-  <p id="error-detail">Make sure <code>Health_Tracker_Master.csv</code> is in the same folder as this file, or that the GitHub Pages path is configured correctly.</p>
+  <p id="error-detail">Make sure <code>Health_Tracker_Master.csv</code> is in the same folder as this file.</p>
 </div>
 
 <div id="app">
 
-  <!-- ── TOP NAV ─────────────────────────────────────────── -->
+  <!-- TOP NAV -->
   <nav class="topnav">
     <span class="topnav-brand">Health Tracker</span>
-    <div class="topnav-divider"></div>
+    <div class="topnav-sep"></div>
     <div class="date-nav">
-      <button id="prev-day" title="Previous day">‹</button>
+      <button id="prev-day">‹</button>
       <span id="current-date">—</span>
-      <button id="next-day" title="Next day">›</button>
+      <button id="next-day">›</button>
     </div>
     <div class="topnav-badges" id="topnav-badges"></div>
   </nav>
 
   <div class="page">
 
-    <!-- ── ROW 1: DAILY COMMAND CENTER ──────────────────── -->
+    <!-- ROW 1: DAILY COMMAND CENTER -->
     <div class="section-header"><h2>Daily Command Center</h2></div>
     <div class="grid-3">
 
-      <!-- Calories In vs Burned HERO -->
       <div class="card col-span-2">
         <div class="card-label">Energy Balance</div>
         <div class="cal-hero">
@@ -493,7 +395,7 @@
             <div class="net-result" id="net-result">—</div>
             <div class="net-words" id="net-words">—</div>
           </div>
-          <div class="cal-side" style="text-align:right">
+          <div class="cal-side right">
             <div class="cal-side-label">🔥 Calories Burned</div>
             <div class="cal-side-num" id="cal-burned-num">—</div>
             <div class="cal-side-sub" id="cal-burned-sub">BMR: —</div>
@@ -501,16 +403,16 @@
         </div>
         <hr class="divider">
         <div class="fill-bar-group">
-          <div class="fill-bar-item" id="calorie-in-bar-wrap">
+          <div>
             <div class="fill-bar-header">
-              <span class="fill-bar-name">Calorie Intake vs Goal</span>
+              <span class="fill-bar-name">Intake vs Goal</span>
               <span class="fill-bar-nums" id="cal-bar-nums">—</span>
             </div>
-            <div class="fill-bar-track tall"><div class="fill-bar-fill" id="cal-in-bar" style="width:0%;background:var(--green)"></div></div>
+            <div class="fill-bar-track tall"><div class="fill-bar-fill" id="cal-in-bar" style="width:0%"></div></div>
           </div>
-          <div class="fill-bar-item">
+          <div>
             <div class="fill-bar-header">
-              <span class="fill-bar-name">7-Day Avg Burn</span>
+              <span class="fill-bar-name">Burned vs 7-Day Avg</span>
               <span class="fill-bar-nums" id="eb7-nums">—</span>
             </div>
             <div class="fill-bar-track tall"><div class="fill-bar-fill" id="eb7-bar" style="width:0%;background:var(--blue)"></div></div>
@@ -518,31 +420,29 @@
         </div>
       </div>
 
-      <!-- Calories by Meal Donut -->
       <div class="card">
         <div class="card-label">Calories by Meal</div>
         <div class="donut-wrap"><canvas id="meal-donut"></canvas></div>
-        <div class="sleep-legend mt8" id="meal-legend"></div>
+        <div class="sleep-legend mt6" id="meal-legend"></div>
       </div>
 
-    </div><!-- /grid-3 -->
+    </div>
 
-    <!-- ── ROW 2: RECOVERY & SLEEP ───────────────────────── -->
+    <!-- ROW 2: RECOVERY & SLEEP -->
     <div class="section-header"><h2>Recovery &amp; Sleep</h2></div>
     <div class="grid-3">
 
-      <!-- Recovery Gauge -->
       <div class="card">
         <div class="card-label">Recovery Score</div>
         <div class="gauge-wrap">
           <div class="gauge-svg-wrap">
-            <svg width="120" height="120" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bg3)" stroke-width="10"/>
-              <circle id="gauge-track" cx="60" cy="60" r="50" fill="none" stroke="var(--green)"
-                stroke-width="10" stroke-linecap="round"
-                stroke-dasharray="314" stroke-dashoffset="314"
-                transform="rotate(-90 60 60)"
-                style="transition:stroke-dashoffset 1s ease,stroke 0.5s"/>
+            <svg width="110" height="110" viewBox="0 0 110 110">
+              <circle cx="55" cy="55" r="46" fill="none" stroke="var(--bg3)" stroke-width="9"/>
+              <circle id="gauge-track" cx="55" cy="55" r="46" fill="none" stroke="var(--green)"
+                stroke-width="9" stroke-linecap="round"
+                stroke-dasharray="289" stroke-dashoffset="289"
+                transform="rotate(-90 55 55)"
+                style="transition:stroke-dashoffset 1s ease,stroke 0.4s"/>
             </svg>
             <div class="gauge-center">
               <div class="gauge-num" id="recovery-num">—</div>
@@ -558,112 +458,98 @@
         </div>
       </div>
 
-      <!-- Sleep Breakdown -->
       <div class="card">
         <div class="card-label">Sleep Breakdown</div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
-          <div>
-            <span class="big-number-sm" id="sleep-total">—</span>
-            <span class="unit">hrs slept</span>
-          </div>
-          <div style="text-align:right">
-            <span class="mono" style="font-size:0.85rem" id="sleep-needed">—</span>
-            <span class="unit">needed</span>
-          </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div><span class="num-lg" id="sleep-total">—</span><span class="unit">hrs</span></div>
+          <div><span class="num-sm muted" id="sleep-needed">—</span><span class="unit">needed</span></div>
         </div>
         <div class="sleep-stack" id="sleep-stack"></div>
         <div class="sleep-legend" id="sleep-legend"></div>
         <hr class="divider">
         <div class="data-grid">
-          <div class="data-cell"><div class="data-cell-label">Performance</div><div class="data-cell-val" id="sleep-perf">—</div></div>
-          <div class="data-cell"><div class="data-cell-label">Efficiency</div><div class="data-cell-val" id="sleep-eff">—</div></div>
-          <div class="data-cell"><div class="data-cell-label">Consistency</div><div class="data-cell-val" id="sleep-cons">—</div></div>
-          <div class="data-cell"><div class="data-cell-label">Cycles</div><div class="data-cell-val" id="sleep-cycles">—</div></div>
+          <div class="data-cell"><div class="dc-label">Performance</div><div class="dc-val" id="sleep-perf">—</div></div>
+          <div class="data-cell"><div class="dc-label">Efficiency</div><div class="dc-val" id="sleep-eff">—</div></div>
+          <div class="data-cell"><div class="dc-label">Consistency</div><div class="dc-val" id="sleep-cons">—</div></div>
+          <div class="data-cell"><div class="dc-label">Cycles</div><div class="dc-val" id="sleep-cycles">—</div></div>
         </div>
       </div>
 
-      <!-- Sleep Debt -->
       <div class="card">
         <div class="card-label">Sleep Debt</div>
-        <div>
-          <div class="big-number" id="sleep-debt-7d">—</div>
-          <div class="sub-label">7-day rolling debt (hrs)</div>
-        </div>
+        <div><span class="num-xl" id="sleep-debt-7d">—</span><span class="unit">hrs</span></div>
+        <div class="sublabel">7-day rolling debt</div>
         <hr class="divider">
-        <div class="fill-bar-item mt8">
+        <div>
           <div class="fill-bar-header">
             <span class="fill-bar-name">Last night's debt</span>
             <span class="fill-bar-nums" id="sleep-debt-last-nums">—</span>
           </div>
-          <div class="fill-bar-track tall"><div class="fill-bar-fill" id="sleep-debt-bar" style="width:0%;background:var(--yellow)"></div></div>
+          <div class="fill-bar-track tall"><div class="fill-bar-fill" id="sleep-debt-bar" style="width:0%"></div></div>
         </div>
-        <div class="mt12 data-grid">
-          <div class="data-cell"><div class="data-cell-label">Trend</div><div class="data-cell-val" id="debt-trend">—</div></div>
-          <div class="data-cell"><div class="data-cell-label">Days to Repay</div><div class="data-cell-val" id="debt-repay">—</div></div>
+        <div class="data-grid mt10">
+          <div class="data-cell"><div class="dc-label">Trend</div><div class="dc-val" id="debt-trend">—</div></div>
+          <div class="data-cell"><div class="dc-label">Days to Repay</div><div class="dc-val" id="debt-repay">—</div></div>
         </div>
       </div>
 
-    </div><!-- /grid-3 -->
+    </div>
 
-    <!-- ── ROW 3: STRAIN & PERFORMANCE ──────────────────── -->
+    <!-- ROW 3: STRAIN & PERFORMANCE -->
     <div class="section-header"><h2>Strain &amp; Performance</h2></div>
     <div class="grid-3">
 
-      <!-- Strain & Workouts -->
       <div class="card">
         <div class="card-label">Day Strain</div>
-        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px">
-          <div class="big-number" id="strain-num">—</div>
-          <span class="unit">/ 21</span>
+        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:10px">
+          <span class="num-xl" id="strain-num">—</span><span class="unit">/ 21</span>
         </div>
         <div class="fill-bar-track tall">
-          <div class="fill-bar-fill" id="strain-bar" style="width:0%;background:var(--orange)"></div>
+          <div class="fill-bar-fill" id="strain-bar" style="width:0%"></div>
         </div>
         <hr class="divider">
         <div class="data-grid">
-          <div class="data-cell"><div class="data-cell-label">Workouts</div><div class="data-cell-val" id="workout-count">—</div></div>
-          <div class="data-cell"><div class="data-cell-label">Duration</div><div class="data-cell-val" id="workout-dur">—</div></div>
-          <div class="data-cell"><div class="data-cell-label">Avg HR</div><div class="data-cell-val" id="avg-hr">—</div></div>
-          <div class="data-cell"><div class="data-cell-label">Max HR</div><div class="data-cell-val" id="max-hr">—</div></div>
+          <div class="data-cell"><div class="dc-label">Workouts</div><div class="dc-val" id="workout-count">—</div></div>
+          <div class="data-cell"><div class="dc-label">Duration</div><div class="dc-val" id="workout-dur">—</div></div>
+          <div class="data-cell"><div class="dc-label">Avg HR</div><div class="dc-val" id="avg-hr">—</div></div>
+          <div class="data-cell"><div class="dc-label">Max HR</div><div class="dc-val" id="max-hr">—</div></div>
         </div>
       </div>
 
-      <!-- Overtraining Risk -->
       <div class="card">
         <div class="card-label">Overtraining Risk</div>
-        <div style="display:flex;align-items:baseline;gap:10px">
-          <div class="big-number-sm" id="ot-risk-val">—</div>
-          <div id="ot-adaptation" class="badge" style="margin-bottom:4px">—</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="risk-label" id="ot-risk-val">—</span>
+          <span class="badge" id="ot-adaptation">—</span>
         </div>
-        <div class="risk-meter" id="risk-meter">
+        <div class="risk-meter">
           <div class="risk-seg" id="risk-ok"></div>
           <div class="risk-seg" id="risk-mon"></div>
           <div class="risk-seg" id="risk-hi"></div>
         </div>
         <hr class="divider">
         <div class="data-grid">
-          <div class="data-cell"><div class="data-cell-label">7d Avg Strain</div><div class="data-cell-val" id="sr-strain">—</div></div>
-          <div class="data-cell"><div class="data-cell-label">7d Avg Recovery</div><div class="data-cell-val" id="sr-recovery">—</div></div>
-          <div class="data-cell"><div class="data-cell-label">SR Ratio</div><div class="data-cell-val" id="sr-ratio">—</div></div>
-          <div class="data-cell"><div class="data-cell-label">3d Avg Strain</div><div class="data-cell-val" id="readiness-3d">—</div></div>
+          <div class="data-cell"><div class="dc-label">7d Avg Strain</div><div class="dc-val" id="sr-strain">—</div></div>
+          <div class="data-cell"><div class="dc-label">7d Avg Recovery</div><div class="dc-val" id="sr-recovery">—</div></div>
+          <div class="data-cell"><div class="dc-label">SR Ratio</div><div class="dc-val" id="sr-ratio">—</div></div>
+          <div class="data-cell"><div class="dc-label">3d Avg Strain</div><div class="dc-val" id="readiness-3d">—</div></div>
         </div>
       </div>
 
-      <!-- Readiness Composite -->
       <div class="card">
         <div class="card-label">Readiness</div>
         <div class="gauge-wrap">
           <div class="gauge-svg-wrap">
-            <svg width="100" height="100" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="var(--bg3)" stroke-width="8"/>
-              <circle id="readiness-track" cx="50" cy="50" r="40" fill="none" stroke="var(--blue)"
+            <svg width="90" height="90" viewBox="0 0 90 90">
+              <circle cx="45" cy="45" r="37" fill="none" stroke="var(--bg3)" stroke-width="8"/>
+              <circle id="readiness-track" cx="45" cy="45" r="37" fill="none" stroke="var(--blue)"
                 stroke-width="8" stroke-linecap="round"
-                stroke-dasharray="251" stroke-dashoffset="251"
-                transform="rotate(-90 50 50)"
-                style="transition:stroke-dashoffset 1s ease 0.2s,stroke 0.5s"/>
+                stroke-dasharray="232" stroke-dashoffset="232"
+                transform="rotate(-90 45 45)"
+                style="transition:stroke-dashoffset 1s ease 0.2s,stroke 0.4s"/>
             </svg>
             <div class="gauge-center">
-              <div style="font-family:'DM Mono',monospace;font-size:1.35rem;font-weight:500;line-height:1" id="readiness-num">—</div>
+              <div style="font-family:'DM Mono',monospace;font-size:1.2rem;font-weight:500;line-height:1" id="readiness-num">—</div>
               <div class="gauge-sub">readiness</div>
             </div>
           </div>
@@ -675,94 +561,83 @@
         </div>
       </div>
 
-    </div><!-- /grid-3 -->
+    </div>
 
-    <!-- ── COACHING CARD ─────────────────────────────────── -->
+    <!-- COACHING CARD -->
     <div class="section-header"><h2>Today's Coaching Recommendation</h2></div>
     <div class="coaching-card" id="coaching-card">
       <div class="coaching-icon" id="coaching-icon">💡</div>
-      <div class="coaching-body">
-        <div class="coaching-headline" id="coaching-headline">Loading recommendation…</div>
+      <div style="flex:1;min-width:0">
+        <div class="coaching-headline" id="coaching-headline">Loading…</div>
         <div class="coaching-detail" id="coaching-detail"></div>
         <div class="coaching-tags" id="coaching-tags"></div>
       </div>
     </div>
 
-    <!-- ── ROW 4: NUTRITION ──────────────────────────────── -->
+    <!-- ROW 4: NUTRITION -->
     <div class="section-header"><h2>Nutrition</h2></div>
     <div class="grid-3">
-
-      <!-- Macros Fill Bars -->
       <div class="card col-span-2">
         <div class="card-label">Macros vs Goals</div>
         <div class="fill-bar-group" id="macro-bars"></div>
       </div>
-
-      <!-- Macros Donut -->
       <div class="card">
         <div class="card-label">Macro Split</div>
         <div class="donut-wrap"><canvas id="macro-donut"></canvas></div>
-        <div class="sleep-legend mt8" id="macro-legend"></div>
+        <div class="sleep-legend mt6" id="macro-legend"></div>
       </div>
-
     </div>
 
-    <!-- Micros Fill Bars -->
-    <div class="card mt12" style="margin-top:14px">
+    <div class="card mt10" style="margin-top:10px">
       <div class="card-label">Micronutrients vs Goals</div>
-      <div id="micro-bars" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px 24px"></div>
+      <div id="micro-bars" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px 20px;margin-top:4px"></div>
     </div>
 
-    <!-- ── ROW 5: LONG-TERM HEALTH ───────────────────────── -->
+    <!-- ROW 5: LONG-TERM HEALTH -->
     <div class="section-header"><h2>Long-Term Health</h2></div>
     <div class="grid-3">
 
-      <!-- CV Fitness -->
       <div class="card">
         <div class="card-label">Cardiovascular Fitness</div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-          <div class="big-number-sm" id="cv-trajectory">—</div>
-        </div>
+        <div class="cv-traj" id="cv-trajectory">—</div>
         <div class="cv-metrics">
-          <div class="cv-metric">
-            <div class="data-cell-label">30d Avg HRV</div>
+          <div>
+            <div class="dc-label">30d Avg HRV</div>
             <div class="cv-metric-val" id="cv-hrv">—</div>
             <div class="cv-metric-trend" id="cv-hrv-trend">—</div>
           </div>
-          <div class="cv-metric">
-            <div class="data-cell-label">30d Avg RHR</div>
+          <div>
+            <div class="dc-label">30d Avg RHR</div>
             <div class="cv-metric-val" id="cv-rhr">—</div>
             <div class="cv-metric-trend" id="cv-rhr-trend">—</div>
           </div>
         </div>
-        <div class="chart-wrap mt12"><canvas id="hrv-chart"></canvas></div>
+        <div class="chart-wrap"><canvas id="hrv-chart"></canvas></div>
       </div>
 
-      <!-- Fueling Efficiency -->
       <div class="card">
         <div class="card-label">Fueling Efficiency</div>
-        <div class="big-number" id="cal-per-strain">—</div>
-        <div class="sub-label">cal per strain point today</div>
+        <div><span class="num-xl" id="cal-per-strain">—</span></div>
+        <div class="sublabel">cal per strain point today</div>
         <hr class="divider">
         <div class="data-grid">
-          <div class="data-cell"><div class="data-cell-label">7d Avg Burned</div><div class="data-cell-val" id="eb7-avg">—</div></div>
-          <div class="data-cell"><div class="data-cell-label">Maintenance Target</div><div class="data-cell-val" id="eb-maint">—</div></div>
-          <div class="data-cell"><div class="data-cell-label">vs 7d Avg</div><div class="data-cell-val" id="eb-vs-avg">—</div></div>
-          <div class="data-cell"><div class="data-cell-label">Fueling Status</div><div class="data-cell-val" id="eb-status">—</div></div>
+          <div class="data-cell"><div class="dc-label">7d Avg Burned</div><div class="dc-val" id="eb7-avg">—</div></div>
+          <div class="data-cell"><div class="dc-label">Maintenance Target</div><div class="dc-val" id="eb-maint">—</div></div>
+          <div class="data-cell"><div class="dc-label">vs 7d Avg</div><div class="dc-val" id="eb-vs-avg">—</div></div>
+          <div class="data-cell"><div class="dc-label">Fueling Status</div><div class="dc-val" id="eb-status">—</div></div>
         </div>
       </div>
 
-      <!-- Energy Balance -->
       <div class="card">
-        <div class="card-label">Energy Balance — 7d Context</div>
+        <div class="card-label">Energy Balance — 14d</div>
         <div class="chart-wrap-tall"><canvas id="eb-chart"></canvas></div>
       </div>
 
-    </div><!-- /grid-3 -->
+    </div>
 
-    <!-- ── ROW 6: 30-DAY TRENDS ──────────────────────────── -->
+    <!-- ROW 6: 30-DAY TRENDS -->
     <div class="section-header"><h2>30-Day Trends</h2></div>
-    <div class="trend-grid">
+    <div class="grid-5">
       <div class="card"><div class="card-label">Recovery Score</div><div class="chart-wrap"><canvas id="trend-recovery"></canvas></div></div>
       <div class="card"><div class="card-label">HRV (ms)</div><div class="chart-wrap"><canvas id="trend-hrv"></canvas></div></div>
       <div class="card"><div class="card-label">Sleep Performance</div><div class="chart-wrap"><canvas id="trend-sleep"></canvas></div></div>
@@ -770,10 +645,10 @@
       <div class="card"><div class="card-label">Day Strain</div><div class="chart-wrap"><canvas id="trend-strain"></canvas></div></div>
     </div>
 
-    <div style="height:40px"></div>
+    <div style="height:32px"></div>
 
-  </div><!-- /page -->
-</div><!-- /app -->
+  </div>
+</div>
 
 <script src="dashboard.js"></script>
 </body>
