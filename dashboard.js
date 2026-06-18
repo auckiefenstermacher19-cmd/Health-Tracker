@@ -1,16 +1,27 @@
 /* ============================================================
-   dashboard.js  —  Health Tracker Dashboard v3
+   dashboard.js — Health Tracker Dashboard v4
    ============================================================ */
 
-const CSV_PATH = 'Health_Tracker_Master.csv?' + Date.now();
+const CSV_PATH = 'Health_Tracker_Master.csv';
 let allRows = [], dateIndex = 0, charts = {};
 let calOpen = false, calViewYear = new Date().getFullYear(), calViewMonth = new Date().getMonth();
 
 const $  = id => document.getElementById(id);
 const n  = (v,d=0) => { const x=parseFloat(v); return isNaN(x)?null:parseFloat(x.toFixed(d)); };
 const fmt = (v,d=0,fb='—') => { const x=n(v,d); return x===null?fb:x.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d}); };
-const pct = (v,d=1) => { const x=n(v,d); return x===null?'—':x+'%'; };
+const pct = (v,d=0) => { const x=n(v,d); return x===null?'—':x+'%'; };
 const clamp = (v,lo,hi) => Math.min(hi,Math.max(lo,v));
+
+// Format decimal hours as Xhr Ymin
+function fmtHHMM(decHours) {
+  if (decHours == null || isNaN(decHours)) return '—';
+  const totalMin = Math.round(Math.abs(decHours) * 60);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
 
 function recoveryColor(s) { return s>=67?'#1fd67a':s>=33?'#f0c93a':'#e84d4d'; }
 function fillColor(r,inv=false) {
@@ -18,12 +29,14 @@ function fillColor(r,inv=false) {
   return r>=1?'#1fd67a':r>=0.5?'#f0c93a':'#e84d4d';
 }
 function badgeClass(sig) {
-  const m={'PEAK':'badge-green','OPTIMAL':'badge-green','READY':'badge-blue','MODERATE':'badge-yellow',
+  const m={
+    'PEAK':'badge-green','OPTIMAL':'badge-green','READY':'badge-blue','MODERATE':'badge-yellow',
     'REST':'badge-red','UNDER-FUELED':'badge-orange','ON TARGET':'badge-green','OVER-FUELED':'badge-red',
     'WORSENING':'badge-red','IMPROVING':'badge-green','STABLE':'badge-blue',
     'OK':'badge-green','MONITOR':'badge-yellow','HIGH':'badge-red',
     'ADAPTING':'badge-green','MAINTAINING':'badge-blue','OVERREACHING':'badge-red',
-    'DECLINING':'badge-red','SLIGHT DECLINE':'badge-yellow','SLIGHT IMPROVEMENT':'badge-green'};
+    'DECLINING':'badge-red','SLIGHT DECLINE':'badge-yellow','SLIGHT IMPROVEMENT':'badge-green',
+  };
   return m[sig]||'badge-blue';
 }
 function badgeHTML(text,cls) {
@@ -50,69 +63,73 @@ function fillBarHTML(name,actual,goal,unit='',inv=false,d=0) {
 }
 
 Chart.defaults.color='#404c5a'; Chart.defaults.borderColor='#1f2630';
-Chart.defaults.font.family="'DM Sans',system-ui,sans-serif"; Chart.defaults.font.size=10;
+Chart.defaults.font.family="'DM Sans',system-ui,sans-serif"; Chart.defaults.font.size=11;
 function destroyChart(k) { if(charts[k]){charts[k].destroy();delete charts[k];} }
-const bx = { ticks:{maxTicksLimit:5,font:{size:9},color:'#404c5a'}, grid:{color:'#1f263044'} };
-const by = { ticks:{font:{size:9},color:'#404c5a'}, grid:{color:'#1f263044'} };
+const bx = { ticks:{maxTicksLimit:7,font:{size:10},color:'#7a8694'}, grid:{color:'#1f263055'} };
+const by = { ticks:{font:{size:10},color:'#7a8694'}, grid:{color:'#1f263055'} };
 
-// ── KEY METRICS ────────────────────────────────────────────────
-function keyMetricDesc(label, value, row) {
+// ── KEY METRICS ─────────────────────────────────────────────
+function keyMetricDesc(label, row) {
   switch(label) {
-    case 'Recovery':
-      const rs = n(row.recovery_score);
+    case 'Recovery': {
+      const rs=n(row.recovery_score);
       if(rs==null) return 'No recovery data for this date.';
-      if(rs>=67) return `<strong>${rs}/100</strong> — Your body is well-recovered. HRV and resting heart rate are in a healthy range. Good day to push hard.`;
-      if(rs>=33) return `<strong>${rs}/100</strong> — Moderate recovery. Train at controlled intensity and prioritize sleep tonight.`;
-      return `<strong>${rs}/100</strong> — Low recovery. Your nervous system is stressed. Rest or light movement only today.`;
-    case 'Readiness':
-      const sig = row.readiness_signal || '';
-      const descs = {
-        'PEAK':     'Your nervous system is primed for peak performance. This is your window to train hard or attempt a PR.',
-        'OPTIMAL':  'Strong readiness — conditions are favorable for quality training.',
-        'READY':    'Your body is ready for normal training. Stick to your planned session.',
-        'MODERATE': 'Mixed signals — some stress indicators present. Train at moderate intensity.',
-        'REST':     'Your body is signaling a need for recovery. Avoid high-intensity training today.'
+      if(rs>=67) return `<strong>${rs}/100</strong> — Well recovered. Good day to push hard in training.`;
+      if(rs>=33) return `<strong>${rs}/100</strong> — Moderate recovery. Train at controlled intensity.`;
+      return `<strong>${rs}/100</strong> — Low recovery. Rest or light movement only today.`;
+    }
+    case 'Readiness': {
+      const sig=row.readiness_signal||'';
+      const d={
+        'PEAK':'Nervous system primed. This is your window to train hard or attempt a PR.',
+        'OPTIMAL':'Strong readiness — conditions are favorable for quality training.',
+        'READY':'Ready for normal training. Stick to your planned session.',
+        'MODERATE':'Mixed signals. Train at moderate intensity today.',
+        'REST':'Body signaling need for recovery. Avoid high-intensity training.'
       };
-      return descs[sig] || 'Composite score of HRV, resting HR, and recent strain vs recovery balance.';
-    case 'Fueling':
-      const fs = row.eb_fueling_status || '';
-      if(fs==='UNDER-FUELED') return 'You burned significantly more calories than you consumed. Under-fueling impairs muscle repair, hormone regulation, and next-day recovery.';
-      if(fs==='ON TARGET')    return 'Calorie intake is well-matched to what you burned. Your body has the fuel it needs to recover and adapt.';
-      if(fs==='OVER-FUELED')  return 'Calorie intake exceeded what you burned today. This creates a surplus — beneficial for muscle building, less so for fat loss goals.';
-      return 'Relationship between calories consumed and calories burned today.';
-    case 'Sleep Debt':
-      const dt = row.sleep_debt_trend || '';
-      const d7 = n(row.sleep_debt_7day_rolling_hrs);
-      if(dt==='WORSENING') return `<strong>${fmt(d7,1)} hrs</strong> accumulated and rising. Chronic sleep debt suppresses HRV, raises cortisol, and impairs recovery. Prioritize 8–9 hrs tonight.`;
-      if(dt==='IMPROVING') return `<strong>${fmt(d7,1)} hrs</strong> accumulated but trending down. Keep prioritizing sleep — you're moving in the right direction.`;
-      return `<strong>${fmt(d7,1)} hrs</strong> of sleep owed to your body over the last 7 days. Sleep debt compounds and must be repaid to restore full recovery capacity.`;
-    case 'CV Fitness':
-      const cv = row.cv_fitness_trajectory || '';
-      if(cv==='DECLINING')      return 'Your 30-day HRV is falling and resting HR is rising. Aerobic base is weakening. Zone 2 cardio 3–4x per week is the most effective fix.';
-      if(cv==='SLIGHT DECLINE') return 'Early signs of cardiovascular softening. Consistent aerobic work will reverse this trend before it becomes significant.';
-      if(cv.includes('IMPROV')) return 'Your cardiovascular fitness is trending in the right direction. HRV rising and RHR falling are signs your aerobic base is strengthening.';
-      return '30-day trend of HRV and resting heart rate — the most reliable long-term indicators of cardiovascular health.';
+      return d[sig]||'Composite score of HRV, resting HR, and recent strain vs recovery.';
+    }
+    case 'Fueling': {
+      const fs=row.eb_fueling_status||'';
+      if(fs==='UNDER-FUELED') return 'You burned more than you ate. Under-fueling impairs muscle repair and next-day recovery.';
+      if(fs==='ON TARGET')    return 'Intake matched your burn. Your body has the fuel it needs to recover and adapt.';
+      if(fs==='OVER-FUELED')  return 'Ate more than you burned — caloric surplus. Good for muscle building, less so for fat loss.';
+      return 'Relationship between calories eaten and calories burned today.';
+    }
+    case 'Sleep Debt': {
+      const dt=row.sleep_debt_trend||'', d7=n(row.sleep_debt_7day_rolling_hrs);
+      if(dt==='WORSENING') return `<strong>${fmt(d7,1)} hrs</strong> owed and rising. Suppresses HRV and impairs recovery. Prioritize 8–9 hrs tonight.`;
+      if(dt==='IMPROVING') return `<strong>${fmt(d7,1)} hrs</strong> owed but trending down. Keep prioritizing sleep.`;
+      return `<strong>${fmt(d7,1)} hrs</strong> of sleep owed over the last 7 days. Must be repaid to restore full recovery.`;
+    }
+    case 'CV Fitness': {
+      const cv=row.cv_fitness_trajectory||'';
+      if(cv==='DECLINING')      return 'HRV falling, RHR rising. Aerobic base weakening. Zone 2 cardio 3–4x/week is the fix.';
+      if(cv==='SLIGHT DECLINE') return 'Early cardiovascular softening. Consistent aerobic work will reverse this.';
+      if(cv.includes('IMPROV')) return 'HRV rising, RHR falling — your aerobic base is strengthening. Keep going.';
+      return '30-day HRV and resting HR trends — the most reliable long-term health indicators.';
+    }
     default: return '';
   }
 }
 
 function renderKeyMetrics(row) {
-  const recov = n(row.recovery_score);
-  const metrics = [
-    { label:'Recovery',  badge: recov!=null ? `<span class="badge" style="color:${recoveryColor(recov)};background:${recoveryColor(recov)}18;border-color:${recoveryColor(recov)}40"><span class="badge-dot"></span>${recov}</span>` : badgeHTML('No Data','badge-blue') },
-    { label:'Readiness', badge: row.readiness_signal      ? badgeHTML(row.readiness_signal)      : badgeHTML('No Data','badge-blue') },
-    { label:'Fueling',   badge: row.eb_fueling_status     ? badgeHTML(row.eb_fueling_status)     : badgeHTML('No Data','badge-blue') },
-    { label:'Sleep Debt',badge: row.sleep_debt_trend      ? badgeHTML('Sleep '+row.sleep_debt_trend) : badgeHTML('No Data','badge-blue') },
-    { label:'CV Fitness',badge: row.cv_fitness_trajectory ? badgeHTML(row.cv_fitness_trajectory) : badgeHTML('No Data','badge-blue') },
+  const recov=n(row.recovery_score);
+  const metrics=[
+    { label:'Recovery',  badge: recov!=null?`<span class="badge" style="color:${recoveryColor(recov)};background:${recoveryColor(recov)}18;border-color:${recoveryColor(recov)}40"><span class="badge-dot"></span>${recov}</span>`:badgeHTML('No Data','badge-blue') },
+    { label:'Readiness', badge: row.readiness_signal?badgeHTML(row.readiness_signal):badgeHTML('No Data','badge-blue') },
+    { label:'Fueling',   badge: row.eb_fueling_status?badgeHTML(row.eb_fueling_status):badgeHTML('No Data','badge-blue') },
+    { label:'Sleep Debt',badge: row.sleep_debt_trend?badgeHTML('Sleep '+row.sleep_debt_trend):badgeHTML('No Data','badge-blue') },
+    { label:'CV Fitness',badge: row.cv_fitness_trajectory?badgeHTML(row.cv_fitness_trajectory):badgeHTML('No Data','badge-blue') },
   ];
-  $('key-metrics-grid').innerHTML = metrics.map(m => `
+  $('key-metrics-grid').innerHTML=metrics.map(m=>`
     <div class="km-item">
       <div class="km-top"><span class="km-label">${m.label}</span>${m.badge}</div>
-      <div class="km-desc">${keyMetricDesc(m.label, null, row)}</div>
+      <div class="km-desc">${keyMetricDesc(m.label,row)}</div>
     </div>`).join('');
 }
 
-// ── COACHING ENGINE ────────────────────────────────────────────
+// ── COACHING ────────────────────────────────────────────────
 function buildCoaching(row) {
   const recovery=n(row.recovery_score), signal=row.readiness_signal||'';
   const sleepDebt=n(row.sleep_debt_7day_rolling_hrs), debtTrend=row.sleep_debt_trend||'';
@@ -120,47 +137,130 @@ function buildCoaching(row) {
   const fueling=row.eb_fueling_status||'', cvTraj=row.cv_fitness_trajectory||'';
   const calIn=n(row.calories_actual), calBurned=n(row.total_calories_kcal);
   let icon='💡', headline='', detail='', tags=[];
+
   if(otRisk==='HIGH'||(adaptation==='OVERREACHING'&&recovery!=null&&recovery<33)) {
     icon='🚨'; headline='Signs of overtraining detected. Rest is not optional today.';
-    detail=`Recovery is ${recovery||'—'} and your strain-to-recovery ratio indicates overreaching. Active recovery only — walking, stretching, or light mobility work.`;
-    tags=['REST DAY','HIGH RISK'];
+    detail=`Recovery is ${recovery||'—'} and your strain-to-recovery ratio indicates overreaching. Active recovery only — walking, stretching, or light mobility work.`; tags=['REST DAY','HIGH RISK'];
   } else if(sleepDebt!=null&&sleepDebt>15&&debtTrend==='WORSENING') {
     icon='😴'; headline=`${fmt(sleepDebt,1)} hours of accumulated sleep debt and still rising.`;
-    detail=`Chronic sleep debt suppresses HRV, elevates cortisol, and impairs muscle recovery. Aim for 8–9 hours tonight.`;
-    tags=['SLEEP PRIORITY','RECOVERY FOCUS'];
+    detail='Chronic sleep debt suppresses HRV, elevates cortisol, and impairs muscle recovery. Aim for 8–9 hours tonight. This is your highest-leverage health action right now.'; tags=['SLEEP PRIORITY','RECOVERY FOCUS'];
   } else if(fueling==='UNDER-FUELED'&&calIn!=null&&calBurned!=null) {
     const deficit=calBurned-calIn; icon='⚠️';
     headline=`${fmt(deficit)} calories under-fueled vs what you burned today.`;
-    detail=`Under-fueling while training suppresses recovery and adaptation. Prioritize protein and complex carbohydrates.`;
-    tags=['FUEL UP','NUTRITION ACTION'];
+    detail='Under-fueling while training suppresses recovery and adaptation. Your body cannot repair muscle tissue without adequate fuel. Hit your calorie target — prioritize protein and complex carbs.'; tags=['FUEL UP','NUTRITION ACTION'];
   } else if(signal==='PEAK'||(recovery!=null&&recovery>=80&&adaptation!=='OVERREACHING')) {
     icon='⚡'; headline=`Recovery is ${signal||'strong'} — this is your window to push hard.`;
-    detail=`Your HRV and resting heart rate are signaling high readiness. High-intensity work, PR attempts, or long endurance sessions are all supported. Fuel well before and after.`;
-    tags=['HIGH READINESS','TRAIN HARD'];
-    if(sleepDebt!=null&&sleepDebt>10) { detail+=` Note: sleep debt is still elevated at ${fmt(sleepDebt,1)} hours — prioritize sleep tonight.`; tags.push('WATCH SLEEP DEBT'); }
+    detail='HRV and resting HR are signaling high readiness. High-intensity work, PR attempts, or long endurance sessions are all supported today. Fuel well before and after.'; tags=['HIGH READINESS','TRAIN HARD'];
+    if(sleepDebt!=null&&sleepDebt>10){detail+=` Note: sleep debt is still elevated at ${fmt(sleepDebt,1)} hours — prioritize sleep tonight.`; tags.push('WATCH SLEEP DEBT');}
   } else if(signal==='REST'||(recovery!=null&&recovery<33)) {
     icon='🛌'; headline=`Low recovery (${recovery||'—'}). Protect today's energy.`;
-    detail=`Keep any training aerobic and low-strain. Focus on sleep quality tonight, hydration, and hitting your nutrition targets.`;
-    tags=['LOW READINESS','LIGHT ACTIVITY'];
+    detail='Keep any training aerobic and low-strain. Focus on sleep quality tonight, hydration, and hitting your nutrition targets.'; tags=['LOW READINESS','LIGHT ACTIVITY'];
   } else if(cvTraj==='DECLINING'||cvTraj==='SLIGHT DECLINE') {
     icon='📉'; headline=`Cardiovascular fitness trending ${cvTraj.toLowerCase()}.`;
-    detail=`Zone 2 cardio 3–4x per week is the most evidence-backed intervention. Consistency is the fix.`;
-    tags=['CV TREND','AEROBIC WORK'];
+    detail='Your 30-day HRV and RHR trends indicate your aerobic base is softening. Zone 2 cardio 3–4x per week is the most evidence-backed intervention.'; tags=['CV TREND','AEROBIC WORK'];
   } else {
     icon='✅'; headline=`Moderate readiness (${recovery||'—'}). Controlled intensity today.`;
-    detail=`Not a peak day but not a rest day. Moderate aerobic work or technique-focused training. Hit nutrition targets and prioritize sleep.`;
-    tags=['MODERATE DAY','CONTROLLED EFFORT'];
+    detail='Not a peak day but not a rest day. Moderate aerobic work or technique-focused training. Hit nutrition targets and prioritize sleep.'; tags=['MODERATE DAY','CONTROLLED EFFORT'];
   }
   if(adaptation==='ADAPTING') tags.push('ADAPTING');
   if(otRisk==='MONITOR'&&!tags.includes('HIGH RISK')) tags.push('MONITOR LOAD');
   return {icon,headline,detail,tags};
 }
 
-// ── RENDER DAY ─────────────────────────────────────────────────
+// ── RENDER DAY ───────────────────────────────────────────────
 function renderDay(row) {
   if(!row) return;
   renderKeyMetrics(row);
 
+  // Coaching
+  const c=buildCoaching(row);
+  $('coaching-icon').textContent=c.icon;
+  $('coaching-headline').textContent=c.headline;
+  $('coaching-detail').textContent=c.detail;
+  $('coaching-tags').innerHTML=c.tags.map(t=>`<span class="coaching-tag ${badgeClass(t)}">${t}</span>`).join('');
+
+  // Recovery gauge
+  const recov=n(row.recovery_score);
+  if(recov!=null){$('recovery-num').textContent=recov;$('recovery-num').style.color=recoveryColor(recov);setGauge('gauge-track',recov,100,recoveryColor(recov));}
+  else $('recovery-num').textContent='—';
+  $('hrv-val').textContent  = row.hrv_rmssd_ms?fmt(row.hrv_rmssd_ms,1)+' ms':'—';
+  $('rhr-val').textContent  = row.resting_heart_rate?fmt(row.resting_heart_rate)+' bpm':'—';
+  $('spo2-val').textContent = row.spo2_pct?pct(row.spo2_pct):'—';
+  $('temp-val').textContent = row.skin_temp_celsius?fmt(row.skin_temp_celsius,1)+'°C':'—';
+
+  // Readiness gauge
+  const rd=n(row.readiness_composite_score);
+  if(rd!=null){$('readiness-num').textContent=rd;$('readiness-num').style.color=recoveryColor(rd);setGauge('readiness-track',rd,100,recoveryColor(rd));}
+  else $('readiness-num').textContent='—';
+  $('readiness-signal').textContent=row.readiness_signal||'—';
+  const hb=n(row.readiness_hrv_vs_baseline_pct),rb=n(row.readiness_rhr_vs_baseline_pct);
+  $('hrv-baseline').textContent=hb!=null?(hb>0?'+':'')+fmt(hb,1)+'%':'—';
+  $('hrv-baseline').style.color=hb!=null?(hb>=0?'var(--green)':'var(--red)'):'';
+  $('rhr-baseline').textContent=rb!=null?(rb>0?'+':'')+fmt(rb,1)+'%':'—';
+  $('rhr-baseline').style.color=rb!=null?(rb<=0?'var(--green)':'var(--red)'):'';
+  $('readiness-3d').textContent=row.readiness_3day_avg_strain?fmt(row.readiness_3day_avg_strain,1):'—';
+
+  // Overtraining
+  const ot=row.sr_overtraining_risk||'';
+  $('ot-risk-val').textContent=ot||'—';
+  $('ot-risk-val').style.color=ot==='OK'?'var(--green)':ot==='MONITOR'?'var(--yellow)':ot==='HIGH'?'var(--red)':'var(--text)';
+  $('ot-adaptation').className='badge '+badgeClass(row.sr_adaptation_trend||'');
+  $('ot-adaptation').innerHTML=`<span class="badge-dot"></span>${row.sr_adaptation_trend||'—'}`;
+  const rm={OK:0,MONITOR:1,HIGH:2},rl=rm[ot]??-1;
+  $('risk-ok').className ='risk-seg'+(rl>=0?' active-ok':'');
+  $('risk-mon').className='risk-seg'+(rl>=1?' active-monitor':'');
+  $('risk-hi').className ='risk-seg'+(rl>=2?' active-high':'');
+  $('sr-strain').textContent   =row.sr_7day_avg_strain?fmt(row.sr_7day_avg_strain,1):'—';
+  $('sr-recovery').textContent =row.sr_7day_avg_recovery?fmt(row.sr_7day_avg_recovery,1):'—';
+  $('sr-ratio').textContent    =row.sr_ratio?fmt(row.sr_ratio,3):'—';
+  $('sr-adaptation-cell').textContent=row.sr_adaptation_trend||'—';
+
+  // Sleep breakdown — Xhr Ymin format
+  const lH=n(row.light_sleep_hrs), swsH=n(row.slow_wave_sleep_hrs), remH=n(row.rem_sleep_hrs);
+  const awMin=n(row.time_awake_min), awH=awMin!=null?awMin/60:null;
+  const slT=(lH||0)+(swsH||0)+(remH||0);
+  $('sleep-total').textContent = slT>0 ? fmtHHMM(slT) : '—';
+  $('sleep-needed').textContent= row.sleep_needed_total_hrs ? fmtHHMM(n(row.sleep_needed_total_hrs)) : '—';
+
+  const sC={Light:'#4a94e8',SWS:'#28c4c4',REM:'#9470e8',Awake:'#2a3340'};
+  const sS=[{label:'Light',val:lH},{label:'SWS',val:swsH},{label:'REM',val:remH},{label:'Awake',val:awH}];
+  const sB=slT+(awH||0)||1;
+  $('sleep-stack').innerHTML=sS.map(s=>`<div class="sleep-seg" style="width:${((s.val||0)/sB*100).toFixed(1)}%;background:${sC[s.label]}"></div>`).join('');
+  $('sleep-legend').innerHTML=sS.filter(s=>s.val!=null&&s.val>0).map(s=>
+    `<div class="legend-item"><div class="legend-dot" style="background:${sC[s.label]}"></div>${s.label}: ${fmtHHMM(s.val)}</div>`
+  ).join('');
+  const sp=n(row.sleep_performance_pct);
+  $('sleep-perf').innerHTML  =sp!=null?`<span style="color:${fillColor(sp/100)}">${pct(sp)}</span>`:'—';
+  $('sleep-eff').textContent  =row.sleep_efficiency_pct?pct(row.sleep_efficiency_pct):'—';
+  $('sleep-cons').textContent =row.sleep_consistency_pct?pct(row.sleep_consistency_pct):'—';
+  $('sleep-cycles').textContent=row.sleep_cycles||'—';
+
+  // Sleep debt
+  const d7=n(row.sleep_debt_7day_rolling_hrs), dL=n(row.sleep_debt_last_night_hrs);
+  const repay=n(row.sleep_debt_days_to_repayment);
+  const dt=row.sleep_debt_trend||'—';
+  if(d7!=null){$('sleep-debt-7d').textContent=fmt(d7,1);$('sleep-debt-7d').style.color=d7>15?'var(--red)':d7>7?'var(--yellow)':'var(--green)';}
+  else $('sleep-debt-7d').textContent='—';
+  $('sleep-debt-last').textContent=dL!=null?fmt(dL,1):'—';
+  $('debt-trend').textContent=dt; $('debt-trend').style.color=dt==='IMPROVING'?'var(--green)':dt==='WORSENING'?'var(--red)':'var(--text3)';
+  $('debt-repay').textContent=repay!=null?repay+' nights':'—';
+  // Plain-English explanation
+  let explainText='';
+  if(d7!=null&&repay!=null) {
+    const trendWord=dt==='WORSENING'?'getting worse':'improving';
+    explainText=`You are currently carrying <strong>${fmt(d7,1)} hours</strong> of sleep debt. `;
+    if(dt==='WORSENING') explainText+=`This debt is <strong>increasing</strong> — you are consistently sleeping less than your body needs. `;
+    else if(dt==='IMPROVING') explainText+=`This debt is <strong>decreasing</strong> — your recent sleep has been better than needed. `;
+    else explainText+=`This debt is <strong>holding steady</strong>. `;
+    explainText+=`At 1 extra hour of sleep per night, it would take approximately <strong>${repay} nights</strong> to fully repay. Tonight, aim for ${fmt((n(row.sleep_needed_total_hrs)||8)+1,1)} hours.`;
+  } else if(d7!=null) {
+    explainText=`You are carrying <strong>${fmt(d7,1)} hours</strong> of accumulated sleep debt. Prioritize getting more sleep than your body needs each night to repay it.`;
+  } else {
+    explainText='Sleep debt data not available for this date.';
+  }
+  $('debt-explain-text').innerHTML=explainText;
+
+  // Calorie hero
   const calIn=n(row.calories_actual), calBurned=n(row.total_calories_kcal);
   const calGoal=n(row.calories_goal), bmr=n(row.bmr_estimated_kcal), eb7Avg=n(row.eb_7day_avg_calories);
   $('cal-in-num').textContent=calIn!=null?fmt(calIn):'—';
@@ -168,100 +268,48 @@ function renderDay(row) {
   $('cal-in-goal').textContent=calGoal?'Goal: '+fmt(calGoal)+' kcal':'Goal: —';
   $('cal-burned-num').textContent=calBurned!=null?fmt(calBurned):'—';
   $('cal-burned-sub').textContent=bmr?'BMR: '+fmt(bmr)+' kcal':'BMR: —';
-  if(calIn!=null&&calBurned!=null) {
-    const net=calIn-calBurned, surplus=net>0, c=surplus?'var(--green)':'var(--orange)';
+  if(calIn!=null&&calBurned!=null){
+    const net=calIn-calBurned,surplus=net>0,c=surplus?'var(--green)':'var(--orange)';
     $('net-result').textContent=(surplus?'+':'')+fmt(net);
     $('net-result').style.cssText=`color:${c};border-color:${surplus?'var(--green-border)':'var(--orange-border)'};background:${surplus?'var(--green-bg)':'var(--orange-bg)'}`;
-    $('net-words').textContent=surplus?'SURPLUS':'DEFICIT';
-    $('net-words').style.color=c;
+    $('net-words').textContent=surplus?'SURPLUS':'DEFICIT'; $('net-words').style.color=c;
   } else { $('net-result').textContent='—'; $('net-words').textContent='No meal data'; $('net-words').style.color='var(--text3)'; }
-  if(calIn!=null&&calGoal) { const r=calIn/calGoal; $('cal-in-bar').style.width=clamp(r,0,1)*100+'%'; $('cal-in-bar').style.background=fillColor(r); $('cal-bar-nums').innerHTML=`<span>${fmt(calIn)}</span> / ${fmt(calGoal)} kcal`; } else { $('cal-bar-nums').textContent='No data'; }
-  if(calBurned!=null&&eb7Avg) { const r=calBurned/eb7Avg; $('eb7-bar').style.width=clamp(r,0,1)*100+'%'; $('eb7-nums').innerHTML=`<span>${fmt(calBurned)}</span> / ${fmt(eb7Avg)} kcal 7d avg`; } else { $('eb7-nums').textContent='No data'; }
+  if(calIn!=null&&calGoal){const r=calIn/calGoal;$('cal-in-bar').style.width=clamp(r,0,1)*100+'%';$('cal-in-bar').style.background=fillColor(r);$('cal-bar-nums').innerHTML=`<span>${fmt(calIn)}</span> / ${fmt(calGoal)} kcal`;}
+  else $('cal-bar-nums').textContent='No data';
+  if(calBurned!=null&&eb7Avg){const r=calBurned/eb7Avg;$('eb7-bar').style.width=clamp(r,0,1)*100+'%';$('eb7-nums').innerHTML=`<span>${fmt(calBurned)}</span> / ${fmt(eb7Avg)} kcal 7d avg`;}
+  else $('eb7-nums').textContent='No data';
 
+  // Meal donut
   destroyChart('mealDonut');
   const mV=[n(row.cal_by_meal_breakfast_actual)||0,n(row.cal_by_meal_lunch_actual)||0,n(row.cal_by_meal_dinner_actual)||0,n(row.cal_by_meal_snack_actual)||0];
   const mL=['Breakfast','Lunch','Dinner','Snack'],mC=['#4a94e8','#e87a3a','#28c4c4','#9470e8'],mT=mV.reduce((a,b)=>a+b,0);
   $('meal-legend').innerHTML=mL.map((l,i)=>`<div class="legend-item"><div class="legend-dot" style="background:${mC[i]}"></div>${l}: ${fmt(mV[i])} kcal</div>`).join('');
-  charts.mealDonut=new Chart($('meal-donut'),{type:'doughnut',data:{labels:mL,datasets:[{data:mT>0?mV:[1,0,0,0],backgroundColor:mC,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>mT>0?` ${ctx.label}: ${fmt(ctx.raw)} kcal (${Math.round(ctx.raw/mT*100)}%)`:'No data'}}}}});
+  charts.mealDonut=new Chart($('meal-donut'),{type:'doughnut',data:{labels:mL,datasets:[{data:mT>0?mV:[1,0,0,0],backgroundColor:mC,borderWidth:0,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>mT>0?` ${ctx.label}: ${fmt(ctx.raw)} kcal (${Math.round(ctx.raw/mT*100)}%)`:'No data'}}}}});
 
-  const recov=n(row.recovery_score);
-  if(recov!=null){$('recovery-num').textContent=recov;$('recovery-num').style.color=recoveryColor(recov);setGauge('gauge-track',recov,100,recoveryColor(recov));}
-  else $('recovery-num').textContent='—';
-  $('hrv-val').textContent=row.hrv_rmssd_ms?fmt(row.hrv_rmssd_ms,1)+' ms':'—';
-  $('rhr-val').textContent=row.resting_heart_rate?fmt(row.resting_heart_rate)+' bpm':'—';
-  $('spo2-val').textContent=row.spo2_pct?pct(row.spo2_pct):'—';
-  $('temp-val').textContent=row.skin_temp_celsius?fmt(row.skin_temp_celsius,1)+'°C':'—';
+  // Fueling
+  const fs=row.eb_fueling_status||'—';
+  $('eb-status').textContent=fs;
+  $('eb-status').style.color=fs==='ON TARGET'?'var(--green)':fs==='UNDER-FUELED'?'var(--orange)':fs==='OVER-FUELED'?'var(--red)':'var(--text)';
+  $('eb-status-desc').textContent=fs==='UNDER-FUELED'?'Burned more than consumed — body drew on reserves':fs==='ON TARGET'?'Intake matched expenditure — well balanced':fs==='OVER-FUELED'?'Consumed more than burned — caloric surplus':'—';
+  $('eb7-avg').textContent=row.eb_7day_avg_calories?fmt(row.eb_7day_avg_calories)+' kcal':'—';
+  $('eb-maint').textContent=row.eb_maintenance_target_kcal?fmt(row.eb_maintenance_target_kcal)+' kcal':'—';
+  const va=n(row.eb_today_vs_7day_avg_kcal);
+  $('eb-vs-avg').textContent=va!=null?(va>0?'+':'')+fmt(va)+' kcal':'—'; $('eb-vs-avg').style.color=va!=null?(va>=0?'var(--green)':'var(--red)'):'';
+  $('cal-per-strain').textContent=row.eb_cal_per_strain_point?fmt(row.eb_cal_per_strain_point)+' kcal':'—';
 
-  const lH=n(row.light_sleep_hrs)||0,swsH=n(row.slow_wave_sleep_hrs)||0,remH=n(row.rem_sleep_hrs)||0;
-  const awH=n(row.time_awake_min)?n(row.time_awake_min)/60:0,slT=lH+swsH+remH;
-  $('sleep-total').textContent=slT>0?fmt(slT,1):'—';
-  $('sleep-needed').textContent=row.sleep_needed_total_hrs?fmt(row.sleep_needed_total_hrs,1):'—';
-  const sC={Light:'#4a94e8',SWS:'#28c4c4',REM:'#9470e8',Awake:'#2a3340'};
-  const sS=[{label:'Light',val:lH},{label:'SWS',val:swsH},{label:'REM',val:remH},{label:'Awake',val:awH}];
-  const sB=slT+awH||1;
-  $('sleep-stack').innerHTML=sS.map(s=>`<div class="sleep-seg" style="width:${(s.val/sB*100).toFixed(1)}%;background:${sC[s.label]}"></div>`).join('');
-  $('sleep-legend').innerHTML=sS.filter(s=>s.val>0).map(s=>`<div class="legend-item"><div class="legend-dot" style="background:${sC[s.label]}"></div>${s.label}: ${fmt(s.val,1)}h</div>`).join('');
-  const sp=n(row.sleep_performance_pct);
-  $('sleep-perf').innerHTML=sp!=null?`<span style="color:${fillColor(sp/100)}">${pct(sp,0)}</span>`:'—';
-  $('sleep-eff').textContent=row.sleep_efficiency_pct?pct(row.sleep_efficiency_pct,0):'—';
-  $('sleep-cons').textContent=row.sleep_consistency_pct?pct(row.sleep_consistency_pct,0):'—';
-  $('sleep-cycles').textContent=row.sleep_cycles||'—';
-
-  const d7=n(row.sleep_debt_7day_rolling_hrs),dL=n(row.sleep_debt_last_night_hrs);
-  if(d7!=null){$('sleep-debt-7d').textContent=fmt(d7,1);$('sleep-debt-7d').style.color=d7>15?'var(--red)':d7>7?'var(--yellow)':'var(--green)';}
-  else $('sleep-debt-7d').textContent='—';
-  if(dL!=null){$('sleep-debt-last-nums').innerHTML=`<span>${fmt(dL,1)} hrs</span>`;$('sleep-debt-bar').style.width=clamp(dL/4,0,1)*100+'%';$('sleep-debt-bar').style.background=dL>2?'var(--red)':'var(--yellow)';}
-  else $('sleep-debt-last-nums').textContent='—';
-  const dt=row.sleep_debt_trend||'—';
-  $('debt-trend').textContent=dt; $('debt-trend').style.color=dt==='IMPROVING'?'var(--green)':dt==='WORSENING'?'var(--red)':'var(--text3)';
-  $('debt-repay').textContent=row.sleep_debt_days_to_repayment||'—';
-
-  const strain=n(row.day_strain);
-  $('strain-num').textContent=strain!=null?fmt(strain,1):'—';
-  if(strain!=null){$('strain-bar').style.width=clamp(strain/21,0,1)*100+'%';$('strain-bar').style.background=strain>=14?'var(--red)':strain>=8?'var(--orange)':'var(--blue)';}
-  $('workout-count').textContent=row.workout_count||'0';
-  $('workout-dur').textContent=row.workout_total_duration_min?fmt(row.workout_total_duration_min)+' min':'—';
-  $('avg-hr').textContent=row.day_avg_heart_rate?fmt(row.day_avg_heart_rate)+' bpm':'—';
-  $('max-hr').textContent=row.day_max_heart_rate?fmt(row.day_max_heart_rate)+' bpm':'—';
-
-  const ot=row.sr_overtraining_risk||'';
-  $('ot-risk-val').textContent=ot||'—'; $('ot-risk-val').style.color=ot==='OK'?'var(--green)':ot==='MONITOR'?'var(--yellow)':ot==='HIGH'?'var(--red)':'var(--text)';
-  $('ot-adaptation').className='badge '+badgeClass(row.sr_adaptation_trend||'');
-  $('ot-adaptation').innerHTML=`<span class="badge-dot"></span>${row.sr_adaptation_trend||'—'}`;
-  const rm={OK:0,MONITOR:1,HIGH:2},rl=rm[ot]??-1;
-  $('risk-ok').className='risk-seg'+(rl>=0?' active-ok':'');
-  $('risk-mon').className='risk-seg'+(rl>=1?' active-monitor':'');
-  $('risk-hi').className='risk-seg'+(rl>=2?' active-high':'');
-  $('sr-strain').textContent=row.sr_7day_avg_strain?fmt(row.sr_7day_avg_strain,1):'—';
-  $('sr-recovery').textContent=row.sr_7day_avg_recovery?fmt(row.sr_7day_avg_recovery,1):'—';
-  $('sr-ratio').textContent=row.sr_ratio?fmt(row.sr_ratio,3):'—';
-  $('readiness-3d').textContent=row.readiness_3day_avg_strain?fmt(row.readiness_3day_avg_strain,1):'—';
-
-  const rd=n(row.readiness_composite_score);
-  if(rd!=null){$('readiness-num').textContent=rd;$('readiness-num').style.color=recoveryColor(rd);setGauge('readiness-track',rd,100,recoveryColor(rd));}
-  else $('readiness-num').textContent='—';
-  const hb=n(row.readiness_hrv_vs_baseline_pct),rb=n(row.readiness_rhr_vs_baseline_pct);
-  $('hrv-baseline').textContent=hb!=null?(hb>0?'+':'')+fmt(hb,1)+'%':'—'; $('hrv-baseline').style.color=hb!=null?(hb>=0?'var(--green)':'var(--red)'):'';
-  $('rhr-baseline').textContent=rb!=null?(rb>0?'+':'')+fmt(rb,1)+'%':'—'; $('rhr-baseline').style.color=rb!=null?(rb<=0?'var(--green)':'var(--red)'):'';
-  $('readiness-signal').textContent=row.readiness_signal||'—';
-
-  const c=buildCoaching(row);
-  $('coaching-icon').textContent=c.icon; $('coaching-headline').textContent=c.headline;
-  $('coaching-detail').textContent=c.detail;
-  $('coaching-tags').innerHTML=c.tags.map(t=>`<span class="coaching-tag ${badgeClass(t)}">${t}</span>`).join('');
-
+  // Macros
   $('macro-bars').innerHTML=[
     fillBarHTML('Total Fat',n(row.macro_total_fat_actual),n(row.macro_total_fat_goal),'g',false,1),
     fillBarHTML('Total Carbohydrates',n(row.macro_total_carbs_actual),n(row.macro_total_carbs_goal),'g',false,1),
     fillBarHTML('Protein',n(row.macro_protein_actual),n(row.macro_protein_goal),'g',false,1),
   ].join('');
-
   destroyChart('macroDonut');
   const macV=[n(row.macro_total_fat_actual)||0,n(row.macro_total_carbs_actual)||0,n(row.macro_protein_actual)||0];
   const macL=['Fat','Carbs','Protein'],macC=['#e87a3a','#4a94e8','#1fd67a'],macT=macV.reduce((a,b)=>a+b,0);
   $('macro-legend').innerHTML=macL.map((l,i)=>`<div class="legend-item"><div class="legend-dot" style="background:${macC[i]}"></div>${l}: ${fmt(macV[i],1)}g${macT>0?' ('+Math.round(macV[i]/macT*100)+'%)':''}</div>`).join('');
-  charts.macroDonut=new Chart($('macro-donut'),{type:'doughnut',data:{labels:macL,datasets:[{data:macT>0?macV:[1,1,1],backgroundColor:macC,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>macT>0?` ${ctx.label}: ${fmt(ctx.raw,1)}g (${Math.round(ctx.raw/macT*100)}%)`:'No data'}}}}});
+  charts.macroDonut=new Chart($('macro-donut'),{type:'doughnut',data:{labels:macL,datasets:[{data:macT>0?macV:[1,1,1],backgroundColor:macC,borderWidth:0,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>macT>0?` ${ctx.label}: ${fmt(ctx.raw,1)}g (${Math.round(ctx.raw/macT*100)}%)`:'No data'}}}}});
 
+  // Micros
   const micros=[
     {name:'Sodium',a:n(row.micro_sodium_actual),g:n(row.micro_sodium_goal),unit:'mg',inv:true},
     {name:'Potassium',a:n(row.micro_potassium_actual),g:n(row.micro_potassium_goal),unit:'mg'},
@@ -275,56 +323,148 @@ function renderDay(row) {
   ];
   $('micro-bars').innerHTML=micros.map(m=>fillBarHTML(m.name,m.a,m.g,m.unit,m.inv||false,m.d||0)).join('');
 
+  // Strain
+  const strain=n(row.day_strain);
+  $('strain-num').textContent=strain!=null?fmt(strain,1):'—';
+  if(strain!=null){$('strain-bar').style.width=clamp(strain/21,0,1)*100+'%';$('strain-bar').style.background=strain>=14?'var(--red)':strain>=8?'var(--orange)':'var(--blue)';}
+  $('workout-count').textContent=row.workout_count||'0';
+  $('workout-dur').textContent=row.workout_total_duration_min?fmt(row.workout_total_duration_min)+' min':'—';
+  $('avg-hr').textContent=row.day_avg_heart_rate?fmt(row.day_avg_heart_rate)+' bpm':'—';
+  $('max-hr').textContent=row.day_max_heart_rate?fmt(row.day_max_heart_rate)+' bpm':'—';
+
+  // CV Fitness
   const cv=row.cv_fitness_trajectory||'—';
   $('cv-trajectory').textContent=cv; $('cv-trajectory').style.color=cv.includes('IMPROV')?'var(--green)':cv.includes('DECLIN')?'var(--red)':'var(--yellow)';
+  const cvDescs={
+    'IMPROVING':'HRV trending up, RHR trending down — your cardiovascular fitness is strengthening.',
+    'SLIGHT IMPROVEMENT':'Early positive signs — HRV and RHR moving in the right direction.',
+    'STABLE':'Cardiovascular fitness is holding steady — consistent training is maintaining your base.',
+    'SLIGHT DECLINE':'Early warning — HRV softening slightly. More consistent aerobic work will reverse this.',
+    'DECLINING':'HRV falling, RHR rising. Aerobic base is weakening. Prioritize Zone 2 cardio 3–4x per week.',
+  };
+  $('cv-traj-desc').textContent=cvDescs[cv]||'';
   $('cv-hrv').textContent=row.cv_30day_avg_hrv?fmt(row.cv_30day_avg_hrv,1)+' ms':'—';
   $('cv-rhr').textContent=row.cv_30day_avg_rhr?fmt(row.cv_30day_avg_rhr,1)+' bpm':'—';
   const ht=n(row.cv_hrv_trend_vs_prior30_pct),rt=n(row.cv_rhr_trend_vs_prior30_pct);
   $('cv-hrv-trend').innerHTML=ht!=null?`<span class="${ht>=0?'trend-up':'trend-down'}">${ht>=0?'▲':'▼'} ${Math.abs(ht)}% vs prior 30d</span>`:'—';
   $('cv-rhr-trend').innerHTML=rt!=null?`<span class="${rt<=0?'trend-up':'trend-down'}">${rt<=0?'▲':'▼'} ${Math.abs(rt)}% vs prior 30d</span>`:'—';
 
-  $('cal-per-strain').textContent=row.eb_cal_per_strain_point?fmt(row.eb_cal_per_strain_point):'—';
-  $('eb7-avg').textContent=row.eb_7day_avg_calories?fmt(row.eb_7day_avg_calories)+' kcal':'—';
-  $('eb-maint').textContent=row.eb_maintenance_target_kcal?fmt(row.eb_maintenance_target_kcal)+' kcal':'—';
-  const va=n(row.eb_today_vs_7day_avg_kcal);
-  $('eb-vs-avg').textContent=va!=null?(va>0?'+':'')+fmt(va)+' kcal':'—'; $('eb-vs-avg').style.color=va!=null?(va>=0?'var(--green)':'var(--red)'):'';
-  $('eb-status').textContent=row.eb_fueling_status||'—';
-  $('eb-status').style.color=row.eb_fueling_status==='ON TARGET'?'var(--green)':row.eb_fueling_status==='UNDER-FUELED'?'var(--orange)':'var(--red)';
-
   buildTrends();
 }
 
-// ── TREND & MINI CHARTS ────────────────────────────────────────
+// ── CHARTS ──────────────────────────────────────────────────
 function buildTrends() {
   const w30=allRows.slice(dateIndex,dateIndex+30).reverse();
   const labels=w30.map(r=>(r.date||'').slice(5));
   const get=f=>w30.map(r=>n(r[f]));
 
+  // Recovery with zone bands
   destroyChart('tRec');
-  charts.tRec=new Chart($('trend-recovery'),{type:'line',data:{labels,datasets:[{data:get('recovery_score'),borderColor:'#1fd67a',backgroundColor:'transparent',borderWidth:1.5,pointRadius:2,tension:0.3,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},scales:{x:{...bx},y:{...by,min:0,max:100}}}});
+  charts.tRec=new Chart($('trend-recovery'),{
+    type:'line',
+    data:{labels,datasets:[
+      {data:get('recovery_score'),borderColor:'#1fd67a',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:0.3,spanGaps:true,label:'Recovery'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},tooltip:{mode:'index',intersect:false},
+        annotation:{annotations:{
+          greenZone:{type:'box',yMin:67,yMax:100,backgroundColor:'rgba(31,214,122,0.06)',borderWidth:0},
+          yellowZone:{type:'box',yMin:33,yMax:67,backgroundColor:'rgba(240,201,58,0.06)',borderWidth:0},
+          redZone:{type:'box',yMin:0,yMax:33,backgroundColor:'rgba(232,77,77,0.06)',borderWidth:0},
+        }}
+      },
+      scales:{x:{...bx},y:{...by,min:0,max:100,ticks:{callback:v=>v+''}}}
+    }
+  });
 
+  // HRV with 30d avg baseline
   destroyChart('tHRV');
-  charts.tHRV=new Chart($('trend-hrv'),{type:'line',data:{labels,datasets:[{data:get('hrv_rmssd_ms'),borderColor:'#9470e8',backgroundColor:'transparent',borderWidth:1.5,pointRadius:2,tension:0.3,spanGaps:true},{data:get('cv_30day_avg_hrv'),borderColor:'#9470e840',backgroundColor:'transparent',borderWidth:1,borderDash:[4,4],pointRadius:0,tension:0,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},scales:{x:{...bx},y:{...by}}}});
+  charts.tHRV=new Chart($('trend-hrv'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Daily HRV',data:get('hrv_rmssd_ms'),borderColor:'#9470e8',backgroundColor:'#9470e808',fill:true,borderWidth:2,pointRadius:3,tension:0.3,spanGaps:true},
+      {label:'30d Average',data:get('cv_30day_avg_hrv'),borderColor:'#9470e855',backgroundColor:'transparent',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0,spanGaps:true},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:10},color:'#7a8694',padding:8}},tooltip:{mode:'index',intersect:false}},
+      scales:{x:{...bx},y:{...by}}
+    }
+  });
 
+  // Sleep performance
   destroyChart('tSleep');
-  charts.tSleep=new Chart($('trend-sleep'),{type:'line',data:{labels,datasets:[{data:get('sleep_performance_pct'),borderColor:'#4a94e8',backgroundColor:'transparent',borderWidth:1.5,pointRadius:2,tension:0.3,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},scales:{x:{...bx},y:{...by,min:0,max:100}}}});
+  charts.tSleep=new Chart($('trend-sleep'),{
+    type:'line',
+    data:{labels,datasets:[{label:'Sleep %',data:get('sleep_performance_pct'),borderColor:'#4a94e8',backgroundColor:'#4a94e808',fill:true,borderWidth:2,pointRadius:3,tension:0.3,spanGaps:true}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+      scales:{x:{...bx},y:{...by,min:0,max:100,ticks:{callback:v=>v+'%'}}}
+    }
+  });
 
+  // Calories in vs burned — dual line
   destroyChart('tCal');
-  charts.tCal=new Chart($('trend-calories'),{type:'line',data:{labels,datasets:[{label:'In',data:get('calories_actual'),borderColor:'#1fd67a',backgroundColor:'transparent',borderWidth:1.5,pointRadius:2,tension:0.3,spanGaps:true},{label:'Burned',data:get('total_calories_kcal'),borderColor:'#e87a3a',backgroundColor:'transparent',borderWidth:1.5,pointRadius:2,tension:0.3,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:8,font:{size:9},color:'#7a8694',padding:6}},tooltip:{mode:'index',intersect:false}},scales:{x:{...bx},y:{...by}}}});
+  charts.tCal=new Chart($('trend-calories'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Calories In',data:get('calories_actual'),borderColor:'#1fd67a',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:0.3,spanGaps:true},
+      {label:'Calories Burned',data:get('total_calories_kcal'),borderColor:'#e87a3a',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:0.3,spanGaps:true},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:10},color:'#7a8694',padding:8}},tooltip:{mode:'index',intersect:false}},
+      scales:{x:{...bx},y:{...by}}
+    }
+  });
 
+  // Strain bars color coded
   destroyChart('tStrain');
-  charts.tStrain=new Chart($('trend-strain'),{type:'bar',data:{labels,datasets:[{data:get('day_strain'),backgroundColor:w30.map(r=>{const s=n(r.day_strain);return s>=14?'#e84d4d99':s>=8?'#e87a3a99':'#4a94e899';}),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},scales:{x:{...bx,grid:{display:false}},y:{...by,min:0,max:21}}}});
+  charts.tStrain=new Chart($('trend-strain'),{
+    type:'bar',
+    data:{labels,datasets:[{
+      label:'Day Strain',
+      data:get('day_strain'),
+      backgroundColor:w30.map(r=>{const s=n(r.day_strain);return s>=14?'#e84d4dcc':s>=8?'#e87a3acc':'#4a94e8cc';}),
+      borderWidth:0
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+      scales:{x:{...bx,grid:{display:false}},y:{...by,min:0,max:21}}
+    }
+  });
 
+  // HRV mini (CV card)
   destroyChart('hrvMini');
-  charts.hrvMini=new Chart($('hrv-chart'),{type:'line',data:{labels,datasets:[{data:get('hrv_rmssd_ms'),borderColor:'#9470e8',backgroundColor:'#9470e812',borderWidth:1.5,pointRadius:0,tension:0.4,fill:true,spanGaps:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},scales:{x:{...bx,ticks:{maxTicksLimit:4}},y:{...by}}}});
+  charts.hrvMini=new Chart($('hrv-chart'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Daily HRV',data:get('hrv_rmssd_ms'),borderColor:'#9470e8',backgroundColor:'#9470e812',fill:true,borderWidth:2,pointRadius:2,tension:0.4,spanGaps:true},
+      {label:'30d Average',data:get('cv_30day_avg_hrv'),borderColor:'#9470e860',backgroundColor:'transparent',borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:0,spanGaps:true},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:10},color:'#7a8694',padding:6}},tooltip:{mode:'index',intersect:false}},
+      scales:{x:{...bx,ticks:{maxTicksLimit:6}},y:{...by}}
+    }
+  });
 
+  // Energy balance 14d
   destroyChart('ebMini');
   const eb14=allRows.slice(dateIndex,dateIndex+14).reverse();
   const ebL=eb14.map(r=>(r.date||'').slice(5));
-  charts.ebMini=new Chart($('eb-chart'),{type:'bar',data:{labels:ebL,datasets:[{label:'In',data:eb14.map(r=>n(r.calories_actual)),backgroundColor:'#1fd67a66',borderWidth:0},{label:'Burned',data:eb14.map(r=>n(r.total_calories_kcal)),backgroundColor:'#e87a3a66',borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:8,font:{size:9},color:'#7a8694',padding:6}},tooltip:{mode:'index',intersect:false}},scales:{x:{...bx,grid:{display:false}},y:{...by}}}});
+  charts.ebMini=new Chart($('eb-chart'),{
+    type:'bar',
+    data:{labels:ebL,datasets:[
+      {label:'Calories In',data:eb14.map(r=>n(r.calories_actual)),backgroundColor:'#1fd67a77',borderWidth:0},
+      {label:'Calories Burned',data:eb14.map(r=>n(r.total_calories_kcal)),backgroundColor:'#e87a3a77',borderWidth:0},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:11},color:'#7a8694',padding:8}},tooltip:{mode:'index',intersect:false}},
+      scales:{x:{...bx,grid:{display:false}},y:{...by}}
+    }
+  });
 }
 
-// ── DATE NAV ───────────────────────────────────────────────────
+// ── DATE NAV ────────────────────────────────────────────────
 function updateDate() {
   const row=allRows[dateIndex]; if(!row) return;
   $('current-date').textContent=row.date||'—';
@@ -335,14 +475,14 @@ function updateDate() {
 $('prev-day').addEventListener('click',()=>{if(dateIndex<allRows.length-1){dateIndex++;updateDate();}});
 $('next-day').addEventListener('click',()=>{if(dateIndex>0){dateIndex--;updateDate();}});
 
-// ── CALENDAR ───────────────────────────────────────────────────
-function openCalendar() {
+// ── CALENDAR ────────────────────────────────────────────────
+function openCalendar(){
   const row=allRows[dateIndex];
   if(row&&row.date){const d=new Date(row.date+'T00:00:00');calViewYear=d.getFullYear();calViewMonth=d.getMonth();}
   renderCalendar(); $('cal-dropdown').classList.add('open'); calOpen=true;
 }
-function closeCalendar() { $('cal-dropdown').classList.remove('open'); calOpen=false; }
-function renderCalendar() {
+function closeCalendar(){ $('cal-dropdown').classList.remove('open'); calOpen=false; }
+function renderCalendar(){
   const mN=['January','February','March','April','May','June','July','August','September','October','November','December'];
   $('cal-month-label').textContent=mN[calViewMonth]+' '+calViewYear;
   const dateset=new Set(allRows.map(r=>r.date));
@@ -371,7 +511,7 @@ $('cal-next-month').addEventListener('click',e=>{e.stopPropagation();calViewMont
 document.addEventListener('click',e=>{if(calOpen&&!$('cal-dropdown').contains(e.target))closeCalendar();});
 $('cal-dropdown').addEventListener('click',e=>e.stopPropagation());
 
-// ── LOAD CSV ───────────────────────────────────────────────────
+// ── LOAD CSV ─────────────────────────────────────────────────
 function showError(msg){$('loading').style.display='none';$('error-msg').style.display='flex';if(msg)$('error-detail').textContent=msg;}
 Papa.parse(CSV_PATH,{
   download:true,header:true,skipEmptyLines:true,
