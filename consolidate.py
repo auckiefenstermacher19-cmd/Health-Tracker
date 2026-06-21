@@ -175,11 +175,12 @@ def build_output_row(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def validate_output(
-    path:          Path,
-    expected_cols: int,
-    expected_rows: int,
-    whoop_dates:   set[str],
-    meal_dates:    set[str],
+    path:           Path,
+    expected_cols:  int,
+    expected_rows:  int,
+    whoop_dates:    set[str],
+    meal_dates:     set[str],
+    whoop_col_count:int,
 ) -> bool:
     """
     Read the written output file and confirm it meets expectations.
@@ -216,9 +217,23 @@ def validate_output(
         )
         return False
 
-    # Check all source dates are present
-    date_col_idx = 0   # 'date' is always the first column
-    output_dates = {row[date_col_idx] for row in rows if row}
+    # Check all source dates are present.
+    # The date can live in TWO places per row:
+    #   - column 0                              → the WHOOP date (blank if this date is meal-only)
+    #   - column (whoop_col_count + 1)           → the meal date  (blank if this date is WHOOP-only)
+    #     (whoop_col_count WHOOP columns, then exactly 1 spacer column, then meal columns start)
+    # A date only fails validation if it's missing from BOTH columns across all rows.
+    whoop_date_idx = 0
+    meal_date_idx  = whoop_col_count + 1
+
+    output_dates = set()
+    for row in rows:
+        if not row:
+            continue
+        if len(row) > whoop_date_idx and row[whoop_date_idx]:
+            output_dates.add(row[whoop_date_idx])
+        if len(row) > meal_date_idx and row[meal_date_idx]:
+            output_dates.add(row[meal_date_idx])
 
     missing_whoop = whoop_dates - output_dates
     missing_meal  = meal_dates  - output_dates
@@ -333,11 +348,12 @@ def build_consolidated() -> None:
     # ── 5. Post-write validation ──────────────────────────────────────────────
     log.info("Running post-write validation…")
     valid = validate_output(
-        path          = STAGING_PATH,
-        expected_cols = expected_col_count,
-        expected_rows = len(all_dates),
-        whoop_dates   = whoop_dates,
-        meal_dates    = meal_dates,
+        path           = STAGING_PATH,
+        expected_cols  = expected_col_count,
+        expected_rows  = len(all_dates),
+        whoop_dates    = whoop_dates,
+        meal_dates     = meal_dates,
+        whoop_col_count= len(whoop_header),
     )
 
     if not valid:
