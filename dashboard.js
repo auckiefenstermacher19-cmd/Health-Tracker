@@ -215,12 +215,12 @@ function renderDay(row) {
   $('sr-ratio').textContent    =row.sr_ratio?fmt(row.sr_ratio,3):'—';
   $('sr-adaptation-cell').textContent=row.sr_adaptation_trend||'—';
 
-  // Sleep breakdown — Xhr Ymin format
-  const lH=n(row.light_sleep_hrs), swsH=n(row.slow_wave_sleep_hrs), remH=n(row.rem_sleep_hrs);
+  // Sleep breakdown — Xh Ym format (keep full decimal precision for fmtHHMM)
+  const lH=n(row.light_sleep_hrs,4), swsH=n(row.slow_wave_sleep_hrs,4), remH=n(row.rem_sleep_hrs,4);
   const awMin=n(row.time_awake_min), awH=awMin!=null?awMin/60:null;
   const slT=(lH||0)+(swsH||0)+(remH||0);
   $('sleep-total').textContent = slT>0 ? fmtHHMM(slT) : '—';
-  $('sleep-needed').textContent= row.sleep_needed_total_hrs ? fmtHHMM(n(row.sleep_needed_total_hrs)) : '—';
+  $('sleep-needed').textContent= row.sleep_needed_total_hrs ? fmtHHMM(n(row.sleep_needed_total_hrs,4)) : '—';
 
   const sC={Light:'#4a94e8',SWS:'#28c4c4',REM:'#9470e8',Awake:'#2a3340'};
   const sS=[{label:'Light',val:lH},{label:'SWS',val:swsH},{label:'REM',val:remH},{label:'Awake',val:awH}];
