@@ -1,0 +1,14 @@
+2026-07-05 14:56:06  INFO      ============================================================
+2026-07-05 14:56:06  INFO        Health Tracker — Source Validation
+2026-07-05 14:56:06  INFO      ============================================================
+2026-07-05 14:56:06  INFO      [WHOOP daily_consolidated] Schema unchanged (70 columns).
+2026-07-05 14:56:06  INFO      [WHOOP daily_consolidated] ✓  70 columns, 209 data rows.  Date column 'date' present.
+2026-07-05 14:56:06  INFO      [Meal_Data_Dashboard] Schema unchanged (131 columns).
+2026-07-05 14:56:06  INFO      [Meal_Data_Dashboard] ✓  131 columns, 14 data rows.  Date column 'date' present.
+2026-07-05 14:56:06  INFO      ------------------------------------------------------------
+2026-07-05 14:56:06  INFO      VALIDATION SUMMARY
+2026-07-05 14:56:06  INFO      ------------------------------------------------------------
+2026-07-05 14:56:06  INFO        [WHOOP daily_consolidated]  ✓ PASS  |  70 cols, 209 rows
+2026-07-05 14:56:06  INFO        [Meal_Data_Dashboard]  ✓ PASS  |  131 cols, 14 rows
+2026-07-05 14:56:06  INFO      All validations passed.  Proceeding to consolidation.
+2026-07-05 14:56:06  INFO      Validation log: logs/validation_20260705_145606.log
