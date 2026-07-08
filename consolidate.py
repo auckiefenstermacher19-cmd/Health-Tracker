@@ -134,7 +134,11 @@ def build_output_header(
     write "" to the CSV header without confusing it with genuinely blank
     section-spacers that exist inside each source file.
     """
-    return whoop_header + [SPACER_SENTINEL] + meal_header
+    # Rename the meal block's own `date` column to `meal_date` so the output has
+    # exactly ONE column named `date` (column 0). Two columns named `date` collide
+    # when the dashboard parses with PapaParse header:true (ambiguous which wins).
+    meal_header_out = ["meal_date" if col == "date" else col for col in meal_header]
+    return whoop_header + [SPACER_SENTINEL] + meal_header_out
 
 
 def header_for_output(header: list[str]) -> list[str]:
@@ -166,6 +170,11 @@ def build_output_row(
     # Safety: ensure lengths match their respective headers
     whoop_row = (whoop_row + [""] * len(whoop_header))[: len(whoop_header)]
     meal_row  = (meal_row  + [""] * len(meal_header))[:  len(meal_header)]
+
+    # Column 0 (the unified `date`) must carry this row's date for EVERY day,
+    # including meal-only days that have no WHOOP row. Otherwise the dashboard,
+    # which keys off column 0, filters those days out and recent food never shows.
+    whoop_row[whoop_header.index("date")] = date
 
     return whoop_row + [""] + meal_row   # spacer = ""
 

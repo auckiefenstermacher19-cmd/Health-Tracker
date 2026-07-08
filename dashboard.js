@@ -172,6 +172,16 @@ function renderDay(row) {
   if(!row) return;
   renderKeyMetrics(row);
 
+  // If this day has no WHOOP data (e.g. band not worn/synced), say so plainly
+  // so the blank Recovery/Sleep tiles read as intentional, not broken.
+  const note=$('no-whoop-note');
+  if(note){
+    if(rowHasWhoop(row)){ note.style.display='none'; }
+    else { const w=newestWhoopDate();
+      note.style.display='block';
+      note.textContent='No WHOOP data for this day'+(w?' — band last synced '+w:'')+'. Food data below is current.'; }
+  }
+
   // Coaching
   const c=buildCoaching(row);
   $('coaching-icon').textContent=c.icon;
@@ -514,15 +524,31 @@ $('cal-dropdown').addEventListener('click',e=>e.stopPropagation());
 // ── LOAD CSV ─────────────────────────────────────────────────
 function showError(msg){$('loading').style.display='none';$('error-msg').style.display='flex';if(msg)$('error-detail').textContent=msg;}
 
-// Newest-data stamp + stale warning (surface stale data instead of showing it silently).
+// A row "has WHOOP data" if a core WHOOP metric is present. allRows is sorted
+// newest-first, so the first match is the most recent day WHOOP actually synced.
+function rowHasWhoop(r){ return !!((r.recovery_score&&r.recovery_score.trim())||(r.resting_heart_rate&&r.resting_heart_rate.trim())); }
+function newestWhoopDate(){ const r=allRows.find(rowHasWhoop); return r?r.date:null; }
+function daysOld(d){ const today=new Date().toISOString().slice(0,10); return Math.round((new Date(today+'T00:00:00')-new Date(d+'T00:00:00'))/86400000); }
+
+// Overall freshness stamp + a SEPARATE WHOOP-sync badge, so a dead WHOOP band
+// doesn't make the whole dashboard read "stale" while food data is fresh.
 function updateFreshness(){
-  const el=$('data-freshness'); if(!el) return;
+  const el=$('data-freshness');
   const newest=allRows.length?allRows[0].date:null;
-  if(!newest){el.textContent=''; return;}
-  const today=new Date().toISOString().slice(0,10);
-  const ageDays=Math.round((new Date(today+'T00:00:00')-new Date(newest+'T00:00:00'))/86400000);
-  if(ageDays>2){ el.className='data-freshness stale'; el.textContent='⚠ Data may be stale — newest entry '+newest+' ('+ageDays+' days old)'; }
-  else { el.className='data-freshness'; el.textContent='Data as of '+newest; }
+  if(el){
+    if(!newest){ el.textContent=''; }
+    else { const a=daysOld(newest);
+      if(a>2){ el.className='data-freshness stale'; el.textContent='⚠ Data may be stale — newest entry '+newest+' ('+a+' days old)'; }
+      else { el.className='data-freshness'; el.textContent='Data as of '+newest; } }
+  }
+  const wel=$('whoop-freshness');
+  if(wel){
+    const w=newestWhoopDate();
+    if(!w){ wel.textContent=''; }
+    else { const a=daysOld(w);
+      if(a>2){ wel.className='whoop-freshness stale'; wel.textContent='WHOOP last synced '+w+' ('+a+'d ago)'; }
+      else { wel.className='whoop-freshness'; wel.textContent='WHOOP synced '+w; } }
+  }
 }
 
 // Re-fetchable loader. Computes a fresh cache-busting URL every call so re-fetches

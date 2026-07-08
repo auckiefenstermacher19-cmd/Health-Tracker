@@ -89,6 +89,9 @@ body {
 #current-date:hover { background:var(--bg3); border-color:var(--border); }
 .data-freshness { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--text3); padding:4px 8px; white-space:nowrap; }
 .data-freshness.stale { color:var(--red); font-weight:600; }
+.whoop-freshness { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--text3); padding:4px 8px; white-space:nowrap; }
+.whoop-freshness.stale { color:var(--yellow); font-weight:600; }
+.no-whoop-note { display:none; font-size:0.82rem; color:var(--yellow); background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 12px; margin:0 0 12px; }
 
 /* ── CALENDAR ────────────────────────────────────────────── */
 .cal-dropdown { display:none; position:absolute; top:calc(100% + 8px); left:50%; transform:translateX(-50%); background:var(--bg2); border:1px solid var(--border2); border-radius:var(--radius); padding:14px; width:288px; z-index:300; box-shadow:0 8px 32px rgba(0,0,0,0.5); }
@@ -307,6 +310,7 @@ body {
     </div>
     <div class="topnav-sep"></div>
     <span id="data-freshness" class="data-freshness" title="Newest data present in the dataset"></span>
+    <span id="whoop-freshness" class="whoop-freshness" title="Most recent day WHOOP actually synced"></span>
   </nav>
 
   <!-- KEY METRICS STRIP -->
@@ -330,6 +334,7 @@ body {
 
     <!-- RECOVERY & READINESS -->
     <div class="section-header"><h2>Recovery &amp; Readiness</h2></div>
+    <div id="no-whoop-note" class="no-whoop-note"></div>
     <div class="grid-3">
       <div class="card">
         <div class="card-label">Recovery Score</div>
@@ -634,6 +639,6 @@ body {
   </div>
 </div>
 
-<script src="dashboard.js?v=5"></script>
+<script src="dashboard.js?v=6"></script>
 </body>
 </html>
