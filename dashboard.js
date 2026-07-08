@@ -2,7 +2,7 @@
    dashboard.js — Health Tracker Dashboard v4
    ============================================================ */
 
-const CSV_PATH = 'Health_Tracker_Master.csv?t=' + Date.now();
+const CSV_BASE = 'Health_Tracker_Master.csv';
 let allRows = [], dateIndex = 0, charts = {};
 let calOpen = false, calViewYear = new Date().getFullYear(), calViewMonth = new Date().getMonth();
 
@@ -513,15 +513,40 @@ $('cal-dropdown').addEventListener('click',e=>e.stopPropagation());
 
 // ── LOAD CSV ─────────────────────────────────────────────────
 function showError(msg){$('loading').style.display='none';$('error-msg').style.display='flex';if(msg)$('error-detail').textContent=msg;}
-Papa.parse(CSV_PATH,{
-  download:true,header:true,skipEmptyLines:true,
-  complete(results){
-    if(!results.data||results.data.length===0){showError('CSV file is empty or could not be parsed.');return;}
-    const seen=new Set();
-    allRows=results.data.filter(r=>{const d=r.date;if(!d||seen.has(d))return false;seen.add(d);return true;});
-    allRows.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-    $('loading').style.display='none'; $('app').style.display='block';
-    dateIndex=0; updateDate();
-  },
-  error(err){showError('Failed to load Health_Tracker_Master.csv: '+err.message);}
-});
+
+// Newest-data stamp + stale warning (surface stale data instead of showing it silently).
+function updateFreshness(){
+  const el=$('data-freshness'); if(!el) return;
+  const newest=allRows.length?allRows[0].date:null;
+  if(!newest){el.textContent=''; return;}
+  const today=new Date().toISOString().slice(0,10);
+  const ageDays=Math.round((new Date(today+'T00:00:00')-new Date(newest+'T00:00:00'))/86400000);
+  if(ageDays>2){ el.className='data-freshness stale'; el.textContent='⚠ Data may be stale — newest entry '+newest+' ('+ageDays+' days old)'; }
+  else { el.className='data-freshness'; el.textContent='Data as of '+newest; }
+}
+
+// Re-fetchable loader. Computes a fresh cache-busting URL every call so re-fetches
+// (tab refocus / interval) actually bypass the browser + CDN cache.
+function loadData(){
+  Papa.parse(CSV_BASE+'?t='+Date.now(),{
+    download:true,header:true,skipEmptyLines:true,
+    complete(results){
+      if(!results.data||results.data.length===0){showError('CSV file is empty or could not be parsed.');return;}
+      const prevDate=allRows[dateIndex]?allRows[dateIndex].date:null;
+      const seen=new Set();
+      allRows=results.data.filter(r=>{const d=r.date;if(!d||seen.has(d))return false;seen.add(d);return true;});
+      allRows.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+      $('loading').style.display='none'; $('app').style.display='block';
+      // Keep the user's selected day across a refresh if it still exists; else snap to newest.
+      const keep=prevDate?allRows.findIndex(r=>r.date===prevDate):-1;
+      dateIndex=keep>=0?keep:0;
+      updateDate(); updateFreshness();
+    },
+    error(err){showError('Failed to load Health_Tracker_Master.csv: '+err.message);}
+  });
+}
+
+loadData();
+// Self-heal against long-open tabs: re-fetch when the tab regains focus and every 15 min.
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') loadData(); });
+setInterval(loadData, 15*60*1000);
