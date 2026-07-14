@@ -2,643 +2,426 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Health Tracker</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="papaparse.min.js"></script>
+<script src="chart.umd.min.js"></script>
 <style>
-:root {
-  --bg:           #090c0f;
-  --bg2:          #111418;
-  --bg3:          #181d23;
-  --bg4:          #1e242c;
-  --border:       #1f2630;
-  --border2:      #2a3340;
-  --text:         #e4e9f0;
-  --text2:        #7a8694;
-  --text3:        #404c5a;
-  --green:        #1fd67a;
-  --green-bg:     rgba(31,214,122,0.10);
-  --green-border: rgba(31,214,122,0.25);
-  --yellow:       #f0c93a;
-  --yellow-bg:    rgba(240,201,58,0.10);
-  --yellow-border:rgba(240,201,58,0.25);
-  --red:          #e84d4d;
-  --red-bg:       rgba(232,77,77,0.10);
-  --red-border:   rgba(232,77,77,0.25);
-  --blue:         #4a94e8;
-  --blue-bg:      rgba(74,148,232,0.10);
-  --blue-border:  rgba(74,148,232,0.25);
-  --orange:       #e87a3a;
-  --orange-bg:    rgba(232,122,58,0.10);
-  --orange-border:rgba(232,122,58,0.25);
-  --purple:       #9470e8;
-  --purple-bg:    rgba(148,112,232,0.10);
-  --purple-border:rgba(148,112,232,0.25);
-  --teal:         #28c4c4;
-  --teal-bg:      rgba(40,196,196,0.10);
-  --teal-border:  rgba(40,196,196,0.25);
-  --radius:    10px;
-  --radius-sm: 6px;
-  --gap:       10px;
-  --hero:      2.6rem;
-  --num-lg:    1.9rem;
-  --num-md:    1.3rem;
-  --num-sm:    1.0rem;
-}
+  :root{
+    --bg:#07090e;--tile:#111621;--tile-hi:#141a26;--border:#1c2431;--border-hi:#2a3546;
+    --text:#eef2f8;--text2:#8b95a8;--text3:#4f5a6d;
+    --green:#00e69a;--yellow:#ffcb47;--red:#ff4d63;--blue:#4fa3ff;--orange:#ff7a3c;--purple:#a480ff;--teal:#2fd7d7;
+    --green-dim:#00e69a22;--yellow-dim:#ffcb4722;--red-dim:#ff4d6322;--blue-dim:#4fa3ff22;--orange-dim:#ff7a3c22;--purple-dim:#a480ff22;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+    --r:18px;--r-sm:12px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{font-size:15px;}
+  body{background:radial-gradient(1200px 600px at 15% -5%,#0d1a1780 0%,transparent 60%),radial-gradient(1000px 500px at 100% 0%,#14121f80 0%,transparent 55%),var(--bg);
+    color:var(--text);font-family:var(--sans);line-height:1.5;min-height:100vh;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;}
+  .mono{font-family:var(--mono);}
+  b{font-weight:600;}
 
-*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-html { font-size:15px; -webkit-text-size-adjust:100%; }
-body {
-  background:var(--bg); color:var(--text);
-  font-family:'DM Sans',system-ui,sans-serif;
-  min-height:100vh; overflow-x:hidden; line-height:1.5;
-}
+  #loading,#error-msg{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:16px;color:var(--text2);}
+  #error-msg{display:none;text-align:center;padding:2rem;}#error-msg h2{color:var(--red);}
+  .spinner{width:38px;height:38px;border:3px solid var(--border-hi);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  #app{display:none;}
 
-/* ── LOADING ─────────────────────────────────────────────── */
-#loading { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; gap:16px; }
-.spinner { width:36px; height:36px; border:2.5px solid var(--border2); border-top-color:var(--green); border-radius:50%; animation:spin 0.7s linear infinite; }
-@keyframes spin { to { transform:rotate(360deg); } }
-#loading p { color:var(--text2); font-size:0.85rem; letter-spacing:0.06em; }
-#error-msg { display:none; flex-direction:column; align-items:center; justify-content:center; height:100vh; gap:14px; text-align:center; padding:2rem; }
-#error-msg h2 { color:var(--red); }
-#error-msg p  { color:var(--text2); max-width:440px; line-height:1.7; font-size:0.9rem; }
-#error-msg code { background:var(--bg3); padding:2px 6px; border-radius:4px; font-family:'DM Mono',monospace; }
-#app { display:none; width:100%; }
+  .top{display:flex;align-items:center;gap:16px;padding:20px 28px;max-width:1320px;margin:0 auto;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:-0.01em;font-size:1rem;}
+  .brand .pulse{width:9px;height:9px;border-radius:50%;background:var(--green);animation:pulse 2.4s ease-out infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 #00e69a66;}70%{box-shadow:0 0 0 10px #00e69a00;}100%{box-shadow:0 0 0 0 #00e69a00;}}
+  .fresh-wrap{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+  .data-freshness{font-size:0.75rem;color:var(--text2);}.data-freshness.stale{color:var(--yellow);}
+  .whoop-freshness{font-size:0.7rem;color:var(--text3);display:flex;align-items:center;gap:6px;}
+  .whoop-freshness i{width:6px;height:6px;border-radius:50%;background:var(--green);}.whoop-freshness.stale i{background:var(--yellow);}
+  .datenav{display:flex;align-items:center;gap:8px;position:relative;}
+  .datenav button.nav{background:var(--tile);border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:var(--r-sm);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+  .datenav button.nav:hover:not(:disabled){border-color:var(--border-hi);color:var(--text);}
+  .datenav button.nav:disabled{opacity:.35;cursor:default;}
+  #current-date{font-family:var(--mono);font-size:0.82rem;color:var(--text);background:var(--tile);border:1px solid var(--border);padding:7px 14px;border-radius:var(--r-sm);cursor:pointer;min-width:118px;text-align:center;user-select:none;transition:border-color .15s;}
+  #current-date:hover{border-color:var(--border-hi);}
 
-/* ── TOP NAV ─────────────────────────────────────────────── */
-.topnav {
-  position:sticky; top:0; z-index:200;
-  background:rgba(9,12,15,0.96);
-  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--border);
-  padding:0 14px; height:52px;
-  display:flex; align-items:center; gap:12px; width:100%;
-}
-.topnav-brand { font-family:'DM Mono',monospace; font-weight:500; font-size:0.82rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--green); white-space:nowrap; flex-shrink:0; }
-.topnav-sep   { width:1px; height:20px; background:var(--border); flex-shrink:0; }
-.date-nav { display:flex; align-items:center; gap:6px; flex-shrink:0; position:relative; }
-.date-nav button { background:var(--bg3); border:1px solid var(--border); color:var(--text2); width:28px; height:28px; border-radius:var(--radius-sm); cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
-.date-nav button:hover { border-color:var(--border2); color:var(--text); }
-#current-date { font-family:'DM Mono',monospace; font-size:0.82rem; color:var(--text); min-width:90px; text-align:center; cursor:pointer; padding:4px 8px; border-radius:var(--radius-sm); border:1px solid transparent; transition:all 0.15s; user-select:none; }
-#current-date:hover { background:var(--bg3); border-color:var(--border); }
-.data-freshness { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--text3); padding:4px 8px; white-space:nowrap; }
-.data-freshness.stale { color:var(--red); font-weight:600; }
-.whoop-freshness { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--text3); padding:4px 8px; white-space:nowrap; }
-.whoop-freshness.stale { color:var(--yellow); font-weight:600; }
-.no-whoop-note { display:none; font-size:0.82rem; color:var(--yellow); background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 12px; margin:0 0 12px; }
+  .cal-dropdown{position:absolute;top:44px;right:0;width:280px;background:#0d1219;border:1px solid var(--border-hi);border-radius:var(--r);padding:14px;z-index:200;box-shadow:0 20px 50px #000a;opacity:0;pointer-events:none;transform:translateY(-6px);transition:all .18s;}
+  .cal-dropdown.open{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .cal-head button{background:var(--tile);border:1px solid var(--border);color:var(--text2);width:28px;height:28px;border-radius:8px;cursor:pointer;transition:all .15s;}
+  .cal-head button:hover{border-color:var(--border-hi);color:var(--text);}
+  .cal-month-label{font-family:var(--mono);font-size:0.82rem;font-weight:500;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+  .cal-day-label{text-align:center;font-size:0.6rem;color:var(--text3);padding:4px 0;font-weight:600;letter-spacing:.05em;}
+  .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:7px;font-size:0.75rem;font-family:var(--mono);color:var(--text3);border:1px solid transparent;}
+  .cal-day.has-data{color:var(--text);cursor:pointer;background:var(--tile);border-color:var(--border);}
+  .cal-day.has-data:hover{border-color:var(--green);color:var(--green);}
+  .cal-day.selected{background:var(--green);color:#04120c;font-weight:600;}
+  .cal-day.today:not(.selected){border-color:var(--green);color:var(--green);}.cal-day.empty{visibility:hidden;}
 
-/* ── CALENDAR ────────────────────────────────────────────── */
-.cal-dropdown { display:none; position:absolute; top:calc(100% + 8px); left:50%; transform:translateX(-50%); background:var(--bg2); border:1px solid var(--border2); border-radius:var(--radius); padding:14px; width:288px; z-index:300; box-shadow:0 8px 32px rgba(0,0,0,0.5); }
-.cal-dropdown.open { display:block; }
-.cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-.cal-month-label { font-family:'DM Mono',monospace; font-size:0.82rem; font-weight:500; color:var(--text); }
-.cal-nav-btn { background:none; border:none; color:var(--text2); cursor:pointer; font-size:1rem; padding:2px 8px; border-radius:4px; transition:all 0.15s; }
-.cal-nav-btn:hover { background:var(--bg3); color:var(--text); }
-.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
-.cal-day-label { font-size:0.63rem; color:var(--text3); text-align:center; padding:2px 0; font-weight:600; letter-spacing:0.06em; }
-.cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:5px; font-size:0.75rem; font-family:'DM Mono',monospace; cursor:pointer; transition:all 0.12s; color:var(--text2); border:1px solid transparent; }
-.cal-day.has-data  { color:var(--text); }
-.cal-day.has-data:hover { background:var(--bg3); border-color:var(--border2); }
-.cal-day.selected  { background:var(--green); color:#000; font-weight:600; border-color:var(--green); }
-.cal-day.no-data   { color:var(--text3); cursor:default; }
-.cal-day.no-data:hover { background:none; }
-.cal-day.empty     { cursor:default; }
-.cal-day.empty:hover { background:none; }
-.cal-day.today     { border-color:var(--border2); }
-.cal-legend { display:flex; align-items:center; gap:10px; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
-.cal-legend-item { display:flex; align-items:center; gap:5px; font-size:0.67rem; color:var(--text3); }
-.cal-legend-dot { width:7px; height:7px; border-radius:2px; }
+  .wrap{max-width:1320px;margin:0 auto;padding:6px 28px 60px;}
+  .note{font-size:0.8rem;color:var(--yellow);background:var(--yellow-dim);border:1px solid #ffcb4733;border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;display:none;}
+  .sec{display:flex;align-items:center;gap:12px;margin:30px 2px 14px;}
+  .sec h2{font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);}
+  .sec::after{content:'';flex:1;height:1px;background:var(--border);}
+  .bento{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;grid-auto-rows:minmax(76px,auto);}
+  .tile{background:linear-gradient(180deg,var(--tile-hi) 0%,var(--tile) 42%);border:1px solid var(--border);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;transition:border-color .2s ease,transform .2s ease;}
+  .tile::before{content:'';position:absolute;inset:0 0 auto 0;height:1px;background:linear-gradient(90deg,transparent,#ffffff14,transparent);}
+  .tile:hover{border-color:var(--border-hi);transform:translateY(-3px);}
+  .tile.reveal{opacity:0;transform:translateY(14px);animation:rise .55s cubic-bezier(.2,.7,.3,1) forwards;}
+  @keyframes rise{to{opacity:1;transform:translateY(0);}}
+  .span12{grid-column:span 12;}.span8{grid-column:span 8;}.span6{grid-column:span 6;}.span4{grid-column:span 4;}.span3{grid-column:span 3;}.row2{grid-row:span 2;}
 
-/* ── KEY METRICS STRIP ───────────────────────────────────── */
-.key-metrics { background:var(--bg2); border-bottom:1px solid var(--border); padding:14px; width:100%; }
-.key-metrics-title { font-size:0.65rem; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--text3); margin-bottom:10px; }
-.key-metrics-grid { display:grid; grid-template-columns:1fr; gap:8px; }
-@media (min-width:540px)  { .key-metrics-grid { grid-template-columns:repeat(2,1fr); } }
-@media (min-width:900px)  { .key-metrics-grid { grid-template-columns:repeat(3,1fr); } }
-@media (min-width:1200px) { .key-metrics-grid { grid-template-columns:repeat(5,1fr); } }
-.km-item { display:flex; flex-direction:column; gap:5px; background:var(--bg3); border-radius:var(--radius-sm); padding:12px 14px; border:1px solid var(--border); }
-.km-top  { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-.km-label{ font-size:0.72rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--text2); white-space:nowrap; }
-.km-desc { font-size:0.75rem; color:var(--text2); line-height:1.45; margin-top:2px; }
-.km-desc strong { color:var(--text); font-weight:500; }
+  .lbl{font-size:0.66rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);display:flex;align-items:center;gap:7px;margin-bottom:2px;}
+  .lbl svg{width:13px;height:13px;stroke-width:1.7;fill:none;}
+  .chip{font-size:0.62rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid var(--border-hi);color:var(--text2);white-space:nowrap;}
+  .bar{height:7px;border-radius:4px;background:#0a0e15;overflow:hidden;margin-top:4px;}
+  .bar>i{display:block;height:100%;border-radius:4px;width:0;transition:width 1.05s cubic-bezier(.2,.7,.3,1);}
+  .ld{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+  .leg{display:flex;gap:14px;flex-wrap:wrap;font-size:0.72rem;color:var(--text2);}
+  .leg span{display:flex;align-items:center;gap:5px;}
+  hr.d{border:none;border-top:1px solid var(--border);margin:16px 0;}
 
-/* ── BADGES ──────────────────────────────────────────────── */
-.badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:0.7rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; border:1px solid; white-space:nowrap; flex-shrink:0; }
-.badge-dot { width:5px; height:5px; border-radius:50%; background:currentColor; }
-.badge-green  { color:var(--green);  background:var(--green-bg);  border-color:var(--green-border);  }
-.badge-yellow { color:var(--yellow); background:var(--yellow-bg); border-color:var(--yellow-border); }
-.badge-red    { color:var(--red);    background:var(--red-bg);    border-color:var(--red-border);    }
-.badge-blue   { color:var(--blue);   background:var(--blue-bg);   border-color:var(--blue-border);   }
-.badge-orange { color:var(--orange); background:var(--orange-bg); border-color:var(--orange-border); }
-.badge-purple { color:var(--purple); background:var(--purple-bg); border-color:var(--purple-border); }
-.badge-teal   { color:var(--teal);   background:var(--teal-bg);   border-color:var(--teal-border);   }
+  /* hero */
+  .hero{display:flex;align-items:center;gap:28px;margin-top:16px;}
+  .ring-wrap{position:relative;flex-shrink:0;width:200px;height:200px;}
+  .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ring-center .num{font-family:var(--mono);font-size:3.6rem;font-weight:600;line-height:1;letter-spacing:-0.02em;}
+  .ring-center .cap{font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);margin-top:6px;}
+  #recRing{transition:stroke-dashoffset 1.5s .25s cubic-bezier(.4,0,.2,1),stroke .4s;}
+  .hero-side{flex:1;min-width:0;}
+  .hero-verdict{font-size:1.35rem;font-weight:600;letter-spacing:-0.01em;line-height:1.25;margin-bottom:16px;}
+  .hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;}
+  .hs{border-top:1px solid var(--border);padding-top:9px;}.hs .k{font-size:0.7rem;color:var(--text2);}.hs .v{font-family:var(--mono);font-size:1.1rem;font-weight:500;margin-top:2px;}
 
-/* ── PAGE ────────────────────────────────────────────────── */
-.page { width:100%; max-width:1380px; margin:0 auto; padding:12px var(--gap); }
+  .metric{display:flex;flex-direction:column;justify-content:space-between;gap:14px;}
+  .metric .big{font-family:var(--mono);font-size:2.3rem;font-weight:600;line-height:1;letter-spacing:-0.02em;}
+  .metric .big .u{font-size:0.9rem;color:var(--text3);font-weight:400;}
+  .metric .foot{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.72rem;color:var(--text2);}
 
-/* ── SECTION HEADERS ─────────────────────────────────────── */
-.section-header { display:flex; align-items:center; gap:10px; margin:22px 0 10px; }
-.section-header h2 { font-size:0.72rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--text3); white-space:nowrap; }
-.section-header::after { content:''; flex:1; height:1px; background:var(--border); }
+  .coach{display:flex;gap:18px;align-items:flex-start;border-left:2px solid var(--green);}
+  .coach-ic{width:42px;height:42px;border-radius:12px;background:#0e1420;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .coach h3{font-size:1.05rem;font-weight:600;letter-spacing:-0.01em;margin-bottom:5px;line-height:1.35;}
+  .coach p{font-size:0.85rem;color:var(--text2);line-height:1.6;max-width:78ch;}
+  .tags{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .tag{font-size:0.63rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;padding:4px 10px;border-radius:6px;background:#0e1420;color:var(--text2);border:1px solid var(--border);}
 
-/* ── CARDS ───────────────────────────────────────────────── */
-.card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; display:flex; flex-direction:column; min-width:0; }
-.card-label { font-size:0.7rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--text3); margin-bottom:4px; flex-shrink:0; }
-.card-desc  { font-size:0.75rem; color:var(--text3); font-style:italic; margin-bottom:12px; line-height:1.4; }
+  /* key metrics */
+  .km-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:14px;}
+  .km-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;}
+  .km-l{font-size:0.7rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2);}
+  .km-d{font-size:0.76rem;color:var(--text2);line-height:1.5;}.km-d b{color:var(--text);}
 
-/* ── GRIDS ───────────────────────────────────────────────── */
-.grid-3 { display:grid; grid-template-columns:1fr; gap:var(--gap); }
-.grid-2 { display:grid; grid-template-columns:1fr; gap:var(--gap); }
-.grid-5 { display:grid; grid-template-columns:1fr 1fr; gap:var(--gap); }
-@media (min-width:640px) {
-  .grid-3 { grid-template-columns:repeat(2,1fr); }
-  .grid-2 { grid-template-columns:repeat(2,1fr); }
-}
-@media (min-width:1024px) {
-  .grid-3 { grid-template-columns:repeat(3,1fr); }
-  .col-span-2 { grid-column:span 2; }
-  .col-span-3 { grid-column:span 3; }
-}
-.full-width { width:100%; }
+  /* charts */
+  .chart-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;}
+  .chart-head .now{font-family:var(--mono);font-size:1.5rem;font-weight:600;}
+  .chart-box{position:relative;height:190px;}.chart-box.sm{height:130px;}
+  .hrv-top{display:flex;align-items:baseline;justify-content:space-between;margin:8px 0 8px;}
+  .hrv-top .v{font-family:var(--mono);font-size:1.7rem;font-weight:600;color:var(--purple);}
+  .hrv-top .v .u{font-size:.8rem;color:var(--text3);font-weight:400;}.hrv-top .s{font-size:0.72rem;color:var(--text2);}
 
-/* ── TYPOGRAPHY ──────────────────────────────────────────── */
-.num-hero{ font-family:'DM Mono',monospace; font-size:var(--hero);  font-weight:500; line-height:1; }
-.num-lg  { font-family:'DM Mono',monospace; font-size:var(--num-lg); font-weight:500; line-height:1; }
-.num-md  { font-family:'DM Mono',monospace; font-size:var(--num-md); font-weight:500; line-height:1; }
-.num-sm  { font-family:'DM Mono',monospace; font-size:var(--num-sm); font-weight:500; line-height:1; }
-.unit    { font-size:0.75rem; color:var(--text3); margin-left:3px; }
-.sublabel{ font-size:0.75rem; color:var(--text2); margin-top:4px; }
-.divider { border:none; border-top:1px solid var(--border); margin:12px 0; }
+  /* stages */
+  .stages{display:flex;height:20px;border-radius:7px;overflow:hidden;gap:2px;margin:14px 0 12px;}
+  .stages>i{height:100%;width:0;transition:width 1s cubic-bezier(.2,.7,.3,1);}
 
-/* ── DATA CELLS ──────────────────────────────────────────── */
-.data-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-.data-cell { background:var(--bg3); border-radius:var(--radius-sm); padding:10px 12px; }
-.dc-label  { font-size:0.65rem; color:var(--text3); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:3px; }
-.dc-val    { font-family:'DM Mono',monospace; font-size:var(--num-sm); font-weight:500; color:var(--text); }
+  /* data cells */
+  .dcs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
+  .dcs.four{grid-template-columns:repeat(4,1fr);}
+  .dc{background:#0c1119;border:1px solid var(--border);border-radius:10px;padding:11px 13px;}
+  .dc-l{font-size:0.63rem;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px;}
+  .dc-v{font-family:var(--mono);font-size:1.05rem;font-weight:500;}
 
-/* ── GAUGE ───────────────────────────────────────────────── */
-.gauge-wrap { display:flex; align-items:center; gap:18px; }
-.gauge-svg-wrap { position:relative; flex-shrink:0; }
-.gauge-svg-wrap svg { display:block; }
-.gauge-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
-.gauge-num { font-family:'DM Mono',monospace; font-size:1.7rem; font-weight:500; line-height:1; }
-.gauge-sub { font-size:0.65rem; color:var(--text3); margin-top:2px; }
-.gauge-stats { flex:1; display:flex; flex-direction:column; min-width:0; }
-.stat-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); }
-.stat-row:last-child { border-bottom:none; padding-bottom:0; }
-.stat-key { font-size:0.75rem; color:var(--text2); }
-.stat-val { font-family:'DM Mono',monospace; font-size:0.9rem; color:var(--text); }
+  /* fill bars (fb) */
+  .fbs{display:flex;flex-direction:column;gap:12px;margin-top:14px;}
+  .fb-h{display:flex;justify-content:space-between;align-items:baseline;font-size:0.75rem;color:var(--text2);margin-bottom:4px;gap:10px;}
+  .fb-n{font-family:var(--mono);font-size:0.72rem;color:var(--text3);text-align:right;}.fb-n b{color:var(--text);}
+  .micro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 22px;margin-top:14px;}
 
-/* ── FILL BARS ───────────────────────────────────────────── */
-.fill-bar-group { display:flex; flex-direction:column; gap:12px; }
-.fill-bar-header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:5px; gap:8px; }
-.fill-bar-name { font-size:0.78rem; color:var(--text2); white-space:nowrap; }
-.fill-bar-nums { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--text3); text-align:right; }
-.fill-bar-nums span { color:var(--text); }
-.fill-bar-track { height:8px; border-radius:4px; background:var(--bg3); overflow:hidden; }
-.fill-bar-track.tall { height:14px; border-radius:6px; }
-.fill-bar-fill { height:100%; border-radius:4px; transition:width 0.8s cubic-bezier(0.4,0,0.2,1); }
+  /* risk meter */
+  .rmeter{display:flex;gap:6px;margin:14px 0;}
+  .rseg{flex:1;height:7px;border-radius:4px;background:#0a0e15;}
+  .rseg.on-ok{background:var(--green);}.rseg.on-mon{background:var(--yellow);}.rseg.on-hi{background:var(--red);}
 
-/* ── CALORIE HERO ────────────────────────────────────────── */
-.cal-hero { display:grid; grid-template-columns:1fr auto 1fr; gap:14px; align-items:center; padding:4px 0 16px; }
-.cal-side { display:flex; flex-direction:column; gap:4px; }
-.cal-side.right { text-align:right; }
-.cal-side-label { font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text3); }
-.cal-side-num   { font-family:'DM Mono',monospace; font-size:var(--num-lg); font-weight:500; line-height:1.1; }
-.cal-side-sub   { font-size:0.72rem; color:var(--text2); }
-.cal-divider    { display:flex; flex-direction:column; align-items:center; gap:5px; }
-.net-label      { font-size:0.63rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text3); }
-.net-result     { font-family:'DM Mono',monospace; font-size:var(--num-md); font-weight:500; padding:6px 14px; border-radius:var(--radius-sm); border:1px solid; text-align:center; white-space:nowrap; }
-.net-words      { font-size:0.7rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; }
-@media (max-width:400px) {
-  .cal-hero { grid-template-columns:1fr; text-align:center; }
-  .cal-side.right { text-align:left; }
-  .cal-divider { flex-direction:row; justify-content:flex-start; }
-}
+  /* big number blocks */
+  .bignum{font-family:var(--mono);font-size:2.6rem;font-weight:600;line-height:1;letter-spacing:-0.02em;}
+  .sub{font-size:0.72rem;color:var(--text2);margin-top:5px;}
 
-/* ── SLEEP STACK ─────────────────────────────────────────── */
-.sleep-stack { display:flex; height:16px; border-radius:6px; overflow:hidden; gap:2px; margin:10px 0 6px; }
-.sleep-seg { height:100%; }
-.sleep-legend { display:flex; gap:12px; flex-wrap:wrap; margin-top:5px; }
-.legend-item { display:flex; align-items:center; gap:5px; font-size:0.72rem; color:var(--text2); }
-.legend-dot  { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+  /* calorie hero */
+  .cal-hero{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;margin:16px 0;}
+  .cal-side .cl{font-size:0.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+  .cal-side .cn{font-family:var(--mono);font-size:1.8rem;font-weight:600;}
+  .cal-side .cs{font-size:0.7rem;color:var(--text2);}
+  .cal-side.r{text-align:right;}
+  .cal-mid{display:flex;flex-direction:column;align-items:center;gap:5px;}
+  .net-cap{font-size:0.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);}
+  #net-result{font-family:var(--mono);font-size:1.25rem;font-weight:600;padding:6px 13px;border-radius:var(--r-sm);border:1px solid;white-space:nowrap;}
+  #net-words{font-size:0.62rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
 
-/* ── SLEEP DEBT EXPLANATION ──────────────────────────────── */
-.debt-explain { background:var(--bg3); border-radius:var(--radius-sm); padding:12px 14px; margin-top:10px; }
-.debt-explain p { font-size:0.78rem; color:var(--text2); line-height:1.6; }
-.debt-explain strong { color:var(--text); }
+  /* donut */
+  .donut-row{display:flex;align-items:center;gap:18px;margin-top:8px;}
+  .donut-box{position:relative;width:120px;height:120px;flex-shrink:0;}
+  .leg.col{flex-direction:column;gap:9px;}
 
-/* ── COACHING CARD ───────────────────────────────────────── */
-.coaching-card { background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 100%); border:1px solid var(--border2); border-radius:var(--radius); padding:18px 20px; display:flex; gap:16px; align-items:flex-start; }
-.coaching-icon     { font-size:1.6rem; flex-shrink:0; margin-top:2px; }
-.coaching-headline { font-size:0.95rem; font-weight:600; color:var(--text); margin-bottom:6px; line-height:1.4; }
-.coaching-detail   { font-size:0.8rem; color:var(--text2); line-height:1.65; }
-.coaching-tags     { display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; }
-.coaching-tag      { font-size:0.66rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:3px 9px; border-radius:4px; border:1px solid; }
+  /* traj */
+  .traj{font-family:var(--mono);font-size:1.5rem;font-weight:600;}
 
-/* ── RISK METER ──────────────────────────────────────────── */
-.risk-label { font-size:var(--num-md); font-weight:600; font-family:'DM Mono',monospace; }
-.risk-meter { display:flex; gap:5px; margin:10px 0; }
-.risk-seg   { flex:1; height:6px; border-radius:3px; background:var(--bg4); }
-.risk-seg.active-ok      { background:var(--green); }
-.risk-seg.active-monitor { background:var(--yellow); }
-.risk-seg.active-high    { background:var(--red); }
-
-/* ── CHARTS ──────────────────────────────────────────────── */
-.chart-wrap      { position:relative; width:100%; height:180px; }
-.chart-wrap-tall { position:relative; width:100%; height:220px; }
-.chart-wrap-xl   { position:relative; width:100%; height:300px; }
-.donut-wrap      { position:relative; width:100%; height:180px; }
-
-/* ── CV CARD ─────────────────────────────────────────────── */
-.cv-traj         { font-size:var(--num-md); font-weight:700; font-family:'DM Mono',monospace; }
-.cv-metrics      { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0; }
-.cv-metric-val   { font-family:'DM Mono',monospace; font-size:var(--num-sm); font-weight:500; }
-.cv-metric-trend { font-size:0.72rem; margin-top:2px; }
-.trend-up   { color:var(--green); }
-.trend-down { color:var(--red);   }
-
-/* ── TREND ROW (1 per row, full width) ───────────────────── */
-.trend-row { display:flex; flex-direction:column; gap:var(--gap); }
-.trend-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; }
-.trend-card .card-label { font-size:0.7rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--text3); margin-bottom:2px; }
-.trend-card .card-desc  { font-size:0.75rem; color:var(--text3); font-style:italic; margin-bottom:10px; }
-
-/* ── UTILITY ─────────────────────────────────────────────── */
-.green  { color:var(--green);  }
-.yellow { color:var(--yellow); }
-.red    { color:var(--red);    }
-.muted  { color:var(--text3);  }
-.mt6  { margin-top:6px;  }
-.mt10 { margin-top:10px; }
-.mt12 { margin-top:12px; }
+  @media(max-width:1000px){
+    .bento{grid-template-columns:repeat(6,1fr);}
+    .span12{grid-column:span 6;}.span8{grid-column:span 6;}.span6{grid-column:span 6;}.span4{grid-column:span 3;}.span3{grid-column:span 3;}.row2{grid-row:span 1;}
+    .km-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media(max-width:720px){
+    .bento{grid-template-columns:repeat(2,1fr);}
+    .span12,.span8,.span6,.span4,.span3{grid-column:span 2;}
+    .hero{flex-direction:column;text-align:center;}.hero-side{width:100%;}.hero-stats{text-align:left;}
+    .km-grid{grid-template-columns:1fr;}.micro-grid{grid-template-columns:1fr 1fr;}.cal-hero{grid-template-columns:1fr;}.cal-side.r{text-align:center;}
+    .wrap,.top{padding-left:16px;padding-right:16px;}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}.tile.reveal{opacity:1;transform:none;}#recRing{transition:none;}}
 </style>
 </head>
 <body>
 
 <div id="loading"><div class="spinner"></div><p>Loading health data…</p></div>
-<div id="error-msg"><h2>Could not load data</h2><p id="error-detail">Make sure <code>Health_Tracker_Master.csv</code> is in the same folder.</p></div>
+<div id="error-msg"><h2>Could not load data</h2><p id="error-detail">Health_Tracker_Master.csv could not be loaded.</p></div>
 
 <div id="app">
-
-  <!-- TOP NAV -->
-  <nav class="topnav">
-    <span class="topnav-brand">Health Tracker</span>
-    <div class="topnav-sep"></div>
-    <div class="date-nav">
-      <button id="prev-day">‹</button>
+  <div class="top">
+    <div class="brand"><span class="pulse"></span>Health Tracker</div>
+    <div class="fresh-wrap"><span class="data-freshness" id="data-freshness"></span><span class="whoop-freshness" id="whoop-freshness"></span></div>
+    <div class="datenav">
+      <button class="nav" id="prev-day" aria-label="Previous day">‹</button>
       <span id="current-date" title="Click to open calendar">—</span>
-      <button id="next-day">›</button>
+      <button class="nav" id="next-day" aria-label="Next day">›</button>
       <div class="cal-dropdown" id="cal-dropdown">
-        <div class="cal-header">
-          <button class="cal-nav-btn" id="cal-prev-month">‹</button>
-          <span class="cal-month-label" id="cal-month-label">—</span>
-          <button class="cal-nav-btn" id="cal-next-month">›</button>
-        </div>
+        <div class="cal-head"><button id="cal-prev-month">‹</button><span class="cal-month-label" id="cal-month-label"></span><button id="cal-next-month">›</button></div>
         <div class="cal-grid" id="cal-grid"></div>
-        <div class="cal-legend">
-          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--green)"></div>Has data</div>
-          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--text3)"></div>No data</div>
-        </div>
       </div>
     </div>
-    <div class="topnav-sep"></div>
-    <span id="data-freshness" class="data-freshness" title="Newest data present in the dataset"></span>
-    <span id="whoop-freshness" class="whoop-freshness" title="Most recent day WHOOP actually synced"></span>
-  </nav>
-
-  <!-- KEY METRICS STRIP -->
-  <div class="key-metrics">
-    <div class="key-metrics-title">Key Metrics</div>
-    <div class="key-metrics-grid" id="key-metrics-grid"></div>
   </div>
 
-  <div class="page">
+  <div class="wrap">
+    <div class="note" id="no-whoop-note"></div>
 
-    <!-- COACHING -->
-    <div class="section-header"><h2>Today's Recommendation</h2></div>
-    <div class="coaching-card">
-      <div class="coaching-icon" id="coaching-icon">💡</div>
-      <div style="flex:1;min-width:0">
-        <div class="coaching-headline" id="coaching-headline">Loading…</div>
-        <div class="coaching-detail"   id="coaching-detail"></div>
-        <div class="coaching-tags"     id="coaching-tags"></div>
+    <!-- AT A GLANCE -->
+    <div class="bento" style="margin-bottom:16px">
+      <div class="tile span12">
+        <div class="lbl">At a glance</div>
+        <div class="km-grid" id="key-metrics-grid"></div>
       </div>
     </div>
 
-    <!-- RECOVERY & READINESS -->
-    <div class="section-header"><h2>Recovery &amp; Readiness</h2></div>
-    <div id="no-whoop-note" class="no-whoop-note"></div>
-    <div class="grid-3">
-      <div class="card">
-        <div class="card-label">Recovery Score</div>
-        <div class="card-desc">How recovered your body is today — driven by HRV, resting heart rate, and sleep quality. Higher = more capacity to perform.</div>
-        <div class="gauge-wrap">
-          <div class="gauge-svg-wrap">
-            <svg width="120" height="120" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bg3)" stroke-width="10"/>
-              <circle id="gauge-track" cx="60" cy="60" r="50" fill="none" stroke="var(--green)" stroke-width="10" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1s ease,stroke 0.4s"/>
+    <!-- TODAY -->
+    <div class="bento">
+      <div class="tile span6 row2">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M20.8 5.6a5.5 5.5 0 00-7.8 0L12 6.6l-1-1a5.5 5.5 0 00-7.8 7.8l9 9 9-9a5.5 5.5 0 000-7.8z"/></svg>Recovery</div>
+        <div class="hero">
+          <div class="ring-wrap" id="recRingWrap">
+            <svg width="200" height="200" viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="86" fill="none" stroke="#0a0e15" stroke-width="14"/>
+              <circle id="recRing" cx="100" cy="100" r="86" fill="none" stroke="var(--green)" stroke-width="14" stroke-linecap="round" stroke-dasharray="540" stroke-dashoffset="540" transform="rotate(-90 100 100)"/>
             </svg>
-            <div class="gauge-center">
-              <div class="gauge-num" id="recovery-num">—</div>
-              <div class="gauge-sub">/ 100</div>
-            </div>
+            <div class="ring-center"><div class="num mono" id="recNum">—</div><div class="cap">Recovery</div></div>
           </div>
-          <div class="gauge-stats">
-            <div class="stat-row"><span class="stat-key">HRV</span><span class="stat-val" id="hrv-val">—</span></div>
-            <div class="stat-row"><span class="stat-key">Resting HR</span><span class="stat-val" id="rhr-val">—</span></div>
-            <div class="stat-row"><span class="stat-key">SpO₂</span><span class="stat-val" id="spo2-val">—</span></div>
-            <div class="stat-row"><span class="stat-key">Skin Temp</span><span class="stat-val" id="temp-val">—</span></div>
+          <div class="hero-side">
+            <div class="hero-verdict" id="rec-verdict">—</div>
+            <div class="hero-stats">
+              <div class="hs"><div class="k">HRV</div><div class="v" id="hrv-val">—</div></div>
+              <div class="hs"><div class="k">Resting HR</div><div class="v" id="rhr-val">—</div></div>
+              <div class="hs"><div class="k">SpO₂</div><div class="v" id="spo2-val">—</div></div>
+              <div class="hs"><div class="k">Skin temp</div><div class="v" id="temp-val">—</div></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-label">Readiness</div>
-        <div class="card-desc">How prepared your nervous system is for high-output training — combines HRV vs your baseline, resting HR vs baseline, and recent strain.</div>
-        <div class="gauge-wrap">
-          <div class="gauge-svg-wrap">
-            <svg width="120" height="120" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bg3)" stroke-width="10"/>
-              <circle id="readiness-track" cx="60" cy="60" r="50" fill="none" stroke="var(--blue)" stroke-width="10" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1s ease 0.2s,stroke 0.4s"/>
-            </svg>
-            <div class="gauge-center">
-              <div class="gauge-num" id="readiness-num">—</div>
-              <div class="gauge-sub">/ 100</div>
-            </div>
-          </div>
-          <div class="gauge-stats">
-            <div class="stat-row"><span class="stat-key">Signal</span><span class="stat-val" id="readiness-signal">—</span></div>
-            <div class="stat-row"><span class="stat-key">HRV vs Baseline</span><span class="stat-val" id="hrv-baseline">—</span></div>
-            <div class="stat-row"><span class="stat-key">RHR vs Baseline</span><span class="stat-val" id="rhr-baseline">—</span></div>
-            <div class="stat-row"><span class="stat-key">3d Avg Strain</span><span class="stat-val" id="readiness-3d">—</span></div>
-          </div>
+      <div class="tile span3 metric">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--orange)"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>Day Strain</div>
+        <div class="big mono" style="color:var(--orange)"><span id="strainNum">—</span><span class="u"> / 21</span></div>
+        <div><div class="bar"><i id="strainBar" style="background:var(--orange)"></i></div>
+        <div class="foot" style="margin-top:8px"><span id="strain-sub">—</span><span class="mono" id="strain-max"></span></div></div>
+      </div>
+
+      <div class="tile span3 metric">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--blue)"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>Sleep</div>
+        <div class="big mono" style="color:var(--blue)"><span id="sleepNum">—</span><span class="u">%</span></div>
+        <div class="foot"><span id="sleep-sub">—</span><span class="chip" id="sleep-debt-chip" style="color:var(--yellow);border-color:#ffcb4733;background:var(--yellow-dim)"></span></div>
+      </div>
+
+      <div class="tile span3 metric">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--purple)"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Readiness</div>
+        <div class="big mono" id="readyNum" style="color:var(--purple)">—</div>
+        <div class="foot"><span id="ready-sub">—</span><span class="chip" id="ready-chip" style="color:var(--purple);border-color:#a480ff33;background:var(--purple-dim)"></span></div>
+      </div>
+
+      <div class="tile span3 metric">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>Energy Balance</div>
+        <div class="big mono"><span id="net-sign" style="color:var(--text3)"></span><span id="netNum">—</span></div>
+        <div class="foot"><span id="fuel-sub">—</span><span class="chip" id="fuel-chip"></span></div>
+      </div>
+
+      <div class="tile span12 coach">
+        <div class="coach-ic" id="coaching-icon"></div>
+        <div><h3 id="coaching-headline">—</h3><p id="coaching-detail"></p><div class="tags" id="coaching-tags"></div></div>
+      </div>
+    </div>
+
+    <!-- RECOVERY & LOAD -->
+    <div class="sec"><h2>Recovery &amp; Load</h2></div>
+    <div class="bento">
+      <div class="tile span4">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M12 3l8 4v5c0 4.4-3.4 7.6-8 9-4.6-1.4-8-4.6-8-9V7l8-4z"/></svg>Overtraining Risk</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:12px"><div class="bignum" style="font-size:1.7rem" id="ot-risk-val">—</div><span id="ot-adaptation"></span></div>
+        <div class="rmeter"><div class="rseg" id="risk-ok"></div><div class="rseg" id="risk-mon"></div><div class="rseg" id="risk-hi"></div></div>
+        <div class="dcs">
+          <div class="dc"><div class="dc-l">7d Avg Strain</div><div class="dc-v" id="sr-strain">—</div></div>
+          <div class="dc"><div class="dc-l">7d Avg Recovery</div><div class="dc-v" id="sr-recovery">—</div></div>
+          <div class="dc"><div class="dc-l">Strain:Recovery</div><div class="dc-v" id="sr-ratio">—</div></div>
+          <div class="dc"><div class="dc-l">Adaptation</div><div class="dc-v" id="sr-adaptation-cell" style="font-size:.85rem">—</div></div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-label">Overtraining Risk</div>
-        <div class="card-desc">Whether your training load is balanced against your recovery. Compares your 7-day average strain to your 7-day average recovery score.</div>
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
-          <span class="risk-label" id="ot-risk-val">—</span>
-          <span class="badge" id="ot-adaptation">—</span>
+      <div class="tile span4">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--purple)"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Readiness Detail</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:12px"><div class="bignum" style="font-size:1.5rem" id="readiness-signal">—</div></div>
+        <div class="dcs" style="margin-top:16px">
+          <div class="dc"><div class="dc-l">HRV vs Baseline</div><div class="dc-v" id="hrv-baseline">—</div></div>
+          <div class="dc"><div class="dc-l">RHR vs Baseline</div><div class="dc-v" id="rhr-baseline">—</div></div>
+          <div class="dc"><div class="dc-l">3d Avg Strain</div><div class="dc-v" id="readiness-3d">—</div></div>
         </div>
-        <div class="risk-meter">
-          <div class="risk-seg" id="risk-ok"></div>
-          <div class="risk-seg" id="risk-mon"></div>
-          <div class="risk-seg" id="risk-hi"></div>
-        </div>
-        <hr class="divider">
-        <div class="data-grid">
-          <div class="data-cell"><div class="dc-label">7d Avg Strain</div><div class="dc-val" id="sr-strain">—</div></div>
-          <div class="data-cell"><div class="dc-label">7d Avg Recovery</div><div class="dc-val" id="sr-recovery">—</div></div>
-          <div class="data-cell"><div class="dc-label">SR Ratio</div><div class="dc-val" id="sr-ratio">—</div></div>
-          <div class="data-cell"><div class="dc-label">Adaptation</div><div class="dc-val" id="sr-adaptation-cell">—</div></div>
+      </div>
+
+      <div class="tile span4">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--orange)"><path d="M14.5 4.5l5 5M4 20l3-1 10-10a2.1 2.1 0 00-3-3L4 16z"/></svg>Workout Detail</div>
+        <div class="dcs four" style="grid-template-columns:1fr 1fr">
+          <div class="dc"><div class="dc-l">Workouts</div><div class="dc-v" id="workout-count">—</div></div>
+          <div class="dc"><div class="dc-l">Duration</div><div class="dc-v" id="workout-dur">—</div></div>
+          <div class="dc"><div class="dc-l">Avg HR</div><div class="dc-v" id="avg-hr">—</div></div>
+          <div class="dc"><div class="dc-l">Max HR</div><div class="dc-v" id="max-hr">—</div></div>
         </div>
       </div>
     </div>
 
     <!-- SLEEP -->
-    <div class="section-header"><h2>Sleep</h2></div>
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-label">Sleep Breakdown</div>
-        <div class="card-desc">How your sleep was structured last night — time in each stage affects how your body and brain recover.</div>
-        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2px">
-          <div>
-            <span class="num-hero" id="sleep-total">—</span>
-            <span class="unit" style="font-size:0.85rem">slept</span>
-          </div>
-          <div style="text-align:right">
-            <div class="dc-label">Needed</div>
-            <span class="num-lg" id="sleep-needed">—</span>
-          </div>
+    <div class="sec"><h2>Sleep</h2></div>
+    <div class="bento">
+      <div class="tile span6">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--blue)"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>Sleep Breakdown</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:14px">
+          <div><span class="mono" style="font-size:1.6rem;font-weight:600" id="sleep-total">—</span><span class="sub" style="display:inline;margin-left:6px">slept</span></div>
+          <div class="sub"><span class="mono" id="sleep-needed">—</span> needed</div>
         </div>
-        <div class="sleep-stack" id="sleep-stack"></div>
-        <div class="sleep-legend" id="sleep-legend"></div>
-        <hr class="divider">
-        <div class="data-grid">
-          <div class="data-cell"><div class="dc-label">Performance</div><div class="dc-val" id="sleep-perf">—</div></div>
-          <div class="data-cell"><div class="dc-label">Efficiency</div><div class="dc-val" id="sleep-eff">—</div></div>
-          <div class="data-cell"><div class="dc-label">Consistency</div><div class="dc-val" id="sleep-cons">—</div></div>
-          <div class="data-cell"><div class="dc-label">Cycles</div><div class="dc-val" id="sleep-cycles">—</div></div>
+        <div class="stages" id="sleep-stack"></div>
+        <div class="leg" id="sleep-legend"></div>
+        <div class="dcs four">
+          <div class="dc"><div class="dc-l">Performance</div><div class="dc-v" id="sleep-perf">—</div></div>
+          <div class="dc"><div class="dc-l">Efficiency</div><div class="dc-v" id="sleep-eff">—</div></div>
+          <div class="dc"><div class="dc-l">Consistency</div><div class="dc-v" id="sleep-cons">—</div></div>
+          <div class="dc"><div class="dc-l">Cycles</div><div class="dc-v" id="sleep-cycles">—</div></div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-label">Sleep Debt</div>
-        <div class="card-desc">Cumulative hours of sleep your body is owed over the last 7 days. Sleep debt suppresses HRV, raises cortisol, and impairs muscle repair.</div>
-        <div style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
-          <div>
-            <div class="dc-label">7-Day Rolling Debt</div>
-            <span class="num-hero" id="sleep-debt-7d">—</span>
-            <span class="unit" style="font-size:0.85rem">hrs</span>
-          </div>
-          <div>
-            <div class="dc-label">Last Night</div>
-            <span class="num-lg" id="sleep-debt-last">—</span>
-            <span class="unit">hrs short</span>
-          </div>
+      <div class="tile span6">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--yellow)"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Sleep Debt</div>
+        <div style="display:flex;align-items:baseline;gap:14px;margin-top:12px">
+          <div><span class="bignum" id="sleep-debt-7d" style="color:var(--yellow)">—</span><span class="sub" style="display:inline;margin-left:6px">hrs · 7-day</span></div>
         </div>
-        <hr class="divider">
-        <div class="data-grid">
-          <div class="data-cell"><div class="dc-label">Trend</div><div class="dc-val" id="debt-trend">—</div></div>
-          <div class="data-cell"><div class="dc-label">Nights to Repay</div><div class="dc-val" id="debt-repay">—</div></div>
+        <div class="dcs" style="grid-template-columns:repeat(3,1fr)">
+          <div class="dc"><div class="dc-l">Last Night</div><div class="dc-v" id="sleep-debt-last">—</div></div>
+          <div class="dc"><div class="dc-l">Trend</div><div class="dc-v" id="debt-trend" style="font-size:.82rem">—</div></div>
+          <div class="dc"><div class="dc-l">To Repay</div><div class="dc-v" id="debt-repay" style="font-size:.82rem">—</div></div>
         </div>
-        <div class="debt-explain mt10" id="debt-explain">
-          <p id="debt-explain-text">—</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- ENERGY & FUELING -->
-    <div class="section-header"><h2>Energy &amp; Fueling</h2></div>
-    <div class="grid-3">
-      <div class="card col-span-2">
-        <div class="card-label">Calories In vs Burned</div>
-        <div class="card-desc">Did you eat enough to support what you burned today? A deficit means your body had to draw on reserves; a surplus means you ate more than you used.</div>
-        <div class="cal-hero">
-          <div class="cal-side">
-            <div class="cal-side-label">🍽 Calories In</div>
-            <div class="cal-side-num" id="cal-in-num">—</div>
-            <div class="cal-side-sub" id="cal-in-goal">Goal: —</div>
-          </div>
-          <div class="cal-divider">
-            <div class="net-label">Net</div>
-            <div class="net-result" id="net-result">—</div>
-            <div class="net-words" id="net-words">—</div>
-          </div>
-          <div class="cal-side right">
-            <div class="cal-side-label">🔥 Calories Burned</div>
-            <div class="cal-side-num" id="cal-burned-num">—</div>
-            <div class="cal-side-sub" id="cal-burned-sub">BMR: —</div>
-          </div>
-        </div>
-        <hr class="divider">
-        <div class="fill-bar-group">
-          <div>
-            <div class="fill-bar-header"><span class="fill-bar-name">Intake vs Goal</span><span class="fill-bar-nums" id="cal-bar-nums">—</span></div>
-            <div class="fill-bar-track tall"><div class="fill-bar-fill" id="cal-in-bar" style="width:0%"></div></div>
-          </div>
-          <div>
-            <div class="fill-bar-header"><span class="fill-bar-name">Burned vs 7-Day Avg</span><span class="fill-bar-nums" id="eb7-nums">—</span></div>
-            <div class="fill-bar-track tall"><div class="fill-bar-fill" id="eb7-bar" style="width:0%;background:var(--blue)"></div></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-label">Calories by Meal</div>
-        <div class="card-desc">How your calorie intake was distributed across meals today.</div>
-        <div class="donut-wrap"><canvas id="meal-donut"></canvas></div>
-        <div class="sleep-legend mt6" id="meal-legend"></div>
-      </div>
-    </div>
-
-    <!-- ENERGY BALANCE FULL WIDTH -->
-    <div class="card full-width mt10" style="margin-top:10px">
-      <div class="card-label">Energy Balance — 14-Day History</div>
-      <div class="card-desc">Green bars = calories consumed. Orange bars = calories burned. When green is shorter than orange, you were in a deficit that day.</div>
-      <div class="chart-wrap-xl"><canvas id="eb-chart"></canvas></div>
-    </div>
-
-    <!-- FUELING CARD -->
-    <div class="card full-width mt10" style="margin-top:10px">
-      <div class="card-label">Fueling Status</div>
-      <div class="card-desc">Three questions: Did you eat enough today? How does today compare to your 7-day average burn? What should you eat to maintain your current weight?</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:4px">
-        <div class="data-cell">
-          <div class="dc-label">Status</div>
-          <div class="dc-val" id="eb-status" style="font-size:var(--num-sm)">—</div>
-          <div style="font-size:0.72rem;color:var(--text3);margin-top:4px" id="eb-status-desc">—</div>
-        </div>
-        <div class="data-cell">
-          <div class="dc-label">Today vs 7d Avg Burn</div>
-          <div class="dc-val" id="eb-vs-avg">—</div>
-          <div style="font-size:0.72rem;color:var(--text3);margin-top:4px">Above/below your recent daily burn</div>
-        </div>
-        <div class="data-cell">
-          <div class="dc-label">7-Day Avg Burned</div>
-          <div class="dc-val" id="eb7-avg">—</div>
-          <div style="font-size:0.72rem;color:var(--text3);margin-top:4px">Your typical daily calorie burn</div>
-        </div>
-        <div class="data-cell">
-          <div class="dc-label">Maintenance Target</div>
-          <div class="dc-val" id="eb-maint">—</div>
-          <div style="font-size:0.72rem;color:var(--text3);margin-top:4px">Eat this to maintain current weight</div>
-        </div>
-        <div class="data-cell">
-          <div class="dc-label">Cal per Strain Point</div>
-          <div class="dc-val" id="cal-per-strain">—</div>
-          <div style="font-size:0.72rem;color:var(--text3);margin-top:4px">Calories burned per unit of training load</div>
-        </div>
+        <hr class="d">
+        <p class="km-d" id="debt-explain-text"></p>
       </div>
     </div>
 
     <!-- NUTRITION -->
-    <div class="section-header"><h2>Nutrition</h2></div>
-    <div class="grid-3">
-      <div class="card col-span-2">
-        <div class="card-label">Macros vs Goals</div>
-        <div class="card-desc">How close you came to your fat, carbohydrate, and protein targets today. Green = on track, yellow = under 50%, red = well under.</div>
-        <div class="fill-bar-group" id="macro-bars"></div>
-      </div>
-      <div class="card">
-        <div class="card-label">Macro Split</div>
-        <div class="card-desc">The ratio of fat, carbs, and protein in today's intake.</div>
-        <div class="donut-wrap"><canvas id="macro-donut"></canvas></div>
-        <div class="sleep-legend mt6" id="macro-legend"></div>
-      </div>
-    </div>
-    <div class="card full-width mt10" style="margin-top:10px">
-      <div class="card-label">Micronutrients vs Goals</div>
-      <div class="card-desc">Daily progress toward vitamin and mineral targets. Sodium and Sugars use inverted color logic — red means over the limit, not under.</div>
-      <div id="micro-bars" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px 24px;margin-top:8px"></div>
-    </div>
-
-    <!-- PERFORMANCE -->
-    <div class="section-header"><h2>Performance</h2></div>
-    <div class="card full-width">
-      <div class="card-label">Day Strain</div>
-      <div class="card-desc">Total cardiovascular load accumulated today on WHOOP's 0–21 scale. Under 8 = light day, 8–14 = moderate, 14–21 = strenuous.</div>
-      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px;margin-top:4px">
-        <span class="num-hero" id="strain-num">—</span><span class="unit" style="font-size:0.9rem">/ 21</span>
-      </div>
-      <div class="fill-bar-track tall"><div class="fill-bar-fill" id="strain-bar" style="width:0%"></div></div>
-      <hr class="divider">
-      <div class="data-grid" style="grid-template-columns:repeat(4,1fr)">
-        <div class="data-cell"><div class="dc-label">Workouts</div><div class="dc-val" id="workout-count">—</div></div>
-        <div class="data-cell"><div class="dc-label">Duration</div><div class="dc-val" id="workout-dur">—</div></div>
-        <div class="data-cell"><div class="dc-label">Avg HR</div><div class="dc-val" id="avg-hr">—</div></div>
-        <div class="data-cell"><div class="dc-label">Max HR</div><div class="dc-val" id="max-hr">—</div></div>
-      </div>
-    </div>
-
-    <!-- LONG-TERM HEALTH -->
-    <div class="section-header"><h2>Long-Term Health</h2></div>
-    <div class="card full-width">
-      <div class="card-label">Cardiovascular Fitness</div>
-      <div class="card-desc">Your 30-day HRV and resting heart rate trends — the most reliable long-term indicators of cardiovascular health. HRV rising = improving fitness. RHR falling = improving fitness.</div>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;margin-top:4px;flex-wrap:wrap">
-        <div class="cv-traj" id="cv-trajectory">—</div>
-        <div style="font-size:0.8rem;color:var(--text2)" id="cv-traj-desc">—</div>
-      </div>
-      <div class="cv-metrics">
-        <div>
-          <div class="dc-label">30-Day Avg HRV</div>
-          <div class="cv-metric-val" id="cv-hrv">—</div>
-          <div class="cv-metric-trend" id="cv-hrv-trend">—</div>
+    <div class="sec"><h2>Nutrition</h2></div>
+    <div class="bento">
+      <div class="tile span6">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>Energy Balance</div>
+        <div class="cal-hero">
+          <div class="cal-side"><div class="cl">Calories In</div><div class="cn" id="cal-in-num" style="color:var(--green)">—</div><div class="cs" id="cal-in-goal">Goal —</div></div>
+          <div class="cal-mid"><div class="net-cap">Net</div><div id="net-result">—</div><div id="net-words">—</div></div>
+          <div class="cal-side r"><div class="cl">Calories Burned</div><div class="cn" id="cal-burned-num" style="color:var(--orange)">—</div><div class="cs" id="cal-burned-sub">BMR —</div></div>
         </div>
-        <div>
-          <div class="dc-label">30-Day Avg Resting HR</div>
-          <div class="cv-metric-val" id="cv-rhr">—</div>
-          <div class="cv-metric-trend" id="cv-rhr-trend">—</div>
+        <div class="fbs">
+          <div class="fb"><div class="fb-h"><span>Intake vs Goal</span><span class="fb-n" id="cal-bar-nums">—</span></div><div class="bar"><i id="cal-in-bar" style="background:var(--green)"></i></div></div>
+          <div class="fb"><div class="fb-h"><span>Burn vs 7-day avg</span><span class="fb-n" id="eb7-nums">—</span></div><div class="bar"><i id="eb7-bar" style="background:var(--blue)"></i></div></div>
         </div>
       </div>
-      <div class="card-desc" style="margin-bottom:8px;margin-top:4px">The purple line is your daily HRV. The dashed line is your 30-day average. When the daily line is above the dashed line, your HRV is improving.</div>
-      <div class="chart-wrap-tall"><canvas id="hrv-chart"></canvas></div>
+
+      <div class="tile span3">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--blue)"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>Calories by Meal</div>
+        <div class="donut-row"><div class="donut-box"><canvas id="meal-donut"></canvas></div><div class="leg col" id="meal-legend"></div></div>
+      </div>
+
+      <div class="tile span3">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--orange)"><path d="M12 2v20M5 8a7 3 0 0114 0"/></svg>Fueling</div>
+        <div class="bignum" style="font-size:1.3rem;margin-top:10px" id="eb-status">—</div>
+        <p class="sub" id="eb-status-desc" style="line-height:1.5"></p>
+        <div class="dcs" style="margin-top:12px">
+          <div class="dc"><div class="dc-l">7d Avg Burn</div><div class="dc-v" id="eb7-avg" style="font-size:.85rem">—</div></div>
+          <div class="dc"><div class="dc-l">Maintenance</div><div class="dc-v" id="eb-maint" style="font-size:.85rem">—</div></div>
+          <div class="dc"><div class="dc-l">vs 7d Avg</div><div class="dc-v" id="eb-vs-avg" style="font-size:.85rem">—</div></div>
+          <div class="dc"><div class="dc-l">Cal / Strain</div><div class="dc-v" id="cal-per-strain" style="font-size:.85rem">—</div></div>
+        </div>
+      </div>
+
+      <div class="tile span4">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M12 3v18M5 8a7 3 0 0114 0"/></svg>Macros vs Goal</div>
+        <div class="fbs" id="macro-bars"></div>
+      </div>
+      <div class="tile span4">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--green)"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>Macro Split</div>
+        <div class="donut-row"><div class="donut-box"><canvas id="macro-donut"></canvas></div><div class="leg col" id="macro-legend"></div></div>
+      </div>
+      <div class="tile span4"><div class="lbl">Energy Balance · 14 days</div><div class="chart-box sm" style="margin-top:12px"><canvas id="eb-chart"></canvas></div></div>
+
+      <div class="tile span12">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>Micronutrients vs Goal</div>
+        <div class="micro-grid" id="micro-bars"></div>
+      </div>
     </div>
 
-    <!-- 30-DAY TRENDS -->
-    <div class="section-header"><h2>30-Day Trends</h2></div>
-    <div class="trend-row">
-      <div class="trend-card">
-        <div class="card-label">Recovery Score</div>
-        <div class="card-desc">Green zone = recovered (67–100). Yellow zone = moderate (33–66). Red zone = low (&lt;33). Consistent green days indicate a healthy training-recovery balance.</div>
-        <div class="chart-wrap-xl"><canvas id="trend-recovery"></canvas></div>
-      </div>
-      <div class="trend-card">
-        <div class="card-label">HRV (ms)</div>
-        <div class="card-desc">Heart rate variability — the single best biomarker of recovery and fitness. The dashed line is your 30-day average. Trend rising = your body is adapting and recovering well.</div>
-        <div class="chart-wrap-xl"><canvas id="trend-hrv"></canvas></div>
-      </div>
-      <div class="trend-card">
-        <div class="card-label">Sleep Performance</div>
-        <div class="card-desc">How much of your sleep need you actually fulfilled each night, as a percentage. Consistently below 85% means accumulated sleep debt is growing.</div>
-        <div class="chart-wrap-xl"><canvas id="trend-sleep"></canvas></div>
-      </div>
-      <div class="trend-card">
-        <div class="card-label">Calories In vs Burned</div>
-        <div class="card-desc">Green line = calories consumed. Orange line = calories burned. The gap between lines shows your daily surplus (green above orange) or deficit (orange above green).</div>
-        <div class="chart-wrap-xl"><canvas id="trend-calories"></canvas></div>
-      </div>
-      <div class="trend-card">
-        <div class="card-label">Day Strain</div>
-        <div class="card-desc">Blue bars = light day (&lt;8). Orange bars = moderate (8–14). Red bars = strenuous (&gt;14). Look for patterns — sustained high strain without recovery leads to overtraining.</div>
-        <div class="chart-wrap-xl"><canvas id="trend-strain"></canvas></div>
+    <!-- LONG-TERM -->
+    <div class="sec"><h2>Long-Term Health</h2></div>
+    <div class="bento">
+      <div class="tile span12">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M20.8 5.6a5.5 5.5 0 00-7.8 0L12 6.6l-1-1a5.5 5.5 0 00-7.8 7.8l9 9 9-9a5.5 5.5 0 000-7.8z"/><path d="M3 13h4l2-4 3 6 2-3h4"/></svg>Cardiovascular Fitness</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:12px"><div class="traj" id="cv-trajectory">—</div></div>
+        <p class="sub" id="cv-traj-desc" style="line-height:1.5;max-width:80ch"></p>
+        <div class="dcs four" style="margin-top:16px">
+          <div class="dc"><div class="dc-l">30d Avg HRV</div><div class="dc-v" id="cv-hrv">—</div><div class="sub" id="cv-hrv-trend" style="margin-top:4px;font-size:.7rem">—</div></div>
+          <div class="dc"><div class="dc-l">30d Avg RHR</div><div class="dc-v" id="cv-rhr">—</div><div class="sub" id="cv-rhr-trend" style="margin-top:4px;font-size:.7rem">—</div></div>
+        </div>
       </div>
     </div>
 
-    <div style="height:40px"></div>
+    <!-- TRENDS -->
+    <div class="sec"><h2>30-Day Trends</h2></div>
+    <div class="bento">
+      <div class="tile span8">
+        <div class="chart-head"><div class="lbl" style="margin:0"><svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M3 17l6-6 4 4 8-8"/></svg>Recovery</div><div class="now mono" id="rec-chart-now">—</div></div>
+        <div class="chart-box"><canvas id="trend-recovery"></canvas></div>
+      </div>
+      <div class="tile span4">
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--purple)"><path d="M3 12h4l2 6 4-14 2 8h6"/></svg>HRV</div>
+        <div class="hrv-top"><span class="v mono"><span id="hrv-now">—</span><span class="u"> ms</span></span><span class="s" id="hrv-avg-sub"></span></div>
+        <div class="chart-box sm"><canvas id="hrv-chart"></canvas></div>
+      </div>
+      <div class="tile span4"><div class="lbl">Sleep Performance</div><div class="chart-box sm" style="margin-top:12px"><canvas id="trend-sleep"></canvas></div></div>
+      <div class="tile span4"><div class="lbl">Calories In vs Burned</div><div class="chart-box sm" style="margin-top:12px"><canvas id="trend-calories"></canvas></div></div>
+      <div class="tile span4"><div class="lbl">Day Strain</div><div class="chart-box sm" style="margin-top:12px"><canvas id="trend-strain"></canvas></div></div>
+    </div>
+
   </div>
 </div>
 
-<script src="dashboard.js?v=6"></script>
+<script src="dashboard.js?v=v5b-20260714"></script>
 </body>
 </html>
