@@ -10,6 +10,15 @@ from codegeeko.triage import triage_findings
 STATE_PATH = ".code-geeko/state.json"
 
 
+def is_report_only(env: dict) -> bool:
+    """Safe-by-default: report-only unless REPORT_ONLY is explicitly "false" (case/whitespace
+    insensitive). Unset, empty, malformed, or unexpected values (e.g. "yes", "1", a stray-space
+    typo, or a config templating quirk that renders as "") all stay report-only — only a
+    deliberate "false" opts into the fix-enabled branch that Tasks 10/11 wire up behind this gate.
+    """
+    return env.get("REPORT_ONLY", "true").strip().lower() != "false"
+
+
 def collect_all(repo_path: str, owner: str, repo: str, github_token: str) -> tuple[list[dict], dict[str, str]]:
     findings = []
     checked = {}
@@ -34,7 +43,7 @@ def main() -> None:
     owner = "auckiefenstermacher19-cmd"
     repo = "Health-Tracker"
     github_token = os.environ["GITHUB_TOKEN"]
-    report_only = os.environ.get("REPORT_ONLY", "true").lower() == "true"
+    report_only = is_report_only(os.environ)
 
     previous_state = load_state(STATE_PATH)
     findings, checked = collect_all(repo_path, owner, repo, github_token)
