@@ -37,16 +37,29 @@ def parse_semgrep_output(raw: dict) -> list[dict]:
     finding_id; only a downstream consumer keyed on (source, file, finding_id) (e.g. Task 6's
     state store) would silently collapse them. That risk didn't warrant added complexity given
     it's unverified in real output, but is called out here for anyone revisiting this.
+
+    Field access is defensive (`.get()` with fallbacks), not hard dict indexing, even though
+    every field is present in the real fixture: a single malformed `results[]` entry (e.g. a
+    future semgrep version, a corrupted stdout capture, or a mocked/adversarial payload)
+    should degrade that one entry gracefully rather than raising and taking down the whole
+    batch -- consistent with every other failure path in `run_semgrep` (timeout, missing
+    binary, bad returncode, bad JSON) already returning `([], False)` instead of propagating
+    an exception. `check_id` falls back to `"unknown-rule"`, `path` falls back to `"unknown"`,
+    and `start.line` falls back to `"?"` (restoring the brief's own starter-code precedent for
+    that field). A `results[]` entry that isn't a dict at all (e.g. `None` or a bare string)
+    is beyond field-level fallbacks -- `run_semgrep` catches that case separately (see below).
     """
     findings = []
     for result in raw.get("results", []):
-        extra = result.get("extra", {})
+        extra = result.get("extra", {}) or {}
         severity = extra.get("severity", "WARNING")
-        check_id = result["check_id"]
-        start_line = result["start"]["line"]
+        check_id = result.get("check_id", "unknown-rule")
+        path = result.get("path", "unknown")
+        start = result.get("start", {}) or {}
+        start_line = start.get("line", "?")
         findings.append({
             "source": "semgrep",
-            "file": result["path"],
+            "file": path,
             "finding_id": f"{check_id}:{start_line}",
             "risk_score": _SEVERITY_TO_RISK.get(severity, _DEFAULT_RISK),
             "message": f"{check_id}: {extra.get('message', '')}",
@@ -60,6 +73,13 @@ def run_semgrep(repo_path: str) -> tuple[list[dict], bool]:
 
     returncode 0 (clean) and 1 (findings present) are both valid runs; anything else (config
     error, crash, etc.) is treated as a failed run, same as a timeout or missing binary.
+
+    `parse_semgrep_output` itself is defensive against malformed *fields* on a results entry
+    (see its docstring), but a results entry that isn't a dict at all (e.g. `None` or a bare
+    string in `results[]`) would still raise `AttributeError`/`TypeError` out of its `.get()`
+    calls. That's caught here so no single malformed entry -- however broken -- can make
+    `run_semgrep` raise; it degrades to the same `([], False)` contract as every other failure
+    path (timeout, missing binary, bad returncode, bad JSON) instead.
     """
     try:
         result = subprocess.run(
@@ -76,4 +96,9 @@ def run_semgrep(repo_path: str) -> tuple[list[dict], bool]:
         raw = json.loads(result.stdout)
     except json.JSONDecodeError:
         return [], False
-    return parse_semgrep_output(raw), True
+
+    try:
+        findings = parse_semgrep_output(raw)
+    except (AttributeError, TypeError, KeyError):
+        return [], False
+    return findings, True

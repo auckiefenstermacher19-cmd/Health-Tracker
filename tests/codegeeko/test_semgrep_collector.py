@@ -158,3 +158,64 @@ def test_run_semgrep_against_real_fixture_via_mocked_subprocess():
 
     assert ok is True
     assert len(findings) == 8
+
+
+def test_parse_semgrep_output_handles_result_missing_fields_with_fallbacks():
+    # Regression test: a malformed results[] entry missing check_id/path/start.line must not
+    # raise -- it should fall back to sensible defaults rather than KeyError. Field access in
+    # parse_semgrep_output is defensive (.get()) precisely so this degrades instead of crashing.
+    raw = {"results": [{"extra": {"severity": "WARNING", "message": "orphaned finding"}}]}
+
+    findings = parse_semgrep_output(raw)
+
+    assert len(findings) == 1
+    finding = findings[0]
+    assert finding["source"] == "semgrep"
+    assert finding["file"] == "unknown"
+    assert finding["finding_id"] == "unknown-rule:?"
+    assert finding["risk_score"] == 6.0
+    assert "orphaned finding" in finding["message"]
+
+
+def test_run_semgrep_returns_not_ok_on_structurally_malformed_results_entry():
+    # Regression test proving the fix for the coordinator-flagged gap: a results[] entry that
+    # isn't a dict at all (e.g. `None`) can't be rescued by field-level .get() fallbacks inside
+    # parse_semgrep_output (None.get(...) raises AttributeError). Previously this propagated
+    # an uncaught exception straight out of run_semgrep, breaking its own documented contract
+    # that every failure mode returns ([], False). Now run_semgrep's try/except around the
+    # parse_semgrep_output call catches it and degrades gracefully instead of raising.
+    fake_stdout = json.dumps({"results": [None]})
+    fake_result = MagicMock(stdout=fake_stdout, returncode=1)
+
+    with patch("subprocess.run", return_value=fake_result):
+        findings, ok = run_semgrep("/fake/repo")  # must not raise
+
+    assert findings == []
+    assert ok is False
+
+
+def test_parse_semgrep_output_maps_error_severity_to_risk_score():
+    raw = {"results": [{
+        "check_id": "rule.error", "path": "foo.py", "start": {"line": 1},
+        "extra": {"severity": "ERROR", "message": "bad"},
+    }]}
+    findings = parse_semgrep_output(raw)
+    assert findings[0]["risk_score"] == 9.0
+
+
+def test_parse_semgrep_output_maps_info_severity_to_risk_score():
+    raw = {"results": [{
+        "check_id": "rule.info", "path": "foo.py", "start": {"line": 1},
+        "extra": {"severity": "INFO", "message": "fyi"},
+    }]}
+    findings = parse_semgrep_output(raw)
+    assert findings[0]["risk_score"] == 3.0
+
+
+def test_parse_semgrep_output_maps_unrecognized_severity_to_default_risk_score():
+    raw = {"results": [{
+        "check_id": "rule.weird", "path": "foo.py", "start": {"line": 1},
+        "extra": {"severity": "CRITICAL", "message": "future severity level"},
+    }]}
+    findings = parse_semgrep_output(raw)
+    assert findings[0]["risk_score"] == 5.0
