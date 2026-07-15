@@ -28,6 +28,15 @@ def parse_repowise_output(raw: dict) -> list[dict]:
       score has nothing to report, so it's skipped rather than emitting 0-risk noise).
     - `findings`: every biomarker becomes one finding — this is the specific, actionable
       signal (e.g. "renderDay has cyclomatic complexity 139").
+
+    `finding_id` uniquely identifies a finding within a given `file` (state/triage/PR tasks
+    key dedup by `f"{source}:{file}:{finding_id}"`, per Code-Geeko plan amendment e52cbbd).
+    There is at most one metrics entry per file, so `"metric"` alone is unique there.
+    `findings` entries are id'd by `function_name:biomarker_type`, but the real fixture proves
+    that pair is NOT always unique within a file — dashboard.js's `buildCoaching` has two
+    identical `complex_conditional` entries with no distinguishing field (verified against
+    tests/codegeeko/fixtures/repowise_sample_output.json) — so a `#N` occurrence suffix is
+    appended from the 2nd duplicate onward to guarantee uniqueness.
     """
     findings = []
 
@@ -38,6 +47,7 @@ def parse_repowise_output(raw: dict) -> list[dict]:
         findings.append({
             "source": "repowise",
             "file": item["file_path"],
+            "finding_id": "metric",
             "risk_score": round(_PERFECT_SCORE - float(score), 2),
             "message": (
                 f"overall file health score {score}/10 "
@@ -46,11 +56,19 @@ def parse_repowise_output(raw: dict) -> list[dict]:
             "raw": item,
         })
 
+    occurrence_counts: dict[tuple, int] = {}
     for item in raw.get("findings", []):
         risk_score = _SEVERITY_TO_RISK.get(item.get("severity"), 5.0)
+        occurrence_key = (item["file_path"], item.get("function_name"), item.get("biomarker_type"))
+        occurrence_counts[occurrence_key] = occurrence_counts.get(occurrence_key, 0) + 1
+        occurrence = occurrence_counts[occurrence_key]
+        finding_id = f"{item.get('function_name')}:{item.get('biomarker_type')}"
+        if occurrence > 1:
+            finding_id = f"{finding_id}#{occurrence}"
         findings.append({
             "source": "repowise",
             "file": item["file_path"],
+            "finding_id": finding_id,
             "risk_score": risk_score,
             "message": item.get("reason", f"{item.get('biomarker_type')} detected"),
             "raw": item,
