@@ -280,3 +280,76 @@ def test_parse_semgrep_output_maps_unrecognized_severity_to_default_risk_score()
     }]}
     findings = parse_semgrep_output(raw)
     assert findings[0]["risk_score"] == 5.0
+
+
+def test_parse_semgrep_output_handles_non_dict_extra_without_raising():
+    # Regression test (coordinator re-review, round 3, Gap 1): `extra` had no type guard, unlike
+    # `start`. A truthy-but-non-dict `extra` (e.g. a list) previously left `extra.get(...)` to
+    # raise AttributeError uncaught inside parse_semgrep_output itself -- caught only one layer
+    # up in run_semgrep, where it drops the ENTIRE batch instead of just this one entry. Now
+    # `extra` gets the same isinstance(dict) guard `start` already had, so this degrades to the
+    # documented WARNING/empty-message default per-entry, without raising at all.
+    raw = {"results": [{
+        "check_id": "rule.bad-extra", "path": "foo.py", "start": {"line": 1},
+        "extra": ["not", "a", "dict"],
+    }]}
+
+    findings = parse_semgrep_output(raw)  # must not raise
+
+    assert len(findings) == 1
+    assert findings[0]["risk_score"] == 6.0  # falls back to default "WARNING" severity
+    assert findings[0]["message"] == "rule.bad-extra: "
+
+
+def test_run_semgrep_does_not_drop_whole_batch_on_one_entry_with_invalid_extra_type():
+    # Proves the per-entry-degradation promise actually holds now: a batch with ONE entry that
+    # has a non-dict `extra` alongside an otherwise well-formed entry must retain BOTH findings,
+    # not silently drop the whole batch the way it would have before extra's isinstance guard
+    # (when the AttributeError would've propagated out of parse_semgrep_output and been caught
+    # by run_semgrep's outer try/except, discarding everything).
+    raw = {"results": [
+        {"check_id": "rule.bad-extra", "path": "foo.py", "start": {"line": 1}, "extra": "junk"},
+        {"check_id": "rule.good", "path": "bar.py", "start": {"line": 2},
+         "extra": {"severity": "ERROR", "message": "a real finding"}},
+    ]}
+    fake_result = MagicMock(stdout=json.dumps(raw), returncode=1)
+
+    with patch("subprocess.run", return_value=fake_result):
+        findings, ok = run_semgrep("/fake/repo")
+
+    assert ok is True
+    assert len(findings) == 2
+    assert any(f["finding_id"] == "rule.good:2" and f["risk_score"] == 9.0 for f in findings)
+
+
+def test_parse_semgrep_output_wrong_typed_path_falls_back_to_str_and_disambiguates():
+    # Regression test (coordinator re-review, round 3, Gap 2): a present-but-wrong-typed `path`
+    # (e.g. an int) previously passed through unchanged -- finding["file"] would end up an int,
+    # violating the file-must-be-str contract this whole task history has been chasing -- and,
+    # since the value was truthy, used_fallback never fired, so no SHA-1 disambiguation suffix
+    # was added either. Now a non-str `path` is treated as invalid: falls back to "unknown" AND
+    # counts toward used_fallback, exactly like a missing path would.
+    raw = {"results": [{"check_id": "rule.bad-path", "path": 123, "start": {"line": 1},
+                         "extra": {"severity": "WARNING", "message": "int path"}}]}
+
+    findings = parse_semgrep_output(raw)
+
+    assert len(findings) == 1
+    finding = findings[0]
+    assert isinstance(finding["file"], str)
+    assert finding["file"] == "unknown"
+    assert finding["finding_id"].startswith("rule.bad-path:1:")  # hash suffix present
+
+
+def test_parse_semgrep_output_handles_unhashable_severity_without_raising():
+    # Self-audit finding (coordinator re-review, round 3, item 3): `_SEVERITY_TO_RISK.get(severity,
+    # ...)` would raise TypeError if `severity` were an unhashable type (e.g. a list) -- a dict
+    # lookup can't hash an unhashable key. Guarded by checking isinstance(severity, str) before
+    # the lookup; any non-str severity (unhashable or not) falls back to the default risk score.
+    raw = {"results": [{"check_id": "rule.weird-severity", "path": "foo.py", "start": {"line": 1},
+                         "extra": {"severity": ["WARNING"], "message": "list severity"}}]}
+
+    findings = parse_semgrep_output(raw)  # must not raise
+
+    assert len(findings) == 1
+    assert findings[0]["risk_score"] == 5.0

@@ -50,32 +50,89 @@ def parse_semgrep_output(raw: dict) -> list[dict]:
     that field). A `results[]` entry that isn't a dict at all (e.g. `None` or a bare string)
     is beyond field-level fallbacks -- `run_semgrep` catches that case separately (see below).
 
-    A fallback only fires when a field is genuinely unusable: absent from the dict, OR present
-    but falsy/`None` (an explicit `"check_id": null` or `"path": null` in a corrupted capture
-    must not slip through as a literal `None` in a `file`/`finding_id` string field, which
-    would violate the normalized contract that `file` is always `str`). `start.line` is checked
-    with `is not None` specifically rather than plain falsiness, since `0` is a technically
-    valid (if unlikely) line number that a blanket `or "?"` would incorrectly discard.
+    A fallback fires whenever a field is genuinely unusable, and "unusable" is checked with
+    `isinstance`, not `.get(key, default)` or plain truthiness -- `.get(key, default)` only
+    substitutes on a MISSING key, and plain truthiness/`is not None` checks still let a
+    present-but-WRONG-TYPE value (e.g. `"path": 123` or `"path": ["a", "b"]`) through unchanged.
+    `isinstance` catches all three shapes of malformed field in one check: absent (`.get()`
+    defaults to `None`, fails `isinstance`), explicit `None` (fails `isinstance`), and wrong
+    type (fails `isinstance`). This was tightened over two prior review rounds that each closed
+    one shape while leaving a structurally identical sibling open (missing-key, then explicit-
+    None, then wrong-type) -- `isinstance` closes all three at once instead of adding another
+    single-shape special case:
+      - `extra`: must be a `dict`, else treated as `{}` (matches the guard `start` already had).
+      - `path`: must be a non-empty `str`, else treated as missing (falls back to `"unknown"`
+        AND counts toward `used_fallback`, so a wrong-typed path gets the same SHA-1
+        disambiguation as a genuinely missing one -- a type-invalid value must never be
+        silently treated as a legitimate path).
+      - `start`: must be a `dict`, else treated as `{}`.
+      - `start.line`: checked with `is not None` (not `isinstance(int)`) -- `0` is a technically
+        valid line number, and unlike `path`/`file` there's no `str`-typed contract on the raw
+        `start.line` value itself (it's only ever embedded via f-string into `finding_id`, which
+        coerces any type to `str` safely, so a wrong-typed line number can't corrupt the output
+        contract the way a wrong-typed `path` could corrupt `file`).
+      - `check_id`: intentionally NOT type-checked, only falsy-checked (`or "unknown-rule"`).
+        Unlike `path` (which flows straight into `finding["file"]`, contractually `str`),
+        `check_id` only ever reaches output via an f-string (`finding_id`, `message`), which
+        coerces any type to `str` automatically -- there's no way for a wrong-typed `check_id`
+        to violate the normalized contract, so tightening it further would add complexity
+        without closing any real gap.
+      - `severity`: must be a `str` to be looked up in `_SEVERITY_TO_RISK` -- an unhashable
+        value (e.g. `"severity": ["WARNING"]`) would otherwise raise `TypeError` straight out of
+        a `dict.get()` call, uncaught inside this function. Any non-`str` severity (including
+        `None` from an explicit `"severity": null`) falls back directly to `_DEFAULT_RISK`
+        without touching the lookup table.
+      - `message`, `risk_score`, `raw`: audited and found not to need a fix. `message` is always
+        built via f-string (`f"{check_id}: {extra.get('message', '')}"`), which coerces any
+        type of `extra["message"]` safely, and its `f"{check_id}: "` prefix guarantees the
+        result is always non-empty even if `extra["message"]` is missing/empty. `risk_score` is
+        always one of the `_SEVERITY_TO_RISK` float values or `_DEFAULT_RISK` (never derived
+        from unvalidated input). `raw` is the original `result` dict itself -- no type
+        constraint beyond "the dict this finding came from", which it always is by construction.
 
-    When any of `check_id`/`path`/`start.line` falls back, `finding_id` additionally gets a
-    short content-hash suffix (of the entry's own remaining fields, order-independent). Without
-    this, two DIFFERENT malformed entries in the same batch -- e.g. one WARNING and one ERROR,
-    both missing check_id/path/start -- would otherwise collapse onto the identical placeholder
-    triple `("unknown", "unknown-rule:?")`, a real finding_id collision within a single file
-    that would silently drop one of them under the f"{source}:{file}:{finding_id}" dedup
-    convention. The hash is derived from content, not list position, matching the codebase's
-    established convention (see repowise_collector.py) of never keying disambiguation on
-    unstable list order. This does NOT fully solve the degenerate case of two BYTE-IDENTICAL
-    malformed entries (same missing fields, same severity, same message) -- those still hash
-    identically and collapse into one finding, by the same deliberate design repowise_collector
-    uses for genuinely indistinguishable duplicates: there is no content-based way to tell them
-    apart, so collapsing (rather than arbitrarily numbering by position) is the documented,
-    intentional choice, not an oversight.
+    When any of `check_id`/`path`/`start.line` falls back (including a wrong-typed `path`),
+    `finding_id` additionally gets a short content-hash suffix (of the entry's own remaining
+    fields, order-independent). Without this, two DIFFERENT malformed entries in the same batch
+    -- e.g. one WARNING and one ERROR, both missing check_id/path/start -- would otherwise
+    collapse onto the identical placeholder triple `("unknown", "unknown-rule:?")`, a real
+    finding_id collision within a single file that would silently drop one of them under the
+    f"{source}:{file}:{finding_id}" dedup convention. The hash is derived from content, not list
+    position, matching the codebase's established convention (see repowise_collector.py) of
+    never keying disambiguation on unstable list order. This does NOT fully solve the degenerate
+    case of two BYTE-IDENTICAL malformed entries (same missing fields, same severity, same
+    message) -- those still hash identically and collapse into one finding, by the same
+    deliberate design repowise_collector uses for genuinely indistinguishable duplicates: there
+    is no content-based way to tell them apart, so collapsing (rather than arbitrarily numbering
+    by position) is the documented, intentional choice, not an oversight. A malformed-but-valid-
+    type `extra` (e.g. `"extra": "junk"`, reset to `{}`) does NOT by itself trigger the SHA-1
+    suffix -- it doesn't touch `check_id`/`path`/`start.line`, so it can't reproduce the specific
+    placeholder-collision this suffix defends against; it can only ever fall back to the same
+    default severity (`"WARNING"`) two DIFFERENTLY-malformed `extra` entries would already share
+    with any other well-formed WARNING finding, which is the pre-existing, accepted,
+    non-`finding_id`-affecting behavior of a missing/absent `extra.severity`.
+
+    Beyond field-level fallbacks: a `results[]` entry that isn't a dict at all (e.g. `None` or a
+    bare string) still can't be rescued here -- `result.get(...)` itself raises on a non-dict
+    `result` before any of the above logic runs. That residual is caught one layer up, in
+    `run_semgrep`, which -- for that specific case only -- drops the whole batch rather than
+    just the one entry (see `run_semgrep`'s docstring). This is an intentional, previously
+    reviewed and accepted boundary: it would take restructuring `parse_semgrep_output` around a
+    per-entry try/except (skipping just the unusable entry) to make even a non-dict `result`
+    degrade per-entry instead of failing the whole batch, and that was judged disproportionate
+    complexity for a shape of corruption (a `results[]` array containing a bare `None`/string
+    instead of an object) that would mean semgrep's own JSON output format changed in a way with
+    no other precedent.
     """
     findings = []
     for result in raw.get("results", []):
-        extra = result.get("extra") or {}
+        extra = result.get("extra")
+        extra = extra if isinstance(extra, dict) else {}
         severity = extra.get("severity", "WARNING")
+        risk_score = (
+            _SEVERITY_TO_RISK.get(severity, _DEFAULT_RISK)
+            if isinstance(severity, str)
+            else _DEFAULT_RISK
+        )
 
         raw_check_id = result.get("check_id")
         raw_path = result.get("path")
@@ -84,11 +141,12 @@ def parse_semgrep_output(raw: dict) -> list[dict]:
         raw_start_line = start.get("line")
 
         check_id = raw_check_id or "unknown-rule"
-        path = raw_path or "unknown"
+        path_valid = isinstance(raw_path, str) and raw_path
+        path = raw_path if path_valid else "unknown"
         start_line = raw_start_line if raw_start_line is not None else "?"
 
         finding_id = f"{check_id}:{start_line}"
-        used_fallback = not raw_check_id or not raw_path or raw_start_line is None
+        used_fallback = not raw_check_id or not path_valid or raw_start_line is None
         if used_fallback:
             # Disambiguate the shared placeholder finding_id across malformed entries in the
             # same batch. Content-derived (not position-derived): two malformed entries with
@@ -102,7 +160,7 @@ def parse_semgrep_output(raw: dict) -> list[dict]:
             "source": "semgrep",
             "file": path,
             "finding_id": finding_id,
-            "risk_score": _SEVERITY_TO_RISK.get(severity, _DEFAULT_RISK),
+            "risk_score": risk_score,
             "message": f"{check_id}: {extra.get('message', '')}",
             "raw": result,
         })
