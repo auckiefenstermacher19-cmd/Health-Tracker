@@ -55,7 +55,24 @@ def main() -> None:
     if report_only:
         print("\n[REPORT_ONLY=true] Skipping fix/PR step.")
     else:
-        print("\n[REPORT_ONLY=false] Fix/PR step not yet implemented (Tasks 10/11).")
+        from codegeeko.fixer import fix_and_report
+
+        for item in triaged:
+            try:
+                outcome = fix_and_report(item, repo_path, owner, repo, github_token)
+            except Exception as exc:
+                # codegeeko/fixer.py's git subprocess calls (checkout/add/commit/push/branch -D)
+                # deliberately raise on failure rather than degrading gracefully like the
+                # PR/Issue HTTP calls -- see fix_and_report's docstring. An unexpected local git
+                # failure (e.g. a stale branch left over from a prior crashed run) signals an
+                # environment problem a human should see, not something to silently launder into
+                # a misleading "issue" outcome. But ONE finding's git failure must not take down
+                # the whole nightly batch or skip save_state() for every other finding, so it's
+                # caught here, at the per-finding boundary, and reported like any other outcome.
+                print(f"  -> git_failed: {item.get('file')}/{item.get('finding_id')}: {exc}")
+                continue
+            detail = outcome.get("url") or outcome.get("error", "unknown")
+            print(f"  -> {outcome['outcome']}: {detail}")
 
     save_state(STATE_PATH, build_next_state(findings, checked))
 
