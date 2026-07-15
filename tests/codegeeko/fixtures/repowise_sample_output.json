@@ -1,0 +1,557 @@
+{
+  "kpis": {
+    "hotspot_health": 10.0,
+    "average_health": 9.33,
+    "worst_performer_path": "dashboard.js",
+    "worst_performer_score": 6.0,
+    "file_count": 19,
+    "maintainability_average": 9.55,
+    "maintainability_hotspot": null,
+    "performance_average": 9.95,
+    "performance_hotspot": null
+  },
+  "metrics": [
+    {
+      "file_path": "dashboard.js",
+      "score": 6.0,
+      "max_ccn": 139,
+      "max_nesting": 6,
+      "nloc": 335,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": 4.67
+    },
+    {
+      "file_path": "fetch_sources.py",
+      "score": 7.69,
+      "max_ccn": 10,
+      "max_nesting": 4,
+      "nloc": 186,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": "validate_sources.py",
+      "score": 8.15,
+      "max_ccn": 16,
+      "max_nesting": 3,
+      "nloc": 263,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": "consolidate.py",
+      "score": 8.5,
+      "max_ccn": 13,
+      "max_nesting": 2,
+      "nloc": 296,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": "generate_audit_report.py",
+      "score": 9.06,
+      "max_ccn": 5,
+      "max_nesting": 4,
+      "nloc": 92,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": ".mcp.json",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 14,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": "README.md",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 208,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": "cross_repo_trigger_setup.md",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 97,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": ".claude/CLAUDE.md",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 60,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": ".github/workflows/consolidate.yml",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 127,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": ".github/workflows/validate_only.yml",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 59,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": ".repowise/knowledge-graph.json",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 1259,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": ".repowise/mcp.json",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 14,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": ".repowise/state.json",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 37,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": "logs/audit_report.md",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 704,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": "schema/Meal_Data_Dashboard_schema.json",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 138,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": "schema/daily_consolidated_schema.json",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 77,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": "workflows/consolidate.yml",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 127,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    },
+    {
+      "file_path": "workflows/validate_only.yml",
+      "score": 10.0,
+      "max_ccn": 1,
+      "max_nesting": 0,
+      "nloc": 59,
+      "has_test_file": false,
+      "line_coverage_pct": null,
+      "branch_coverage_pct": null,
+      "duplication_pct": null
+    }
+  ],
+  "findings": [
+    {
+      "biomarker_type": "complex_method",
+      "severity": "medium",
+      "file_path": "consolidate.py",
+      "function_name": "build_consolidated",
+      "health_impact": 0.392,
+      "details": {
+        "ccn": 12,
+        "cognitive": 14,
+        "nloc": 107
+      },
+      "reason": "build_consolidated has cyclomatic complexity 12"
+    },
+    {
+      "biomarker_type": "complex_method",
+      "severity": "medium",
+      "file_path": "consolidate.py",
+      "function_name": "validate_output",
+      "health_impact": 0.392,
+      "details": {
+        "ccn": 13,
+        "cognitive": 15,
+        "nloc": 61
+      },
+      "reason": "validate_output has cyclomatic complexity 13"
+    },
+    {
+      "biomarker_type": "large_method",
+      "severity": "medium",
+      "file_path": "consolidate.py",
+      "function_name": "build_consolidated",
+      "health_impact": 0.405,
+      "details": {
+        "nloc": 107,
+        "ccn": 12
+      },
+      "reason": "build_consolidated is 107 lines long"
+    },
+    {
+      "biomarker_type": "large_method",
+      "severity": "low",
+      "file_path": "consolidate.py",
+      "function_name": "validate_output",
+      "health_impact": 0.173,
+      "details": {
+        "nloc": 61,
+        "ccn": 13
+      },
+      "reason": "validate_output is 61 lines long"
+    },
+    {
+      "biomarker_type": "primitive_obsession",
+      "severity": "low",
+      "file_path": "consolidate.py",
+      "function_name": "validate_output",
+      "health_impact": 0.069,
+      "details": {
+        "param_count": 6
+      },
+      "reason": "validate_output takes 6 parameters"
+    },
+    {
+      "biomarker_type": "primitive_obsession",
+      "severity": "low",
+      "file_path": "consolidate.py",
+      "function_name": "build_output_row",
+      "health_impact": 0.069,
+      "details": {
+        "param_count": 5
+      },
+      "reason": "build_output_row takes 5 parameters"
+    },
+    {
+      "biomarker_type": "nested_complexity",
+      "severity": "high",
+      "file_path": "dashboard.js",
+      "function_name": "buildCoaching",
+      "health_impact": 1.337,
+      "details": {
+        "max_nesting": 6,
+        "ccn": 35,
+        "cognitive": 53
+      },
+      "reason": "buildCoaching nests 6 levels deep"
+    },
+    {
+      "biomarker_type": "complex_method",
+      "severity": "medium",
+      "file_path": "dashboard.js",
+      "function_name": "renderCalendar",
+      "health_impact": 0.124,
+      "details": {
+        "ccn": 10,
+        "cognitive": 16,
+        "nloc": 17
+      },
+      "reason": "renderCalendar has cyclomatic complexity 10"
+    },
+    {
+      "biomarker_type": "complex_method",
+      "severity": "critical",
+      "file_path": "dashboard.js",
+      "function_name": "renderDay",
+      "health_impact": 0.354,
+      "details": {
+        "ccn": 139,
+        "cognitive": 183,
+        "nloc": 135
+      },
+      "reason": "renderDay has cyclomatic complexity 139"
+    },
+    {
+      "biomarker_type": "complex_method",
+      "severity": "high",
+      "file_path": "dashboard.js",
+      "function_name": "renderCharts",
+      "health_impact": 0.213,
+      "details": {
+        "ccn": 20,
+        "cognitive": 20,
+        "nloc": 37
+      },
+      "reason": "renderCharts has cyclomatic complexity 20"
+    },
+    {
+      "biomarker_type": "complex_method",
+      "severity": "critical",
+      "file_path": "dashboard.js",
+      "function_name": "buildCoaching",
+      "health_impact": 0.354,
+      "details": {
+        "ccn": 35,
+        "cognitive": 53,
+        "nloc": 35
+      },
+      "reason": "buildCoaching has cyclomatic complexity 35"
+    },
+    {
+      "biomarker_type": "complex_method",
+      "severity": "high",
+      "file_path": "dashboard.js",
+      "function_name": "keyMetricDesc",
+      "health_impact": 0.213,
+      "details": {
+        "ccn": 22,
+        "cognitive": 49,
+        "nloc": 23
+      },
+      "reason": "keyMetricDesc has cyclomatic complexity 22"
+    },
+    {
+      "biomarker_type": "bumpy_road",
+      "severity": "high",
+      "file_path": "dashboard.js",
+      "function_name": "renderDay",
+      "health_impact": 0.499,
+      "details": {
+        "bumps": 24,
+        "ccn": 139,
+        "max_nesting": 3
+      },
+      "reason": "renderDay has 24 nested blocks at the same level (bumpy road)"
+    },
+    {
+      "biomarker_type": "large_method",
+      "severity": "high",
+      "file_path": "dashboard.js",
+      "function_name": "renderDay",
+      "health_impact": 0.22,
+      "details": {
+        "nloc": 135,
+        "ccn": 139
+      },
+      "reason": "renderDay is 135 lines long"
+    },
+    {
+      "biomarker_type": "primitive_obsession",
+      "severity": "low",
+      "file_path": "dashboard.js",
+      "function_name": "fillBarHTML",
+      "health_impact": 0.022,
+      "details": {
+        "param_count": 6
+      },
+      "reason": "fillBarHTML takes 6 parameters"
+    },
+    {
+      "biomarker_type": "complex_conditional",
+      "severity": "low",
+      "file_path": "dashboard.js",
+      "function_name": "buildCoaching",
+      "health_impact": 0.332,
+      "details": {
+        "operator_count": 3,
+        "enclosing_construct": "if"
+      },
+      "reason": "if condition combines 3 boolean operators"
+    },
+    {
+      "biomarker_type": "complex_conditional",
+      "severity": "low",
+      "file_path": "dashboard.js",
+      "function_name": "buildCoaching",
+      "health_impact": 0.332,
+      "details": {
+        "operator_count": 3,
+        "enclosing_construct": "if"
+      },
+      "reason": "if condition combines 3 boolean operators"
+    },
+    {
+      "biomarker_type": "string_concat_in_loop",
+      "severity": "low",
+      "file_path": "dashboard.js",
+      "function_name": "renderCalendar",
+      "health_impact": 0.0,
+      "details": {},
+      "reason": "string built by += in a loop; use a buffer / join for linear cost"
+    },
+    {
+      "biomarker_type": "nested_complexity",
+      "severity": "medium",
+      "file_path": "fetch_sources.py",
+      "function_name": "fetch_file",
+      "health_impact": 0.938,
+      "details": {
+        "max_nesting": 4,
+        "ccn": 10,
+        "cognitive": 28
+      },
+      "reason": "fetch_file nests 4 levels deep"
+    },
+    {
+      "biomarker_type": "complex_method",
+      "severity": "medium",
+      "file_path": "fetch_sources.py",
+      "function_name": "fetch_file",
+      "health_impact": 0.847,
+      "details": {
+        "ccn": 10,
+        "cognitive": 28,
+        "nloc": 70
+      },
+      "reason": "fetch_file has cyclomatic complexity 10"
+    },
+    {
+      "biomarker_type": "large_method",
+      "severity": "low",
+      "file_path": "fetch_sources.py",
+      "function_name": "fetch_file",
+      "health_impact": 0.375,
+      "details": {
+        "nloc": 70,
+        "ccn": 10
+      },
+      "reason": "fetch_file is 70 lines long"
+    },
+    {
+      "biomarker_type": "primitive_obsession",
+      "severity": "low",
+      "file_path": "fetch_sources.py",
+      "function_name": "fetch_file",
+      "health_impact": 0.15,
+      "details": {
+        "param_count": 6
+      },
+      "reason": "fetch_file takes 6 parameters"
+    },
+    {
+      "biomarker_type": "io_in_loop",
+      "severity": "medium",
+      "file_path": "fetch_sources.py",
+      "function_name": "fetch_file",
+      "health_impact": 0.0,
+      "details": {
+        "boundary_kind": "network",
+        "cross_function": false
+      },
+      "reason": "a network call runs once per loop iteration (N+1 / IO-in-loop)"
+    },
+    {
+      "biomarker_type": "nested_complexity",
+      "severity": "medium",
+      "file_path": "generate_audit_report.py",
+      "function_name": "load_audit_records",
+      "health_impact": 0.938,
+      "details": {
+        "max_nesting": 4,
+        "ccn": 5,
+        "cognitive": 11
+      },
+      "reason": "load_audit_records nests 4 levels deep"
+    },
+    {
+      "biomarker_type": "complex_method",
+      "severity": "high",
+      "file_path": "validate_sources.py",
+      "function_name": "validate_csv",
+      "health_impact": 0.936,
+      "details": {
+        "ccn": 16,
+        "cognitive": 28,
+        "nloc": 103
+      },
+      "reason": "validate_csv has cyclomatic complexity 16"
+    },
+    {
+      "biomarker_type": "bumpy_road",
+      "severity": "medium",
+      "file_path": "validate_sources.py",
+      "function_name": "validate_csv",
+      "health_impact": 0.35,
+      "details": {
+        "bumps": 4,
+        "ccn": 16,
+        "max_nesting": 3
+      },
+      "reason": "validate_csv has 4 nested blocks at the same level (bumpy road)"
+    },
+    {
+      "biomarker_type": "large_method",
+      "severity": "medium",
+      "file_path": "validate_sources.py",
+      "function_name": "validate_csv",
+      "health_impact": 0.564,
+      "details": {
+        "nloc": 103,
+        "ccn": 16
+      },
+      "reason": "validate_csv is 103 lines long"
+    }
+  ]
+}
