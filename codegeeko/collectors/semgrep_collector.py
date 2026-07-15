@@ -1,3 +1,4 @@
+import hashlib
 import json
 import subprocess
 
@@ -48,19 +49,59 @@ def parse_semgrep_output(raw: dict) -> list[dict]:
     and `start.line` falls back to `"?"` (restoring the brief's own starter-code precedent for
     that field). A `results[]` entry that isn't a dict at all (e.g. `None` or a bare string)
     is beyond field-level fallbacks -- `run_semgrep` catches that case separately (see below).
+
+    A fallback only fires when a field is genuinely unusable: absent from the dict, OR present
+    but falsy/`None` (an explicit `"check_id": null` or `"path": null` in a corrupted capture
+    must not slip through as a literal `None` in a `file`/`finding_id` string field, which
+    would violate the normalized contract that `file` is always `str`). `start.line` is checked
+    with `is not None` specifically rather than plain falsiness, since `0` is a technically
+    valid (if unlikely) line number that a blanket `or "?"` would incorrectly discard.
+
+    When any of `check_id`/`path`/`start.line` falls back, `finding_id` additionally gets a
+    short content-hash suffix (of the entry's own remaining fields, order-independent). Without
+    this, two DIFFERENT malformed entries in the same batch -- e.g. one WARNING and one ERROR,
+    both missing check_id/path/start -- would otherwise collapse onto the identical placeholder
+    triple `("unknown", "unknown-rule:?")`, a real finding_id collision within a single file
+    that would silently drop one of them under the f"{source}:{file}:{finding_id}" dedup
+    convention. The hash is derived from content, not list position, matching the codebase's
+    established convention (see repowise_collector.py) of never keying disambiguation on
+    unstable list order. This does NOT fully solve the degenerate case of two BYTE-IDENTICAL
+    malformed entries (same missing fields, same severity, same message) -- those still hash
+    identically and collapse into one finding, by the same deliberate design repowise_collector
+    uses for genuinely indistinguishable duplicates: there is no content-based way to tell them
+    apart, so collapsing (rather than arbitrarily numbering by position) is the documented,
+    intentional choice, not an oversight.
     """
     findings = []
     for result in raw.get("results", []):
-        extra = result.get("extra", {}) or {}
+        extra = result.get("extra") or {}
         severity = extra.get("severity", "WARNING")
-        check_id = result.get("check_id", "unknown-rule")
-        path = result.get("path", "unknown")
-        start = result.get("start", {}) or {}
-        start_line = start.get("line", "?")
+
+        raw_check_id = result.get("check_id")
+        raw_path = result.get("path")
+        start = result.get("start")
+        start = start if isinstance(start, dict) else {}
+        raw_start_line = start.get("line")
+
+        check_id = raw_check_id or "unknown-rule"
+        path = raw_path or "unknown"
+        start_line = raw_start_line if raw_start_line is not None else "?"
+
+        finding_id = f"{check_id}:{start_line}"
+        used_fallback = not raw_check_id or not raw_path or raw_start_line is None
+        if used_fallback:
+            # Disambiguate the shared placeholder finding_id across malformed entries in the
+            # same batch. Content-derived (not position-derived): two malformed entries with
+            # different remaining content (e.g. different severity) get different suffixes.
+            digest = hashlib.sha1(
+                json.dumps(result, sort_keys=True, default=str).encode()
+            ).hexdigest()[:8]
+            finding_id = f"{finding_id}:{digest}"
+
         findings.append({
             "source": "semgrep",
             "file": path,
-            "finding_id": f"{check_id}:{start_line}",
+            "finding_id": finding_id,
             "risk_score": _SEVERITY_TO_RISK.get(severity, _DEFAULT_RISK),
             "message": f"{check_id}: {extra.get('message', '')}",
             "raw": result,
@@ -99,6 +140,8 @@ def run_semgrep(repo_path: str) -> tuple[list[dict], bool]:
 
     try:
         findings = parse_semgrep_output(raw)
+    # parse_semgrep_output no longer does hard dict indexing (it's all .get()-based now), so
+    # KeyError shouldn't actually fire here -- kept as a defensive no-op in case that changes.
     except (AttributeError, TypeError, KeyError):
         return [], False
     return findings, True

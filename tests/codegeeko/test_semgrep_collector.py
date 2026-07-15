@@ -172,9 +172,70 @@ def test_parse_semgrep_output_handles_result_missing_fields_with_fallbacks():
     finding = findings[0]
     assert finding["source"] == "semgrep"
     assert finding["file"] == "unknown"
-    assert finding["finding_id"] == "unknown-rule:?"
+    assert finding["finding_id"].startswith("unknown-rule:?:")  # placeholder + content hash
     assert finding["risk_score"] == 6.0
     assert "orphaned finding" in finding["message"]
+
+
+def test_parse_semgrep_output_treats_explicit_none_values_same_as_missing_keys():
+    # Regression test (coordinator re-review, round 2): .get(key, default) only applies its
+    # default when the key is ABSENT, not when it's present with value None. A corrupted
+    # capture with `"check_id": null, "path": null` must still produce a valid non-None `file`
+    # str and a usable finding_id -- not `finding["file"] = None`, which would violate the
+    # normalized contract that `file` is always `str`.
+    raw = {"results": [{
+        "check_id": None,
+        "path": None,
+        "start": {"line": 1},
+        "extra": {"severity": "WARNING", "message": "explicit nulls"},
+    }]}
+
+    findings = parse_semgrep_output(raw)
+
+    assert len(findings) == 1
+    finding = findings[0]
+    assert isinstance(finding["file"], str)
+    assert finding["file"] == "unknown"
+    assert isinstance(finding["finding_id"], str) and finding["finding_id"]
+    assert finding["finding_id"].startswith("unknown-rule:1:")
+
+
+def test_parse_semgrep_output_disambiguates_distinct_malformed_entries_in_same_batch():
+    # Regression test (coordinator re-review, round 2): two DIFFERENT malformed entries in the
+    # same batch, both missing check_id/path/start, must not collapse onto the identical
+    # placeholder finding_id ("unknown-rule:?") -- that would be a real within-file finding_id
+    # collision, silently dropping one of them under the f"{source}:{file}:{finding_id}" dedup
+    # convention. The chosen fix: a content-hash suffix, so entries that differ in their
+    # remaining content (here, severity/message) get distinct finding_ids.
+    raw = {"results": [
+        {"extra": {"severity": "WARNING", "message": "malformed warning entry"}},
+        {"extra": {"severity": "ERROR", "message": "malformed error entry"}},
+    ]}
+
+    findings = parse_semgrep_output(raw)
+
+    assert len(findings) == 2
+    assert findings[0]["file"] == findings[1]["file"] == "unknown"
+    ids = [f["finding_id"] for f in findings]
+    assert len(ids) == len(set(ids)), f"finding_id collision between distinct malformed entries: {ids}"
+    assert findings[0]["risk_score"] == 6.0
+    assert findings[1]["risk_score"] == 9.0
+
+
+def test_parse_semgrep_output_collapses_byte_identical_malformed_entries_by_design():
+    # Documents the deliberate, tested boundary of the content-hash disambiguation: two
+    # malformed entries that are byte-identical (same missing fields, same severity, same
+    # message) have no content-based way to be told apart, so they hash to the SAME finding_id
+    # and collapse -- the same intentional choice repowise_collector.py makes for genuinely
+    # indistinguishable duplicates, rather than an arbitrary/unstable position-based numbering.
+    # This is an explicit, verified decision, not an untested side effect.
+    identical_entry = {"extra": {"severity": "WARNING", "message": "same malformed entry"}}
+    raw = {"results": [identical_entry, dict(identical_entry)]}
+
+    findings = parse_semgrep_output(raw)
+
+    assert len(findings) == 2  # parse_semgrep_output never dedupes -- both still appear
+    assert findings[0]["finding_id"] == findings[1]["finding_id"]  # but they share a finding_id
 
 
 def test_run_semgrep_returns_not_ok_on_structurally_malformed_results_entry():
