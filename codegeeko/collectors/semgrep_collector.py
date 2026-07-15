@@ -31,10 +31,12 @@ def parse_semgrep_output(raw: dict) -> list[dict]:
     so `(check_id, start_line)` collides ACROSS different files but never within a single
     file, which is exactly what the contract requires. No representative-selection/collision
     handling (like Task 2 needed for repowise) was needed here because no such within-file
-    collision exists in the real data; if a future run ever produced one, the last result
-    would win (Python dict iteration is insertion-ordered, so this would be a silent
-    overwrite) -- that risk didn't warrant added complexity given it's unverified in real
-    output, but is called out here for anyone revisiting this.
+    collision exists in the real data. This function itself never dedupes -- it always emits
+    one finding per `results` entry -- so if a future run ever produced two same-file results
+    sharing both `check_id` and `start_line`, both would still appear here with the same
+    finding_id; only a downstream consumer keyed on (source, file, finding_id) (e.g. Task 6's
+    state store) would silently collapse them. That risk didn't warrant added complexity given
+    it's unverified in real output, but is called out here for anyone revisiting this.
     """
     findings = []
     for result in raw.get("results", []):
