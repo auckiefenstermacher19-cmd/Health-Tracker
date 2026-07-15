@@ -2,6 +2,8 @@ import asyncio
 import json
 from unittest.mock import patch
 
+import pytest
+
 from codegeeko.triage import triage_findings
 
 DELTA = {"source": "repowise", "file": "consolidate.py", "finding_id": "metric", "risk_score": 8.0, "message": "high complexity", "raw": {}}
@@ -100,6 +102,41 @@ def test_triage_findings_degrades_gracefully_when_decision_missing_keys():
         yield _MissingKeyResultMessage()
 
     with patch("codegeeko.triage.query", _fake_missing_key_query):
+        result = triage_findings([DELTA])
+
+    assert result == []
+
+
+@pytest.mark.parametrize("raw_result", ["[1, 2, 3]", "null", '"oops"', "42"])
+def test_triage_findings_degrades_gracefully_when_top_level_json_is_not_a_dict(raw_result):
+    # Syntactically valid JSON that isn't a dict (list/null/string/number all parse fine via
+    # json.loads) must not raise AttributeError from `parsed.get(...)` — it should degrade to
+    # "no decisions", same as any other malformed external response.
+    class _NonDictResultMessage:
+        subtype = "success"
+        result = raw_result
+
+    async def _fake_non_dict_query(*args, **kwargs):
+        yield _NonDictResultMessage()
+
+    with patch("codegeeko.triage.query", _fake_non_dict_query):
+        result = triage_findings([DELTA])
+
+    assert result == []
+
+
+def test_triage_findings_degrades_gracefully_when_decisions_value_is_null():
+    # {"decisions": null} is a plausible "nothing to report" shape from an LLM. dict.get's
+    # default only fires when the key is absent, not when the value is explicitly None, so
+    # this must not raise TypeError from `for item in None`.
+    class _NullDecisionsResultMessage:
+        subtype = "success"
+        result = json.dumps({"decisions": None})
+
+    async def _fake_null_decisions_query(*args, **kwargs):
+        yield _NullDecisionsResultMessage()
+
+    with patch("codegeeko.triage.query", _fake_null_decisions_query):
         result = triage_findings([DELTA])
 
     assert result == []

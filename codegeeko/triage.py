@@ -62,8 +62,19 @@ def _run_triage_query(deltas: list[dict]) -> dict:
     except (json.JSONDecodeError, TypeError):
         return {}
 
+    # `parsed` can be *syntactically* valid JSON while structurally nothing like the expected
+    # `{"decisions": [...]}` shape — e.g. `[1, 2, 3]`, `null`, `"oops"`, or `42` all parse fine
+    # via json.loads but aren't dicts (no `.get`), and `{"decisions": null}` is a plausible
+    # "nothing to report" shape from an LLM where `.get("decisions", [])` still returns `None`
+    # (the `[]` default only fires when the key is absent, not when its value is explicitly
+    # None). Guard both so a structurally-wrong-but-valid-JSON response degrades to "no
+    # decisions" instead of raising AttributeError/TypeError out of this function.
+    decisions = parsed.get("decisions") if isinstance(parsed, dict) else None
+    if not isinstance(decisions, list):
+        decisions = []
+
     decisions_by_key = {}
-    for item in parsed.get("decisions", []):
+    for item in decisions:
         try:
             decisions_by_key[_decision_key(item)] = item
         except (KeyError, TypeError):
