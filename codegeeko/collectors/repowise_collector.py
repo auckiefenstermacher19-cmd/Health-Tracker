@@ -26,29 +26,35 @@ def parse_repowise_output(raw: dict) -> list[dict]:
 
     - `metrics`: files scoring below a perfect 10.0 become one finding each (a perfect
       score has nothing to report, so it's skipped rather than emitting 0-risk noise).
-    - `findings`: every biomarker becomes one finding — this is the specific, actionable
-      signal (e.g. "renderDay has cyclomatic complexity 139").
+    - `findings`: each distinct (file, function, biomarker_type) becomes one finding — this
+      is the specific, actionable signal (e.g. "renderDay has cyclomatic complexity 139").
 
     `finding_id` uniquely identifies a finding within a given `file` (state/triage/PR tasks
     key dedup by `f"{source}:{file}:{finding_id}"`, per Code-Geeko plan amendment e52cbbd).
     There is at most one metrics entry per file, so `"metric"` alone is unique there.
-    `findings` entries are id'd by `function_name:biomarker_type`, but the real fixture proves
-    that pair is NOT always unique within a file — dashboard.js's `buildCoaching` has two
-    identical `complex_conditional` entries with no distinguishing field (verified against
-    tests/codegeeko/fixtures/repowise_sample_output.json) — so a `#N` occurrence suffix is
-    appended from the 2nd duplicate onward to guarantee uniqueness.
+    `findings` entries are id'd by `function_name:biomarker_type` — a content-derived key, not
+    a list-position-derived one, because `raw["findings"]`'s order is not documented anywhere
+    as stable across repowise runs. The real fixture proves that `(function_name,
+    biomarker_type)` pair is NOT always unique within a file — dashboard.js's `buildCoaching`
+    has two field-identical `complex_conditional` entries with no other distinguishing data
+    (verified against tests/codegeeko/fixtures/repowise_sample_output.json). Since there is no
+    ordering-independent way to tell such duplicates apart, they are collapsed into a single
+    finding rather than positionally numbered — the occurrence count is noted in `message`
+    instead, so `finding_id` never depends on list position.
     """
     findings = []
 
     for item in raw.get("metrics", []):
+        file_path = item.get("file_path")
         score = item.get("score")
-        if score is None or score >= _PERFECT_SCORE:
+        if file_path is None or score is None or score >= _PERFECT_SCORE:
             continue
+        risk_score = max(0.0, min(10.0, _PERFECT_SCORE - float(score)))
         findings.append({
             "source": "repowise",
-            "file": item["file_path"],
+            "file": file_path,
             "finding_id": "metric",
-            "risk_score": round(_PERFECT_SCORE - float(score), 2),
+            "risk_score": round(risk_score, 2),
             "message": (
                 f"overall file health score {score}/10 "
                 f"(max CCN {item.get('max_ccn')}, max nesting {item.get('max_nesting')})"
@@ -56,21 +62,30 @@ def parse_repowise_output(raw: dict) -> list[dict]:
             "raw": item,
         })
 
-    occurrence_counts: dict[tuple, int] = {}
+    # Group findings entries by (file_path, function_name, biomarker_type) so that
+    # field-identical duplicates collapse into one finding with a content-derived finding_id,
+    # instead of being numbered by their (unstable) position in raw["findings"].
+    groups: dict[tuple, list[dict]] = {}
     for item in raw.get("findings", []):
+        file_path = item.get("file_path")
+        if file_path is None:
+            continue
+        group_key = (file_path, item.get("function_name"), item.get("biomarker_type"))
+        groups.setdefault(group_key, []).append(item)
+
+    for (file_path, function_name, biomarker_type), items in groups.items():
+        item = items[0]
+        occurrences = len(items)
         risk_score = _SEVERITY_TO_RISK.get(item.get("severity"), 5.0)
-        occurrence_key = (item["file_path"], item.get("function_name"), item.get("biomarker_type"))
-        occurrence_counts[occurrence_key] = occurrence_counts.get(occurrence_key, 0) + 1
-        occurrence = occurrence_counts[occurrence_key]
-        finding_id = f"{item.get('function_name')}:{item.get('biomarker_type')}"
-        if occurrence > 1:
-            finding_id = f"{finding_id}#{occurrence}"
+        message = item.get("reason", f"{biomarker_type} detected")
+        if occurrences > 1:
+            message = f"{message} (occurs {occurrences} times)"
         findings.append({
             "source": "repowise",
-            "file": item["file_path"],
-            "finding_id": finding_id,
+            "file": file_path,
+            "finding_id": f"{function_name}:{biomarker_type}",
             "risk_score": risk_score,
-            "message": item.get("reason", f"{item.get('biomarker_type')} detected"),
+            "message": message,
             "raw": item,
         })
 

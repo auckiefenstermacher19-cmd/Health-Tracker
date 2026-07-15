@@ -1,7 +1,9 @@
 import json
+import subprocess
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
-from codegeeko.collectors.repowise_collector import parse_repowise_output
+from codegeeko.collectors.repowise_collector import parse_repowise_output, run_repowise
 
 FIXTURE = Path(__file__).parent / "fixtures" / "repowise_sample_output.json"
 
@@ -65,10 +67,14 @@ def test_parse_repowise_output_skips_perfect_score_files():
 
 
 def test_parse_repowise_output_finding_ids_unique_per_file():
-    # Regression test: dashboard.js alone produces 12 findings-derived entries plus 1
-    # metrics-derived entry, all sharing file="dashboard.js". A downstream dedup dict keyed
-    # only by f"{source}:{file}" would silently collapse all 13 into one. Every finding_id
-    # within a given file must be distinct so f"{source}:{file}:{finding_id}" is a safe key.
+    # Regression test: dashboard.js alone produces 11 distinct (function_name, biomarker_type)
+    # groups in raw["findings"] plus 1 metrics entry, all sharing file="dashboard.js". A
+    # downstream dedup dict keyed only by f"{source}:{file}" would silently collapse all 12
+    # into one. Every finding_id within a given file must be distinct so
+    # f"{source}:{file}:{finding_id}" is a safe key. (Verified programmatically against the
+    # fixture: raw["findings"] has 27 entries but only 26 distinct (file_path, function_name,
+    # biomarker_type) triples — dashboard.js/buildCoaching/complex_conditional appears twice —
+    # so after collapsing, dashboard.js has 11 distinct findings-derived groups, not 12.)
     raw = json.loads(FIXTURE.read_text())
     findings = parse_repowise_output(raw)
 
@@ -77,7 +83,7 @@ def test_parse_repowise_output_finding_ids_unique_per_file():
         by_file.setdefault(f["file"], []).append(f["finding_id"])
 
     dashboard_ids = by_file["dashboard.js"]
-    assert len(dashboard_ids) == 13  # 12 biomarker findings + 1 metrics finding
+    assert len(dashboard_ids) == 12  # 11 collapsed biomarker groups + 1 metrics finding
     assert len(dashboard_ids) == len(set(dashboard_ids)), (
         f"finding_id collision within dashboard.js: {dashboard_ids}"
     )
@@ -86,12 +92,53 @@ def test_parse_repowise_output_finding_ids_unique_per_file():
     for file_path, ids in by_file.items():
         assert len(ids) == len(set(ids)), f"finding_id collision within {file_path}: {ids}"
 
-    # the specific real collision this regression guards against: two identical
-    # buildCoaching/complex_conditional entries on dashboard.js must still get distinct ids
-    coaching_ids = [
-        f["finding_id"] for f in findings
+    # the specific real collision this regression guards against: two field-identical
+    # buildCoaching/complex_conditional entries on dashboard.js collapse into ONE finding
+    # (not two positionally-numbered ones, since raw["findings"]'s order is not documented as
+    # stable across repowise runs), with the occurrence count surfaced in the message instead.
+    coaching_findings = [
+        f for f in findings
         if f["file"] == "dashboard.js"
         and f["raw"].get("function_name") == "buildCoaching"
         and f["raw"].get("biomarker_type") == "complex_conditional"
     ]
-    assert coaching_ids == ["buildCoaching:complex_conditional", "buildCoaching:complex_conditional#2"]
+    assert len(coaching_findings) == 1
+    assert coaching_findings[0]["finding_id"] == "buildCoaching:complex_conditional"
+    assert "occurs 2 times" in coaching_findings[0]["message"]
+
+
+def test_run_repowise_calls_init_then_health_and_parses_output():
+    fake_stdout = json.dumps({"metrics": [], "findings": []})
+    fake_result = MagicMock(stdout=fake_stdout)
+
+    with patch("subprocess.run") as mock_run:
+        mock_run.side_effect = [MagicMock(), fake_result]  # init call, then health call
+        findings, ok = run_repowise("/fake/repo")
+
+    assert ok is True
+    assert findings == []
+    assert mock_run.call_count == 2
+
+    init_args, init_kwargs = mock_run.call_args_list[0]
+    assert init_args[0] == ["repowise", "init", ".", "--index-only"]
+    assert init_kwargs["cwd"] == "/fake/repo"
+
+    health_args, health_kwargs = mock_run.call_args_list[1]
+    assert health_args[0] == ["repowise", "health", "--format", "json"]
+    assert health_kwargs["cwd"] == "/fake/repo"
+
+
+def test_run_repowise_returns_not_ok_on_called_process_error():
+    with patch("subprocess.run", side_effect=subprocess.CalledProcessError(1, "repowise")):
+        findings, ok = run_repowise("/fake/repo")
+
+    assert findings == []
+    assert ok is False
+
+
+def test_run_repowise_returns_not_ok_on_timeout():
+    with patch("subprocess.run", side_effect=subprocess.TimeoutExpired("repowise", 60)):
+        findings, ok = run_repowise("/fake/repo")
+
+    assert findings == []
+    assert ok is False
