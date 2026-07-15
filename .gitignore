@@ -1,2 +1,5 @@
 .worktrees/
 .superpowers/
+.repowise/
+.claude/
+.mcp.json
