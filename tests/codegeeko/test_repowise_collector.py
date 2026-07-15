@@ -107,6 +107,80 @@ def test_parse_repowise_output_finding_ids_unique_per_file():
     assert "occurs 2 times" in coaching_findings[0]["message"]
 
 
+def test_parse_repowise_output_representative_selection_is_order_independent():
+    # Regression test: grouping by (file_path, function_name, biomarker_type) only guarantees
+    # finding_id stability. It does NOT guarantee the group's members share the same
+    # severity/reason/raw payload. If the representative were picked by list position
+    # (items[0]), the SAME finding_id could carry a DIFFERENT risk_score/message across two
+    # runs where repowise happened to order the duplicates differently — silently corrupting
+    # Task 6's (file, finding_id)-keyed change detection. The representative must instead be
+    # chosen deterministically (worst severity wins, tie broken by content), regardless of
+    # input order.
+    item_low = {
+        "biomarker_type": "complex_method",
+        "severity": "low",
+        "file_path": "foo.py",
+        "function_name": "bar",
+        "health_impact": 0.1,
+        "details": {},
+        "reason": "bar low severity duplicate",
+    }
+    item_critical = {
+        "biomarker_type": "complex_method",
+        "severity": "critical",
+        "file_path": "foo.py",
+        "function_name": "bar",
+        "health_impact": 0.9,
+        "details": {},
+        "reason": "bar critical severity duplicate",
+    }
+
+    raw_order_a = {"metrics": [], "findings": [item_low, item_critical]}
+    raw_order_b = {"metrics": [], "findings": [item_critical, item_low]}
+
+    findings_a = parse_repowise_output(raw_order_a)
+    findings_b = parse_repowise_output(raw_order_b)
+
+    assert len(findings_a) == 1
+    assert len(findings_b) == 1
+
+    # the worst (critical) instance must win as the representative, in BOTH input orders
+    assert findings_a[0]["finding_id"] == findings_b[0]["finding_id"] == "bar:complex_method"
+    assert findings_a[0]["risk_score"] == findings_b[0]["risk_score"] == 10.0
+    assert findings_a[0]["message"] == findings_b[0]["message"]
+    assert findings_a[0]["raw"] == findings_b[0]["raw"] == item_critical
+    assert "occurs 2 times" in findings_a[0]["message"]
+
+
+def test_parse_repowise_output_representative_selection_ties_are_content_deterministic():
+    # Same severity on both duplicates (no severity to break the tie on) — the JSON-serialized
+    # content tiebreak must still produce the SAME representative regardless of input order.
+    item_a = {
+        "biomarker_type": "large_method",
+        "severity": "medium",
+        "file_path": "foo.py",
+        "function_name": "baz",
+        "health_impact": 0.2,
+        "details": {},
+        "reason": "baz is 50 lines long (variant A)",
+    }
+    item_b = {
+        "biomarker_type": "large_method",
+        "severity": "medium",
+        "file_path": "foo.py",
+        "function_name": "baz",
+        "health_impact": 0.2,
+        "details": {},
+        "reason": "baz is 50 lines long (variant B)",
+    }
+
+    findings_order_1 = parse_repowise_output({"metrics": [], "findings": [item_a, item_b]})
+    findings_order_2 = parse_repowise_output({"metrics": [], "findings": [item_b, item_a]})
+
+    assert findings_order_1[0]["raw"] == findings_order_2[0]["raw"]
+    assert findings_order_1[0]["message"] == findings_order_2[0]["message"]
+
+
 def test_run_repowise_calls_init_then_health_and_parses_output():
     fake_stdout = json.dumps({"metrics": [], "findings": []})
     fake_result = MagicMock(stdout=fake_stdout)
@@ -138,6 +212,25 @@ def test_run_repowise_returns_not_ok_on_called_process_error():
 
 def test_run_repowise_returns_not_ok_on_timeout():
     with patch("subprocess.run", side_effect=subprocess.TimeoutExpired("repowise", 60)):
+        findings, ok = run_repowise("/fake/repo")
+
+    assert findings == []
+    assert ok is False
+
+
+def test_run_repowise_returns_not_ok_when_repowise_not_installed():
+    with patch("subprocess.run", side_effect=FileNotFoundError("repowise not found")):
+        findings, ok = run_repowise("/fake/repo")
+
+    assert findings == []
+    assert ok is False
+
+
+def test_run_repowise_returns_not_ok_on_invalid_json_output():
+    fake_result = MagicMock(stdout="not valid json{{{")
+
+    with patch("subprocess.run") as mock_run:
+        mock_run.side_effect = [MagicMock(), fake_result]  # init call, then health call
         findings, ok = run_repowise("/fake/repo")
 
     assert findings == []

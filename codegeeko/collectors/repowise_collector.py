@@ -14,6 +14,32 @@ _SEVERITY_TO_RISK = {
 # Code-Geeko's risk_score convention), so we invert it: risk_score = 10.0 - score.
 _PERFECT_SCORE = 10.0
 
+# Severity rank used only to pick a deterministic representative item out of a group of
+# duplicates (see _pick_representative) — higher rank = worse = preferred as the representative.
+_SEVERITY_RANK = {
+    "critical": 3,
+    "high": 2,
+    "medium": 1,
+    "low": 0,
+}
+
+
+def _pick_representative(items: list[dict]) -> dict:
+    """Deterministically pick one item out of a group of duplicates, independent of the order
+    they appeared in raw["findings"] (that order is not documented as stable across repowise
+    runs, and Task 6 persists state keyed on the resulting finding, so a flip-flopping payload
+    would be as bad as a flip-flopping finding_id). Prefer the worst (highest-ranked) severity;
+    break ties with the item's own sorted-key JSON serialization, which gives a total order even
+    when two items are genuinely field-identical.
+    """
+    return sorted(
+        items,
+        key=lambda it: (
+            -_SEVERITY_RANK.get(it.get("severity"), -1),
+            json.dumps(it, sort_keys=True),
+        ),
+    )[0]
+
 
 def parse_repowise_output(raw: dict) -> list[dict]:
     """Normalize a `repowise health --format json` payload into Code-Geeko findings.
@@ -44,10 +70,22 @@ def parse_repowise_output(raw: dict) -> list[dict]:
     """
     findings = []
 
+    # Group metrics entries by file_path first. The real fixture always has at most one metrics
+    # entry per file (verified programmatically), but this guards against a future payload that
+    # ever has duplicates: pick the worst (lowest) score deterministically via _pick_representative
+    # rather than emitting one finding_id="metric" per duplicate (which would collide) or picking
+    # whichever entry happened to be first in the list.
+    metrics_groups: dict[str, list[dict]] = {}
     for item in raw.get("metrics", []):
         file_path = item.get("file_path")
-        score = item.get("score")
-        if file_path is None or score is None or score >= _PERFECT_SCORE:
+        if file_path is None or item.get("score") is None:
+            continue
+        metrics_groups.setdefault(file_path, []).append(item)
+
+    for file_path, items in metrics_groups.items():
+        item = min(items, key=lambda it: (it["score"], json.dumps(it, sort_keys=True)))
+        score = item["score"]
+        if score >= _PERFECT_SCORE:
             continue
         risk_score = max(0.0, min(10.0, _PERFECT_SCORE - float(score)))
         findings.append({
@@ -63,8 +101,8 @@ def parse_repowise_output(raw: dict) -> list[dict]:
         })
 
     # Group findings entries by (file_path, function_name, biomarker_type) so that
-    # field-identical duplicates collapse into one finding with a content-derived finding_id,
-    # instead of being numbered by their (unstable) position in raw["findings"].
+    # duplicates collapse into one finding with a content-derived finding_id, instead of being
+    # numbered by their (unstable) position in raw["findings"].
     groups: dict[tuple, list[dict]] = {}
     for item in raw.get("findings", []):
         file_path = item.get("file_path")
@@ -74,7 +112,13 @@ def parse_repowise_output(raw: dict) -> list[dict]:
         groups.setdefault(group_key, []).append(item)
 
     for (file_path, function_name, biomarker_type), items in groups.items():
-        item = items[0]
+        # The representative must be chosen deterministically, not via items[0] — grouping only
+        # guarantees matching (file_path, function_name, biomarker_type), not that every member
+        # has the same severity/reason/raw payload. An order-dependent pick would let the
+        # attached risk_score/message flip between runs even though finding_id stays stable,
+        # which defeats Task 6's (file, finding_id)-keyed change detection just as badly as an
+        # unstable finding_id would.
+        item = _pick_representative(items)
         occurrences = len(items)
         risk_score = _SEVERITY_TO_RISK.get(item.get("severity"), 5.0)
         message = item.get("reason", f"{biomarker_type} detected")
