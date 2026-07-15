@@ -159,3 +159,19 @@ def test_triage_findings_degrades_gracefully_on_timeout():
         result = triage_findings([DELTA])
 
     assert result == []
+
+
+def test_triage_findings_degrades_gracefully_when_sdk_raises_mid_iteration():
+    # query() is an external trust boundary (the underlying Claude Code CLI subprocess/API) —
+    # it can fail in ways that have nothing to do with JSON shape: the process fails to spawn,
+    # exits non-zero, a broken pipe, an auth/config error, etc. Any exception raised by the async
+    # generator mid-iteration must not propagate out of triage_findings and crash the nightly
+    # run — it should degrade to "no decisions" the same as every other failure mode here.
+    async def _raising_query(*args, **kwargs):
+        raise RuntimeError("claude code CLI process exited non-zero")
+        yield  # pragma: no cover - makes this an async generator; never reached
+
+    with patch("codegeeko.triage.query", _raising_query):
+        result = triage_findings([DELTA])
+
+    assert result == []

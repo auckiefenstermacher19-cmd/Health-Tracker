@@ -33,10 +33,14 @@ def _run_triage_query(deltas: list[dict]) -> dict:
     Fail-closed, mirroring the pattern every sibling collector already uses for external I/O
     (repowise_collector.py / semgrep_collector.py: `except json.JSONDecodeError: return [],
     False`; ci_log_collector.py: `except requests.RequestException: return [], False`). Every
-    failure mode here — a stalled/hung SDK call, no success message ever seen, a non-JSON
-    response, or a decision missing "file"/"finding_id" — collapses to the same outcome: an
-    empty lookup, i.e. "no decisions", so a bad external response degrades gracefully instead of
-    raising out of `triage_findings` and crashing the whole nightly run.
+    failure mode here — a stalled/hung SDK call, any other exception raised by the SDK's async
+    generator (CLI process failing to spawn, exiting non-zero, a broken pipe, an auth/config
+    error, etc. — this call is the trust boundary between our code and an external subprocess/API
+    we don't control), no success message ever seen, a success message missing "result", a
+    non-JSON response, or a decision missing "file"/"finding_id" — collapses to the same outcome:
+    an empty lookup, i.e. "no decisions", so a bad external response or a failure of the external
+    process itself degrades gracefully instead of raising out of `triage_findings` and crashing
+    the whole nightly run.
     """
     options = ClaudeAgentOptions(model="claude-sonnet-5", allowed_tools=[])
     prompt = _TRIAGE_PROMPT_TEMPLATE.format(
@@ -46,12 +50,17 @@ def _run_triage_query(deltas: list[dict]) -> dict:
     async def _collect():
         async for message in query(prompt=prompt, options=options):
             if getattr(message, "subtype", None) == "success":
-                return message.result
+                return getattr(message, "result", None)
         return None
 
     try:
         raw_result = asyncio.run(asyncio.wait_for(_collect(), timeout=_TRIAGE_TIMEOUT_SECONDS))
     except asyncio.TimeoutError:
+        return {}
+    except Exception:
+        # Broad catch is deliberate here: this is the external trust boundary (subprocess/API we
+        # don't control), and every other failure mode in this function already degrades to the
+        # same "no decisions" outcome rather than propagating.
         return {}
 
     if raw_result is None:
