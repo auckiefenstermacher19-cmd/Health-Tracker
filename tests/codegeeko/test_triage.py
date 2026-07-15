@@ -1,5 +1,6 @@
+import asyncio
 import json
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 from codegeeko.triage import triage_findings
 
@@ -67,3 +68,57 @@ def test_triage_findings_handles_empty_deltas_without_calling_sdk():
 
     assert result == []
     mock_query.assert_not_called()
+
+
+def test_triage_findings_degrades_gracefully_on_malformed_sdk_response():
+    # The SDK returning non-JSON must not raise out of triage_findings and crash the nightly
+    # run — it should degrade to "no decisions", same as the sibling collectors' fail-closed
+    # pattern for malformed external I/O (e.g. repowise_collector's `except
+    # json.JSONDecodeError: return [], False`).
+    class _MalformedResultMessage:
+        subtype = "success"
+        result = "not valid json{"
+
+    async def _fake_malformed_query(*args, **kwargs):
+        yield _MalformedResultMessage()
+
+    with patch("codegeeko.triage.query", _fake_malformed_query):
+        result = triage_findings([DELTA])
+
+    assert result == []
+
+
+def test_triage_findings_degrades_gracefully_when_decision_missing_keys():
+    # A decision missing "file"/"finding_id" must not raise during _decision_key indexing — it
+    # should be skipped, and any other findings with no matching (well-formed) decision are
+    # dropped too (fail-closed: not accepted).
+    class _MissingKeyResultMessage:
+        subtype = "success"
+        result = json.dumps({"decisions": [{"accept": True, "reason": "malformed decision, no file/finding_id"}]})
+
+    async def _fake_missing_key_query(*args, **kwargs):
+        yield _MissingKeyResultMessage()
+
+    with patch("codegeeko.triage.query", _fake_missing_key_query):
+        result = triage_findings([DELTA])
+
+    assert result == []
+
+
+def test_triage_findings_degrades_gracefully_on_timeout():
+    # A stalled/hung SDK call must not hang the whole nightly run — it should degrade to "no
+    # decisions" once the timeout in _run_triage_query fires, same as every other time-bounded
+    # external call in this codebase. Uses a genuinely slow fake `query` plus a shortened
+    # timeout (rather than mocking asyncio.wait_for directly) so asyncio.wait_for cancels the
+    # in-flight coroutine the normal way instead of leaving it dangling un-awaited.
+    async def _slow_query(*args, **kwargs):
+        await asyncio.sleep(0.3)
+        yield _FakeResultMessage()
+
+    with (
+        patch("codegeeko.triage.query", _slow_query),
+        patch("codegeeko.triage._TRIAGE_TIMEOUT_SECONDS", 0.05),
+    ):
+        result = triage_findings([DELTA])
+
+    assert result == []
