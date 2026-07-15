@@ -79,6 +79,28 @@ def test_parse_workflow_runs_skips_entry_with_explicit_none_id():
     assert parse_workflow_runs(raw) == []
 
 
+def test_parse_workflow_runs_skips_entry_with_wrong_typed_id():
+    # Regression test (coordinator review): a None-only check on `id` lets a wrong-typed value
+    # (e.g. a list) through -- str(run_id) never raises, so `finding_id = "[111, 112]"` would
+    # pass the shape contract (non-empty str) while not identifying any real run. Same class of
+    # gap semgrep_collector.py closed for `path` via isinstance; applied here for `id`.
+    raw = {"workflow_runs": [{
+        "id": [111, 112], "name": "Broken", "conclusion": "failure",
+        "html_url": "https://example.com/runs/1", "created_at": "2026-07-14T06:00:00Z",
+    }]}
+    assert parse_workflow_runs(raw) == []
+
+
+def test_parse_workflow_runs_skips_entry_with_bool_id():
+    # bool is an int subclass in Python -- True/False must not be accepted as a genuine run id
+    # just because isinstance(True, int) is True.
+    raw = {"workflow_runs": [{
+        "id": True, "name": "Broken", "conclusion": "failure",
+        "html_url": "https://example.com/runs/1", "created_at": "2026-07-14T06:00:00Z",
+    }]}
+    assert parse_workflow_runs(raw) == []
+
+
 def test_parse_workflow_runs_skips_non_dict_entry_without_crashing():
     # A malformed workflow_runs entry (e.g. None or a bare string) must not crash the whole
     # batch -- it should degrade by skipping just that entry.
@@ -156,9 +178,29 @@ def test_run_ci_log_check_returns_not_ok_on_http_error_status():
     assert ok is False
 
 
-def test_run_ci_log_check_degrades_gracefully_on_malformed_json_body():
-    # requests.get succeeds and raise_for_status passes, but the body isn't the documented
-    # {"workflow_runs": [...]} shape (e.g. GitHub returned a bare list or None). Must not raise.
+def test_run_ci_log_check_returns_not_ok_on_json_decode_failure():
+    # Regression test (coordinator review, issue 2): response.json() raising ValueError (e.g. a
+    # proxy error page served with a 200 status, so the body isn't valid JSON at all) must be
+    # treated as a FAILED check (ok=False), matching run_repowise/run_semgrep's established
+    # contract that "couldn't parse the response" is not a clean run. Previously this returned
+    # ([], True), silently reporting "checked, all CI runs green" instead of "couldn't tell".
+    fake_response = MagicMock()
+    fake_response.json.side_effect = ValueError("not valid JSON")
+    fake_response.raise_for_status.return_value = None
+
+    with patch("requests.get", return_value=fake_response):
+        findings, ok = run_ci_log_check("owner", "repo", "token")
+
+    assert findings == []
+    assert ok is False
+
+
+def test_run_ci_log_check_returns_ok_when_json_decodes_but_shape_is_wrong():
+    # Distinct from the decode-failure case above: requests.get succeeds, raise_for_status
+    # passes, AND response.json() successfully decodes -- but the decoded body isn't the
+    # documented {"workflow_runs": [...]} shape (e.g. GitHub returned a bare None/list). The
+    # request+response cycle itself was valid, so this stays ok=True with zero findings;
+    # parse_workflow_runs already degrades the wrong shape to [] without raising.
     fake_response = MagicMock()
     fake_response.json.return_value = None
     fake_response.raise_for_status.return_value = None

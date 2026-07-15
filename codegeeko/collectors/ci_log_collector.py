@@ -37,12 +37,16 @@ def parse_workflow_runs(raw: dict) -> list[dict]:
       - `conclusion`: read via `.get()` and compared with `==` -- a `!=` comparison against the
         literal string `"failure"` can't raise regardless of the actual value's type (including
         `None` or a non-str), so no extra type guard is needed here.
-      - `id`: must be present and not `None` (see above) -- entries failing this are skipped,
-        not given a placeholder id, since a fabricated id would misrepresent which real CI run
-        failed. No `isinstance(int)` check beyond that: GitHub's documented schema makes this
-        always an int, and `str()` safely stringifies whatever non-None value shows up (e.g. an
-        already-string id from a hypothetical future API version) without corrupting the
-        contract that `finding_id` is a genuine `str`.
+      - `id`: must be present AND of a type that can genuinely represent a run identity --
+        `isinstance(run_id, (int, str))`, explicitly excluding `bool` (a `bool` is an `int`
+        subclass in Python, but `True`/`False` are never real GitHub run ids). A `None`-only
+        check isn't enough: `str()` never raises regardless of input type, so a wrong-typed
+        `id` (e.g. `run["id"] = [111, 112]`) would silently produce `finding_id = "[111,
+        112]"` -- syntactically a valid non-empty `str` (passes the shape contract) but not a
+        genuine run identity. This is the same class of gap `semgrep_collector.py` closed for
+        its `path` field (`isinstance(raw_path, str) and raw_path`); applied here for `id`.
+        Entries failing this check are skipped, not given a placeholder id, since a fabricated
+        id would misrepresent which real CI run failed.
       - `name` / `created_at` / `html_url`: intentionally NOT type-checked beyond `.get()`
         defaults. Unlike `id` (which becomes the load-bearing `finding_id`), these three only
         ever flow into `message` via an f-string, which coerces any type to `str` safely and
@@ -65,7 +69,7 @@ def parse_workflow_runs(raw: dict) -> list[dict]:
             continue
 
         run_id = run.get("id")
-        if run_id is None:
+        if not isinstance(run_id, (int, str)) or isinstance(run_id, bool):
             continue
 
         name = run.get("name") or "unknown workflow"
@@ -86,12 +90,17 @@ def parse_workflow_runs(raw: dict) -> list[dict]:
 def run_ci_log_check(owner: str, repo: str, token: str) -> tuple[list[dict], bool]:
     """Fetch recent GitHub Actions runs for owner/repo and return normalized findings.
 
-    Every failure path (network error, non-2xx status, malformed JSON body) returns the same
-    `([], False)`/`([], True)` contract this codebase's other collectors use, with one
-    distinction: a successful HTTP response whose body doesn't match the documented
-    `{"workflow_runs": [...]}` shape is treated as a *successful run with zero findings*
-    (`ok=True`), not a failed run -- the request itself succeeded, `parse_workflow_runs` already
-    degrades a malformed body to `[]` without raising, and there's nothing further to retry.
+    Every failure path (network error, non-2xx status, malformed/undecodable JSON body) returns
+    `([], False)` -- matching `run_repowise`/`run_semgrep`'s established contract that "couldn't
+    parse the response" is a FAILED check, not a clean one. A 200 response whose body isn't
+    valid JSON at all (e.g. a proxy error page served with a 200 status) can't be distinguished
+    from "GitHub is broken right now" -- reporting that as `ok=True, findings=[]` would silently
+    read downstream as "checked, all CI runs green" instead of "couldn't tell", corrupting any
+    state tracking that keys off `ok`. Note this is distinct from a response that DOES decode as
+    JSON but doesn't match the documented `{"workflow_runs": [...]}` shape (e.g. `{}` or a bare
+    list) -- that case reaches `parse_workflow_runs`, which already degrades it to `[]` without
+    raising, and is still reported as `ok=True` since the request+response cycle itself was
+    valid, just empty of the expected structure.
     """
     try:
         response = requests.get(
@@ -107,6 +116,6 @@ def run_ci_log_check(owner: str, repo: str, token: str) -> tuple[list[dict], boo
     try:
         body = response.json()
     except ValueError:
-        return [], True
+        return [], False
 
     return parse_workflow_runs(body), True
