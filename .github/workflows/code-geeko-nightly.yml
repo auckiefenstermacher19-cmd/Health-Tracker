@@ -41,9 +41,50 @@ jobs:
         run: pip install -r codegeeko/requirements.txt
 
       - name: Smoke-check runtime
+        # Real one-turn query() that forces triage.py's exact end-to-end path:
+        # CLI resolve (bundled _bundled/claude, shipped in the manylinux wheel) -> spawn ->
+        # authenticate with ANTHROPIC_API_KEY -> stream a terminal ResultMessage. Replaces the
+        # old import-only smoke (`node --version` + `python -c "from claude_agent_sdk import
+        # query"`), which never entered SubprocessCLITransport and so could NOT detect a missing
+        # CLI, a bad/missing key, a too-old runtime, or a spawn failure. Any failure exits
+        # nonzero HERE, cheaply, before collectors/pipeline run. `timeout` bounds any hang.
+        # No npm step: on ubuntu-latest (glibc x86_64) pip always resolves the platform wheel
+        # that bundles the CLI, so an `npm install -g @anthropic-ai/claude-code` is pure
+        # redundancy that only adds per-night registry-flake risk; and in the wheel-less edge
+        # (musl/sdist/--no-binary) this same query() fails loud as CLINotFoundError anyway,
+        # which IS the fail-loud-and-cheap goal.
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}   # masked in logs; required to test auth
+          DISABLE_AUTOUPDATER: "1"                               # no CLI auto-update traffic on an ephemeral runner
+          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"          # no telemetry spawn
         run: |
-          node --version
-          python -c "from claude_agent_sdk import query"
+          timeout 150 python - <<'PY'
+          import asyncio, sys
+          from claude_agent_sdk import ClaudeAgentOptions, query, ResultMessage
+
+          async def _smoke():
+              opts = ClaudeAgentOptions(model="claude-sonnet-5", allowed_tools=[], max_turns=1)
+              final = None
+              async for msg in query(prompt="Reply with exactly: ok", options=opts):
+                  if isinstance(msg, ResultMessage):
+                      final = msg
+              return final
+
+          try:
+              final = asyncio.run(_smoke())
+          except Exception as e:
+              # Missing bundled binary -> CLINotFoundError; bad/missing key, auth 401, or spawn
+              # failure -> ProcessError/CLIConnectionError. All land here and fail loud.
+              print(f"SDK SMOKE FAILED: query() raised {type(e).__name__}: {e}", file=sys.stderr)
+              sys.exit(1)
+          if final is None:
+              print("SDK SMOKE FAILED: no ResultMessage - CLI spawned but never completed a turn", file=sys.stderr)
+              sys.exit(1)
+          if getattr(final, "is_error", True):
+              print(f"SDK SMOKE FAILED: error result (subtype={getattr(final, 'subtype', None)!r})", file=sys.stderr)
+              sys.exit(1)
+          print("SDK smoke OK")
+          PY
 
       - name: Pipeline self-test
         run: pytest tests/codegeeko -q
