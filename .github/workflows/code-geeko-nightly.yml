@@ -43,7 +43,7 @@ jobs:
       - name: Smoke-check runtime
         # Real one-turn query() that forces triage.py's exact end-to-end path:
         # CLI resolve (bundled _bundled/claude, shipped in the manylinux wheel) -> spawn ->
-        # authenticate with ANTHROPIC_API_KEY -> stream a terminal ResultMessage. Replaces the
+        # authenticate with the Max-plan CLAUDE_CODE_OAUTH_TOKEN -> stream a terminal ResultMessage. Replaces the
         # old import-only smoke (`node --version` + `python -c "from claude_agent_sdk import
         # query"`), which never entered SubprocessCLITransport and so could NOT detect a missing
         # CLI, a bad/missing key, a too-old runtime, or a spawn failure. Any failure exits
@@ -54,7 +54,11 @@ jobs:
         # (musl/sdist/--no-binary) this same query() fails loud as CLINotFoundError anyway,
         # which IS the fail-loud-and-cheap goal.
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}   # masked in logs; required to test auth
+          # Max-plan subscription auth: 1-year token from `claude setup-token`, stored as a repo
+          # secret. The Agent SDK / bundled CLI reads it from the env (auth precedence #5). We do
+          # NOT set ANTHROPIC_API_KEY here: it outranks the OAuth token (precedence #3), so even an
+          # empty value would shadow the subscription credential. Masked in logs; required to test auth.
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           DISABLE_AUTOUPDATER: "1"                               # no CLI auto-update traffic on an ephemeral runner
           CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"          # no telemetry spawn
         run: |
@@ -73,7 +77,7 @@ jobs:
           try:
               final = asyncio.run(_smoke())
           except Exception as e:
-              # Missing bundled binary -> CLINotFoundError; bad/missing key, auth 401, or spawn
+              # Missing bundled binary -> CLINotFoundError; bad/missing credential, auth 401, or spawn
               # failure -> ProcessError/CLIConnectionError. All land here and fail loud.
               print(f"SDK SMOKE FAILED: query() raised {type(e).__name__}: {e}", file=sys.stderr)
               sys.exit(1)
@@ -92,7 +96,7 @@ jobs:
       - name: Run Code-Geeko
         shell: bash   # explicit bash = -eo pipefail, so tee can't mask a pipeline crash
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}   # Max-plan subscription auth (see smoke step)
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPORT_ONLY: "true"   # hardcoded until Task 14's validation gate — do not parameterize
         run: |
