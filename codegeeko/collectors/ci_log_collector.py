@@ -102,6 +102,17 @@ def run_ci_log_check(owner: str, repo: str, token: str) -> tuple[list[dict], boo
     raising, and is still reported as `ok=True` since the request+response cycle itself was
     valid, just empty of the expected structure.
     """
+    # --- TEMP DIAGNOSTIC INSTRUMENTATION (remove after root-causing the silent ci_log failure) ---
+    # All prints go to STDERR so they land in the Actions "Run Code-Geeko" job log but NOT in the
+    # report piped to $GITHUB_STEP_SUMMARY (only stdout is teed). Goal: reveal which failure path
+    # fires and the exact HTTP status/body/permission-headers GitHub returns for the runs-API call.
+    import sys as _sys
+
+    def _dbg(msg):
+        print(f"[CODEGEEKO-CILOG-DEBUG] {msg}", file=_sys.stderr, flush=True)
+
+    _dbg(f"owner={owner!r} repo={repo!r} token_present={bool(token)} token_len={len(token) if token else 0}")
+
     try:
         response = requests.get(
             f"https://api.github.com/repos/{owner}/{repo}/actions/runs",
@@ -109,13 +120,30 @@ def run_ci_log_check(owner: str, repo: str, token: str) -> tuple[list[dict], boo
             params={"per_page": 20},
             timeout=30,
         )
+    except requests.RequestException as e:
+        _dbg(f"NONE-PATH=network_error(pre-status) {type(e).__name__}: {e}")
+        return [], False
+
+    _dbg(
+        f"HTTP {response.status_code} "
+        f"x-accepted-github-permissions={response.headers.get('x-accepted-github-permissions')!r} "
+        f"x-oauth-scopes={response.headers.get('x-oauth-scopes')!r} "
+        f"x-ratelimit-remaining={response.headers.get('x-ratelimit-remaining')!r} "
+        f"x-github-request-id={response.headers.get('x-github-request-id')!r}"
+    )
+
+    try:
         response.raise_for_status()
-    except requests.RequestException:
+    except requests.RequestException as e:
+        _dbg(f"NONE-PATH=non_2xx {type(e).__name__}: {e}; body[:500]={response.text[:500]!r}")
         return [], False
 
     try:
         body = response.json()
-    except ValueError:
+    except ValueError as e:
+        _dbg(f"NONE-PATH=json_decode {type(e).__name__}: {e}; body[:500]={response.text[:500]!r}")
         return [], False
 
+    _n = len(body.get("workflow_runs", [])) if isinstance(body, dict) else "N/A"
+    _dbg(f"SUCCESS: HTTP 200, workflow_runs len={_n}")
     return parse_workflow_runs(body), True
