@@ -45,6 +45,26 @@ def test_triage_findings_drops_rejected_items():
     assert triage_ok is True
 
 
+def test_triage_findings_returns_ok_true_for_empty_but_wellformed_decisions():
+    # {"decisions": []} is a genuinely well-formed (empty) decisions list -- isinstance([], list)
+    # is True, so this must NOT collapse into the None/triage-failure path (contrast with
+    # test_triage_findings_reports_failure_when_decisions_value_is_null, where the value is None
+    # instead of a list and triage_ok is False). Triage ran and accepted nothing; state still gets
+    # saved.
+    class _EmptyDecisionsResultMessage:
+        subtype = "success"
+        result = json.dumps({"decisions": []})
+
+    async def _fake_empty_decisions_query(*args, **kwargs):
+        yield _EmptyDecisionsResultMessage()
+
+    with patch("codegeeko.triage.query", _fake_empty_decisions_query):
+        result, triage_ok = triage_findings([DELTA])
+
+    assert result == []
+    assert triage_ok is True
+
+
 def test_triage_findings_matches_decisions_by_file_and_finding_id_not_file_alone():
     # Two different findings on the SAME file must be triaged independently — matching by
     # `file` alone would collapse them onto one decision (the bug this test guards against).
