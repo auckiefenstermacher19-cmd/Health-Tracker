@@ -1,0 +1,9 @@
+# codegeeko/requirements.txt
+# semgrep/repowise are exact-pinned: the collectors' parsers are coupled to their JSON output
+# shapes (fixtures captured on semgrep 1.169.0 / repowise 0.31.0). Bump deliberately with a
+# re-fixture pass, never by drift. Note: repowise requires Python >= 3.11.
+repowise==0.31.0
+semgrep==1.169.0
+requests>=2.28,<3
+claude-agent-sdk>=0.2,<0.3
+pytest>=8,<9
