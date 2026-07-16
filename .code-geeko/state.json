@@ -27,7 +27,7 @@
     "repowise:codegeeko/collectors/ci_log_collector.py:metric": {
       "file": "codegeeko/collectors/ci_log_collector.py",
       "finding_id": "metric",
-      "message": "overall file health score 8.85/10 (max CCN 11, max nesting 2)",
+      "message": "overall file health score 8.7/10 (max CCN 11, max nesting 2)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": null,
@@ -36,10 +36,10 @@
         "line_coverage_pct": null,
         "max_ccn": 11,
         "max_nesting": 2,
-        "nloc": 103,
-        "score": 8.85
+        "nloc": 122,
+        "score": 8.7
       },
-      "risk_score": 1.15,
+      "risk_score": 1.3,
       "source": "repowise"
     },
     "repowise:codegeeko/collectors/ci_log_collector.py:parse_workflow_runs:complex_method": {
@@ -60,6 +60,26 @@
         "severity": "medium"
       },
       "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/ci_log_collector.py:run_ci_log_check:bumpy_road": {
+      "file": "codegeeko/collectors/ci_log_collector.py",
+      "finding_id": "run_ci_log_check:bumpy_road",
+      "message": "run_ci_log_check has 3 nested blocks at the same level (bumpy road)",
+      "raw": {
+        "biomarker_type": "bumpy_road",
+        "details": {
+          "bumps": 3,
+          "ccn": 6,
+          "max_nesting": 2
+        },
+        "file_path": "codegeeko/collectors/ci_log_collector.py",
+        "function_name": "run_ci_log_check",
+        "health_impact": 0.15,
+        "reason": "run_ci_log_check has 3 nested blocks at the same level (bumpy road)",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
       "source": "repowise"
     },
     "repowise:codegeeko/collectors/repowise_collector.py:None:prior_defect": {
@@ -164,7 +184,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.9843,
+          "change_entropy": 1.9842,
           "change_entropy_pct": 0.815,
           "commit_count_90d": 5
         },
@@ -468,7 +488,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.5404,
+          "change_entropy": 2.5402,
           "change_entropy_pct": 0.889,
           "commit_count_90d": 5
         },
@@ -627,7 +647,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.9842,
+          "change_entropy": 2.9839,
           "change_entropy_pct": 0.926,
           "commit_count_90d": 8
         },
@@ -1765,7 +1785,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.9843,
+          "change_entropy": 1.9842,
           "change_entropy_pct": 0.852,
           "commit_count_90d": 4
         },
@@ -1866,7 +1886,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.9842,
+          "change_entropy": 2.9839,
           "change_entropy_pct": 0.963,
           "commit_count_90d": 7
         },
