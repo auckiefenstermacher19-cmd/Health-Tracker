@@ -91,7 +91,9 @@ jobs:
           PY
 
       - name: Pipeline self-test
-        run: pytest tests/codegeeko -q
+        # `python -m pytest` (not bare `pytest`) so CWD (repo root) lands on sys.path and the
+        # codegeeko package imports -- bare pytest passed locally but ModuleNotFoundError'd in CI.
+        run: python -m pytest tests/codegeeko -q
 
       - name: Run Code-Geeko
         shell: bash   # explicit bash = -eo pipefail, so tee can't mask a pipeline crash
