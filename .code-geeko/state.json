@@ -1,0 +1,2460 @@
+{
+  "checked_sources": {
+    "ci_log": "failed",
+    "repowise": "ok",
+    "semgrep": "ok"
+  },
+  "findings": {
+    "repowise:codegeeko/collectors/ci_log_collector.py:None:prior_defect": {
+      "file": "codegeeko/collectors/ci_log_collector.py",
+      "finding_id": "None:prior_defect",
+      "message": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 1,
+          "window_days": 180
+        },
+        "file_path": "codegeeko/collectors/ci_log_collector.py",
+        "function_name": null,
+        "health_impact": 0.3,
+        "reason": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/ci_log_collector.py:metric": {
+      "file": "codegeeko/collectors/ci_log_collector.py",
+      "finding_id": "metric",
+      "message": "overall file health score 8.85/10 (max CCN 11, max nesting 2)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": null,
+        "file_path": "codegeeko/collectors/ci_log_collector.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 11,
+        "max_nesting": 2,
+        "nloc": 103,
+        "score": 8.85
+      },
+      "risk_score": 1.15,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/ci_log_collector.py:parse_workflow_runs:complex_method": {
+      "file": "codegeeko/collectors/ci_log_collector.py",
+      "finding_id": "parse_workflow_runs:complex_method",
+      "message": "parse_workflow_runs has cyclomatic complexity 11",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 11,
+          "cognitive": 13,
+          "nloc": 26
+        },
+        "file_path": "codegeeko/collectors/ci_log_collector.py",
+        "function_name": "parse_workflow_runs",
+        "health_impact": 0.847,
+        "reason": "parse_workflow_runs has cyclomatic complexity 11",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/repowise_collector.py:None:prior_defect": {
+      "file": "codegeeko/collectors/repowise_collector.py",
+      "finding_id": "None:prior_defect",
+      "message": "3 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 3,
+          "window_days": 180
+        },
+        "file_path": "codegeeko/collectors/repowise_collector.py",
+        "function_name": null,
+        "health_impact": 1.2,
+        "reason": "3 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/repowise_collector.py:metric": {
+      "file": "codegeeko/collectors/repowise_collector.py",
+      "finding_id": "metric",
+      "message": "overall file health score 7.6/10 (max CCN 10, max nesting 2)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": null,
+        "file_path": "codegeeko/collectors/repowise_collector.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 10,
+        "max_nesting": 2,
+        "nloc": 125,
+        "score": 7.6
+      },
+      "risk_score": 2.4,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/repowise_collector.py:parse_repowise_output:bumpy_road": {
+      "file": "codegeeko/collectors/repowise_collector.py",
+      "finding_id": "parse_repowise_output:bumpy_road",
+      "message": "parse_repowise_output has 4 nested blocks at the same level (bumpy road)",
+      "raw": {
+        "biomarker_type": "bumpy_road",
+        "details": {
+          "bumps": 4,
+          "ccn": 10,
+          "max_nesting": 2
+        },
+        "file_path": "codegeeko/collectors/repowise_collector.py",
+        "function_name": "parse_repowise_output",
+        "health_impact": 0.35,
+        "reason": "parse_repowise_output has 4 nested blocks at the same level (bumpy road)",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/repowise_collector.py:parse_repowise_output:complex_method": {
+      "file": "codegeeko/collectors/repowise_collector.py",
+      "finding_id": "parse_repowise_output:complex_method",
+      "message": "parse_repowise_output has cyclomatic complexity 10",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 10,
+          "cognitive": 13,
+          "nloc": 47
+        },
+        "file_path": "codegeeko/collectors/repowise_collector.py",
+        "function_name": "parse_repowise_output",
+        "health_impact": 0.847,
+        "reason": "parse_repowise_output has cyclomatic complexity 10",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/repowise_collector.py:run_repowise:hot_path_sync_io": {
+      "file": "codegeeko/collectors/repowise_collector.py",
+      "finding_id": "run_repowise:hot_path_sync_io",
+      "message": "a blocking subprocess spawn runs on a hot, request-reachable path; its latency is paid on every call through this function",
+      "raw": {
+        "biomarker_type": "hot_path_sync_io",
+        "details": {
+          "boundary_kind": "subprocess"
+        },
+        "file_path": "codegeeko/collectors/repowise_collector.py",
+        "function_name": "run_repowise",
+        "health_impact": 0.0,
+        "reason": "a blocking subprocess spawn runs on a hot, request-reachable path; its latency is paid on every call through this function",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/semgrep_collector.py:None:change_entropy": {
+      "file": "codegeeko/collectors/semgrep_collector.py",
+      "finding_id": "None:change_entropy",
+      "message": "changes are scattered across noisy commits (top 19% change entropy); a strong history-based fault predictor",
+      "raw": {
+        "biomarker_type": "change_entropy",
+        "details": {
+          "change_entropy": 1.9843,
+          "change_entropy_pct": 0.815,
+          "commit_count_90d": 5
+        },
+        "file_path": "codegeeko/collectors/semgrep_collector.py",
+        "function_name": null,
+        "health_impact": 0.699,
+        "reason": "changes are scattered across noisy commits (top 19% change entropy); a strong history-based fault predictor",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/semgrep_collector.py:None:churn_risk": {
+      "file": "codegeeko/collectors/semgrep_collector.py",
+      "finding_id": "None:churn_risk",
+      "message": "90-day churn rewrote 1.6x the file's size (285 lines over 179 NLOC, top 22% of repo churn)",
+      "raw": {
+        "biomarker_type": "churn_risk",
+        "details": {
+          "churn_percentile": 0.778,
+          "commit_count_90d": 5,
+          "lines_added_90d": 245,
+          "lines_deleted_90d": 40,
+          "nloc": 179,
+          "relative_churn": 1.59
+        },
+        "file_path": "codegeeko/collectors/semgrep_collector.py",
+        "function_name": null,
+        "health_impact": 0.556,
+        "reason": "90-day churn rewrote 1.6x the file's size (285 lines over 179 NLOC, top 22% of repo churn)",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/semgrep_collector.py:None:prior_defect": {
+      "file": "codegeeko/collectors/semgrep_collector.py",
+      "finding_id": "None:prior_defect",
+      "message": "3 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 3,
+          "window_days": 180
+        },
+        "file_path": "codegeeko/collectors/semgrep_collector.py",
+        "function_name": null,
+        "health_impact": 1.324,
+        "reason": "3 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "critical"
+      },
+      "risk_score": 10.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/semgrep_collector.py:metric": {
+      "file": "codegeeko/collectors/semgrep_collector.py",
+      "finding_id": "metric",
+      "message": "overall file health score 5.5/10 (max CCN 12, max nesting 2)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": null,
+        "file_path": "codegeeko/collectors/semgrep_collector.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 12,
+        "max_nesting": 2,
+        "nloc": 179,
+        "score": 5.5
+      },
+      "risk_score": 4.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/semgrep_collector.py:parse_semgrep_output:complex_method": {
+      "file": "codegeeko/collectors/semgrep_collector.py",
+      "finding_id": "parse_semgrep_output:complex_method",
+      "message": "parse_semgrep_output has cyclomatic complexity 12",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 12,
+          "cognitive": 17,
+          "nloc": 35
+        },
+        "file_path": "codegeeko/collectors/semgrep_collector.py",
+        "function_name": "parse_semgrep_output",
+        "health_impact": 0.847,
+        "reason": "parse_semgrep_output has cyclomatic complexity 12",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/semgrep_collector.py:parse_semgrep_output:function_hotspot": {
+      "file": "codegeeko/collectors/semgrep_collector.py",
+      "finding_id": "parse_semgrep_output:function_hotspot",
+      "message": "parse_semgrep_output has been modified across 5 commits (repo p80=2) and carries CCN=12 / nesting=2",
+      "raw": {
+        "biomarker_type": "function_hotspot",
+        "details": {
+          "ccn": 12,
+          "max_nesting": 2,
+          "modification_count": 5,
+          "repo_p80": 2
+        },
+        "file_path": "codegeeko/collectors/semgrep_collector.py",
+        "function_name": "parse_semgrep_output",
+        "health_impact": 0.921,
+        "reason": "parse_semgrep_output has been modified across 5 commits (repo p80=2) and carries CCN=12 / nesting=2",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/semgrep_collector.py:run_semgrep:bumpy_road": {
+      "file": "codegeeko/collectors/semgrep_collector.py",
+      "finding_id": "run_semgrep:bumpy_road",
+      "message": "run_semgrep has 3 nested blocks at the same level (bumpy road)",
+      "raw": {
+        "biomarker_type": "bumpy_road",
+        "details": {
+          "bumps": 3,
+          "ccn": 5,
+          "max_nesting": 2
+        },
+        "file_path": "codegeeko/collectors/semgrep_collector.py",
+        "function_name": "run_semgrep",
+        "health_impact": 0.15,
+        "reason": "run_semgrep has 3 nested blocks at the same level (bumpy road)",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/semgrep_collector.py:run_semgrep:hot_path_sync_io": {
+      "file": "codegeeko/collectors/semgrep_collector.py",
+      "finding_id": "run_semgrep:hot_path_sync_io",
+      "message": "a blocking subprocess spawn runs on a hot, request-reachable path; its latency is paid on every call through this function",
+      "raw": {
+        "biomarker_type": "hot_path_sync_io",
+        "details": {
+          "boundary_kind": "subprocess"
+        },
+        "file_path": "codegeeko/collectors/semgrep_collector.py",
+        "function_name": "run_semgrep",
+        "health_impact": 0.0,
+        "reason": "a blocking subprocess spawn runs on a hot, request-reachable path; its latency is paid on every call through this function",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/fixer.py:None:error_handling": {
+      "file": "codegeeko/fixer.py",
+      "finding_id": "None:error_handling",
+      "message": "broad `except Exception` catches unrelated errors and can hide bugs",
+      "raw": {
+        "biomarker_type": "error_handling",
+        "details": {
+          "kind": "broad_except"
+        },
+        "file_path": "codegeeko/fixer.py",
+        "function_name": null,
+        "health_impact": 0.15,
+        "reason": "broad `except Exception` catches unrelated errors and can hide bugs",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/fixer.py:fix_and_report:hot_path_sync_io": {
+      "file": "codegeeko/fixer.py",
+      "finding_id": "fix_and_report:hot_path_sync_io",
+      "message": "a blocking subprocess spawn runs on a hot, request-reachable path; its latency is paid on every call through this function",
+      "raw": {
+        "biomarker_type": "hot_path_sync_io",
+        "details": {
+          "boundary_kind": "subprocess"
+        },
+        "file_path": "codegeeko/fixer.py",
+        "function_name": "fix_and_report",
+        "health_impact": 0.0,
+        "reason": "a blocking subprocess spawn runs on a hot, request-reachable path; its latency is paid on every call through this function",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/fixer.py:fix_and_report:io_in_loop": {
+      "file": "codegeeko/fixer.py",
+      "finding_id": "fix_and_report:io_in_loop",
+      "message": "a subprocess spawn runs once per loop iteration (N+1 / IO-in-loop) (occurs 2 times)",
+      "raw": {
+        "biomarker_type": "io_in_loop",
+        "details": {
+          "boundary_kind": "subprocess",
+          "cross_function": false
+        },
+        "file_path": "codegeeko/fixer.py",
+        "function_name": "fix_and_report",
+        "health_impact": 0.0,
+        "reason": "a subprocess spawn runs once per loop iteration (N+1 / IO-in-loop)",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/fixer.py:fix_and_report:primitive_obsession": {
+      "file": "codegeeko/fixer.py",
+      "finding_id": "fix_and_report:primitive_obsession",
+      "message": "fix_and_report takes 5 parameters",
+      "raw": {
+        "biomarker_type": "primitive_obsession",
+        "details": {
+          "param_count": 5
+        },
+        "file_path": "codegeeko/fixer.py",
+        "function_name": "fix_and_report",
+        "health_impact": 0.15,
+        "reason": "fix_and_report takes 5 parameters",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/fixer.py:metric": {
+      "file": "codegeeko/fixer.py",
+      "finding_id": "metric",
+      "message": "overall file health score 9.7/10 (max CCN 6, max nesting 2)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": null,
+        "file_path": "codegeeko/fixer.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 6,
+        "max_nesting": 2,
+        "nloc": 86,
+        "score": 9.7
+      },
+      "risk_score": 0.3,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/pr.py:metric": {
+      "file": "codegeeko/pr.py",
+      "finding_id": "metric",
+      "message": "overall file health score 9.5/10 (max CCN 4, max nesting 2)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": null,
+        "file_path": "codegeeko/pr.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 4,
+        "max_nesting": 2,
+        "nloc": 84,
+        "score": 9.5
+      },
+      "risk_score": 0.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/pr.py:open_fix_pr:primitive_obsession": {
+      "file": "codegeeko/pr.py",
+      "finding_id": "open_fix_pr:primitive_obsession",
+      "message": "open_fix_pr takes 7 parameters",
+      "raw": {
+        "biomarker_type": "primitive_obsession",
+        "details": {
+          "param_count": 7
+        },
+        "file_path": "codegeeko/pr.py",
+        "function_name": "open_fix_pr",
+        "health_impact": 0.35,
+        "reason": "open_fix_pr takes 7 parameters",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/pr.py:open_flag_issue:primitive_obsession": {
+      "file": "codegeeko/pr.py",
+      "finding_id": "open_flag_issue:primitive_obsession",
+      "message": "open_flag_issue takes 5 parameters",
+      "raw": {
+        "biomarker_type": "primitive_obsession",
+        "details": {
+          "param_count": 5
+        },
+        "file_path": "codegeeko/pr.py",
+        "function_name": "open_flag_issue",
+        "health_impact": 0.15,
+        "reason": "open_flag_issue takes 5 parameters",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/run.py:None:change_entropy": {
+      "file": "codegeeko/run.py",
+      "finding_id": "None:change_entropy",
+      "message": "changes are scattered across noisy commits (top 11% change entropy); a strong history-based fault predictor",
+      "raw": {
+        "biomarker_type": "change_entropy",
+        "details": {
+          "change_entropy": 2.5404,
+          "change_entropy_pct": 0.889,
+          "commit_count_90d": 5
+        },
+        "file_path": "codegeeko/run.py",
+        "function_name": null,
+        "health_impact": 1.057,
+        "reason": "changes are scattered across noisy commits (top 11% change entropy); a strong history-based fault predictor",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/run.py:None:error_handling": {
+      "file": "codegeeko/run.py",
+      "finding_id": "None:error_handling",
+      "message": "broad `except Exception` catches unrelated errors and can hide bugs",
+      "raw": {
+        "biomarker_type": "error_handling",
+        "details": {
+          "kind": "broad_except"
+        },
+        "file_path": "codegeeko/run.py",
+        "function_name": null,
+        "health_impact": 0.15,
+        "reason": "broad `except Exception` catches unrelated errors and can hide bugs",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/run.py:None:prior_defect": {
+      "file": "codegeeko/run.py",
+      "finding_id": "None:prior_defect",
+      "message": "2 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 2,
+          "window_days": 180
+        },
+        "file_path": "codegeeko/run.py",
+        "function_name": null,
+        "health_impact": 0.7,
+        "reason": "2 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/run.py:main:complex_method": {
+      "file": "codegeeko/run.py",
+      "finding_id": "main:complex_method",
+      "message": "main has cyclomatic complexity 9",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 9,
+          "cognitive": 15,
+          "nloc": 29
+        },
+        "file_path": "codegeeko/run.py",
+        "function_name": "main",
+        "health_impact": 0.847,
+        "reason": "main has cyclomatic complexity 9",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/run.py:main:function_hotspot": {
+      "file": "codegeeko/run.py",
+      "finding_id": "main:function_hotspot",
+      "message": "main has been modified across 5 commits (repo p80=2) and carries CCN=9 / nesting=4",
+      "raw": {
+        "biomarker_type": "function_hotspot",
+        "details": {
+          "ccn": 9,
+          "max_nesting": 4,
+          "modification_count": 5,
+          "repo_p80": 2
+        },
+        "file_path": "codegeeko/run.py",
+        "function_name": "main",
+        "health_impact": 1.392,
+        "reason": "main has been modified across 5 commits (repo p80=2) and carries CCN=9 / nesting=4",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/run.py:main:io_in_loop": {
+      "file": "codegeeko/run.py",
+      "finding_id": "main:io_in_loop",
+      "message": "a subprocess spawn is reached once per loop iteration through main -> fix_and_report (cross-function N+1)",
+      "raw": {
+        "biomarker_type": "io_in_loop",
+        "details": {
+          "boundary_kind": "subprocess",
+          "cross_function": true,
+          "path": [
+            "codegeeko/run.py::main",
+            "codegeeko/fixer.py::fix_and_report"
+          ]
+        },
+        "file_path": "codegeeko/run.py",
+        "function_name": "main",
+        "health_impact": 0.0,
+        "reason": "a subprocess spawn is reached once per loop iteration through main -> fix_and_report (cross-function N+1)",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/run.py:main:nested_complexity": {
+      "file": "codegeeko/run.py",
+      "finding_id": "main:nested_complexity",
+      "message": "main nests 4 levels deep",
+      "raw": {
+        "biomarker_type": "nested_complexity",
+        "details": {
+          "ccn": 9,
+          "cognitive": 15,
+          "max_nesting": 4
+        },
+        "file_path": "codegeeko/run.py",
+        "function_name": "main",
+        "health_impact": 0.938,
+        "reason": "main nests 4 levels deep",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/run.py:metric": {
+      "file": "codegeeko/run.py",
+      "finding_id": "metric",
+      "message": "overall file health score 4.92/10 (max CCN 9, max nesting 4)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": null,
+        "file_path": "codegeeko/run.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 9,
+        "max_nesting": 4,
+        "nloc": 76,
+        "score": 4.92
+      },
+      "risk_score": 5.08,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/triage.py:None:change_entropy": {
+      "file": "codegeeko/triage.py",
+      "finding_id": "None:change_entropy",
+      "message": "changes are scattered across noisy commits (top 7% change entropy); a strong history-based fault predictor",
+      "raw": {
+        "biomarker_type": "change_entropy",
+        "details": {
+          "change_entropy": 2.9842,
+          "change_entropy_pct": 0.926,
+          "commit_count_90d": 8
+        },
+        "file_path": "codegeeko/triage.py",
+        "function_name": null,
+        "health_impact": 0.955,
+        "reason": "changes are scattered across noisy commits (top 7% change entropy); a strong history-based fault predictor",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/triage.py:None:churn_risk": {
+      "file": "codegeeko/triage.py",
+      "finding_id": "None:churn_risk",
+      "message": "90-day churn rewrote 3.2x the file's size (299 lines over 94 NLOC, top 19% of repo churn)",
+      "raw": {
+        "biomarker_type": "churn_risk",
+        "details": {
+          "churn_percentile": 0.815,
+          "commit_count_90d": 8,
+          "lines_added_90d": 225,
+          "lines_deleted_90d": 74,
+          "nloc": 94,
+          "relative_churn": 3.18
+        },
+        "file_path": "codegeeko/triage.py",
+        "function_name": null,
+        "health_impact": 0.759,
+        "reason": "90-day churn rewrote 3.2x the file's size (299 lines over 94 NLOC, top 19% of repo churn)",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/triage.py:None:error_handling": {
+      "file": "codegeeko/triage.py",
+      "finding_id": "None:error_handling",
+      "message": "broad `except Exception` catches unrelated errors and can hide bugs",
+      "raw": {
+        "biomarker_type": "error_handling",
+        "details": {
+          "kind": "broad_except"
+        },
+        "file_path": "codegeeko/triage.py",
+        "function_name": null,
+        "health_impact": 0.15,
+        "reason": "broad `except Exception` catches unrelated errors and can hide bugs",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/triage.py:None:prior_defect": {
+      "file": "codegeeko/triage.py",
+      "finding_id": "None:prior_defect",
+      "message": "6 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 6,
+          "window_days": 180
+        },
+        "file_path": "codegeeko/triage.py",
+        "function_name": null,
+        "health_impact": 1.054,
+        "reason": "6 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "critical"
+      },
+      "risk_score": 10.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/triage.py:_run_triage_query:bumpy_road": {
+      "file": "codegeeko/triage.py",
+      "finding_id": "_run_triage_query:bumpy_road",
+      "message": "_run_triage_query has 3 nested blocks at the same level (bumpy road)",
+      "raw": {
+        "biomarker_type": "bumpy_road",
+        "details": {
+          "bumps": 3,
+          "ccn": 13,
+          "max_nesting": 3
+        },
+        "file_path": "codegeeko/triage.py",
+        "function_name": "_run_triage_query",
+        "health_impact": 0.15,
+        "reason": "_run_triage_query has 3 nested blocks at the same level (bumpy road)",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/triage.py:_run_triage_query:complex_method": {
+      "file": "codegeeko/triage.py",
+      "finding_id": "_run_triage_query:complex_method",
+      "message": "_run_triage_query has cyclomatic complexity 13",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 13,
+          "cognitive": 21,
+          "nloc": 36
+        },
+        "file_path": "codegeeko/triage.py",
+        "function_name": "_run_triage_query",
+        "health_impact": 0.847,
+        "reason": "_run_triage_query has cyclomatic complexity 13",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/triage.py:_run_triage_query:function_hotspot": {
+      "file": "codegeeko/triage.py",
+      "finding_id": "_run_triage_query:function_hotspot",
+      "message": "_run_triage_query has been modified across 7 commits (repo p80=2) and carries CCN=13 / nesting=3",
+      "raw": {
+        "biomarker_type": "function_hotspot",
+        "details": {
+          "ccn": 13,
+          "max_nesting": 3,
+          "modification_count": 7,
+          "repo_p80": 2
+        },
+        "file_path": "codegeeko/triage.py",
+        "function_name": "_run_triage_query",
+        "health_impact": 0.733,
+        "reason": "_run_triage_query has been modified across 7 commits (repo p80=2) and carries CCN=13 / nesting=3",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/triage.py:metric": {
+      "file": "codegeeko/triage.py",
+      "finding_id": "metric",
+      "message": "overall file health score 5.35/10 (max CCN 13, max nesting 3)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": null,
+        "file_path": "codegeeko/triage.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 13,
+        "max_nesting": 3,
+        "nloc": 94,
+        "score": 5.35
+      },
+      "risk_score": 4.65,
+      "source": "repowise"
+    },
+    "repowise:consolidate.py:append_audit_log:hot_path_sync_io": {
+      "file": "consolidate.py",
+      "finding_id": "append_audit_log:hot_path_sync_io",
+      "message": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+      "raw": {
+        "biomarker_type": "hot_path_sync_io",
+        "details": {
+          "boundary_kind": "filesystem"
+        },
+        "file_path": "consolidate.py",
+        "function_name": "append_audit_log",
+        "health_impact": 0.0,
+        "reason": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:consolidate.py:build_consolidated:complex_method": {
+      "file": "consolidate.py",
+      "finding_id": "build_consolidated:complex_method",
+      "message": "build_consolidated has cyclomatic complexity 12",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 12,
+          "cognitive": 14,
+          "nloc": 100
+        },
+        "file_path": "consolidate.py",
+        "function_name": "build_consolidated",
+        "health_impact": 0.443,
+        "reason": "build_consolidated has cyclomatic complexity 12",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:consolidate.py:build_consolidated:hot_path_sync_io": {
+      "file": "consolidate.py",
+      "finding_id": "build_consolidated:hot_path_sync_io",
+      "message": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+      "raw": {
+        "biomarker_type": "hot_path_sync_io",
+        "details": {
+          "boundary_kind": "filesystem"
+        },
+        "file_path": "consolidate.py",
+        "function_name": "build_consolidated",
+        "health_impact": 0.0,
+        "reason": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:consolidate.py:build_consolidated:large_method": {
+      "file": "consolidate.py",
+      "finding_id": "build_consolidated:large_method",
+      "message": "build_consolidated is 100 lines long",
+      "raw": {
+        "biomarker_type": "large_method",
+        "details": {
+          "ccn": 12,
+          "nloc": 100
+        },
+        "file_path": "consolidate.py",
+        "function_name": "build_consolidated",
+        "health_impact": 0.457,
+        "reason": "build_consolidated is 100 lines long",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:consolidate.py:build_output_row:primitive_obsession": {
+      "file": "consolidate.py",
+      "finding_id": "build_output_row:primitive_obsession",
+      "message": "build_output_row takes 5 parameters",
+      "raw": {
+        "biomarker_type": "primitive_obsession",
+        "details": {
+          "param_count": 5
+        },
+        "file_path": "consolidate.py",
+        "function_name": "build_output_row",
+        "health_impact": 0.078,
+        "reason": "build_output_row takes 5 parameters",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:consolidate.py:load_csv_raw:hot_path_sync_io": {
+      "file": "consolidate.py",
+      "finding_id": "load_csv_raw:hot_path_sync_io",
+      "message": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+      "raw": {
+        "biomarker_type": "hot_path_sync_io",
+        "details": {
+          "boundary_kind": "filesystem"
+        },
+        "file_path": "consolidate.py",
+        "function_name": "load_csv_raw",
+        "health_impact": 0.0,
+        "reason": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:consolidate.py:metric": {
+      "file": "consolidate.py",
+      "finding_id": "metric",
+      "message": "overall file health score 8.5/10 (max CCN 13, max nesting 2)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": null,
+        "file_path": "consolidate.py",
+        "has_test_file": false,
+        "line_coverage_pct": null,
+        "max_ccn": 13,
+        "max_nesting": 2,
+        "nloc": 296,
+        "score": 8.5
+      },
+      "risk_score": 1.5,
+      "source": "repowise"
+    },
+    "repowise:consolidate.py:validate_output:complex_method": {
+      "file": "consolidate.py",
+      "finding_id": "validate_output:complex_method",
+      "message": "validate_output has cyclomatic complexity 13",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 13,
+          "cognitive": 15,
+          "nloc": 46
+        },
+        "file_path": "consolidate.py",
+        "function_name": "validate_output",
+        "health_impact": 0.443,
+        "reason": "validate_output has cyclomatic complexity 13",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:consolidate.py:validate_output:hot_path_sync_io": {
+      "file": "consolidate.py",
+      "finding_id": "validate_output:hot_path_sync_io",
+      "message": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+      "raw": {
+        "biomarker_type": "hot_path_sync_io",
+        "details": {
+          "boundary_kind": "filesystem"
+        },
+        "file_path": "consolidate.py",
+        "function_name": "validate_output",
+        "health_impact": 0.0,
+        "reason": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:consolidate.py:validate_output:primitive_obsession": {
+      "file": "consolidate.py",
+      "finding_id": "validate_output:primitive_obsession",
+      "message": "validate_output takes 6 parameters",
+      "raw": {
+        "biomarker_type": "primitive_obsession",
+        "details": {
+          "param_count": 6
+        },
+        "file_path": "consolidate.py",
+        "function_name": "validate_output",
+        "health_impact": 0.078,
+        "reason": "validate_output takes 6 parameters",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:None:churn_risk": {
+      "file": "dashboard.js",
+      "finding_id": "None:churn_risk",
+      "message": "90-day churn rewrote 11.7x the file's size (3923 lines over 335 NLOC, top 4% of repo churn)",
+      "raw": {
+        "biomarker_type": "churn_risk",
+        "details": {
+          "churn_percentile": 0.963,
+          "commit_count_90d": 11,
+          "lines_added_90d": 2162,
+          "lines_deleted_90d": 1761,
+          "nloc": 335,
+          "relative_churn": 11.71
+        },
+        "file_path": "dashboard.js",
+        "function_name": null,
+        "health_impact": 0.849,
+        "reason": "90-day churn rewrote 11.7x the file's size (3923 lines over 335 NLOC, top 4% of repo churn)",
+        "severity": "critical"
+      },
+      "risk_score": 10.0,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:None:prior_defect": {
+      "file": "dashboard.js",
+      "finding_id": "None:prior_defect",
+      "message": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 1,
+          "window_days": 180
+        },
+        "file_path": "dashboard.js",
+        "function_name": null,
+        "health_impact": 0.106,
+        "reason": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:buildCoaching:complex_conditional": {
+      "file": "dashboard.js",
+      "finding_id": "buildCoaching:complex_conditional",
+      "message": "if condition combines 3 boolean operators (occurs 2 times)",
+      "raw": {
+        "biomarker_type": "complex_conditional",
+        "details": {
+          "enclosing_construct": "if",
+          "operator_count": 3
+        },
+        "file_path": "dashboard.js",
+        "function_name": "buildCoaching",
+        "health_impact": 0.399,
+        "reason": "if condition combines 3 boolean operators",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:buildCoaching:complex_method": {
+      "file": "dashboard.js",
+      "finding_id": "buildCoaching:complex_method",
+      "message": "buildCoaching has cyclomatic complexity 35",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 35,
+          "cognitive": 35,
+          "nloc": 35
+        },
+        "file_path": "dashboard.js",
+        "function_name": "buildCoaching",
+        "health_impact": 0.354,
+        "reason": "buildCoaching has cyclomatic complexity 35",
+        "severity": "critical"
+      },
+      "risk_score": 10.0,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:buildCoaching:function_hotspot": {
+      "file": "dashboard.js",
+      "finding_id": "buildCoaching:function_hotspot",
+      "message": "buildCoaching has been modified across 4 commits (repo p80=2) and carries CCN=35 / nesting=2",
+      "raw": {
+        "biomarker_type": "function_hotspot",
+        "details": {
+          "ccn": 35,
+          "max_nesting": 2,
+          "modification_count": 4,
+          "repo_p80": 2
+        },
+        "file_path": "dashboard.js",
+        "function_name": "buildCoaching",
+        "health_impact": 0.493,
+        "reason": "buildCoaching has been modified across 4 commits (repo p80=2) and carries CCN=35 / nesting=2",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:fillBarHTML:primitive_obsession": {
+      "file": "dashboard.js",
+      "finding_id": "fillBarHTML:primitive_obsession",
+      "message": "fillBarHTML takes 6 parameters",
+      "raw": {
+        "biomarker_type": "primitive_obsession",
+        "details": {
+          "param_count": 6
+        },
+        "file_path": "dashboard.js",
+        "function_name": "fillBarHTML",
+        "health_impact": 0.022,
+        "reason": "fillBarHTML takes 6 parameters",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:keyMetricDesc:complex_method": {
+      "file": "dashboard.js",
+      "finding_id": "keyMetricDesc:complex_method",
+      "message": "keyMetricDesc has cyclomatic complexity 22",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 22,
+          "cognitive": 49,
+          "nloc": 23
+        },
+        "file_path": "dashboard.js",
+        "function_name": "keyMetricDesc",
+        "health_impact": 0.213,
+        "reason": "keyMetricDesc has cyclomatic complexity 22",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:keyMetricDesc:function_hotspot": {
+      "file": "dashboard.js",
+      "finding_id": "keyMetricDesc:function_hotspot",
+      "message": "keyMetricDesc has been modified across 2 commits (repo p80=2) and carries CCN=22 / nesting=3",
+      "raw": {
+        "biomarker_type": "function_hotspot",
+        "details": {
+          "ccn": 22,
+          "max_nesting": 3,
+          "modification_count": 2,
+          "repo_p80": 2
+        },
+        "file_path": "dashboard.js",
+        "function_name": "keyMetricDesc",
+        "health_impact": 0.493,
+        "reason": "keyMetricDesc has been modified across 2 commits (repo p80=2) and carries CCN=22 / nesting=3",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:metric": {
+      "file": "dashboard.js",
+      "finding_id": "metric",
+      "message": "overall file health score 3.6/10 (max CCN 139, max nesting 3)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": 4.67,
+        "file_path": "dashboard.js",
+        "has_test_file": false,
+        "line_coverage_pct": null,
+        "max_ccn": 139,
+        "max_nesting": 3,
+        "nloc": 335,
+        "score": 3.6
+      },
+      "risk_score": 6.4,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:renderCalendar:complex_method": {
+      "file": "dashboard.js",
+      "finding_id": "renderCalendar:complex_method",
+      "message": "renderCalendar has cyclomatic complexity 10",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 10,
+          "cognitive": 14,
+          "nloc": 17
+        },
+        "file_path": "dashboard.js",
+        "function_name": "renderCalendar",
+        "health_impact": 0.124,
+        "reason": "renderCalendar has cyclomatic complexity 10",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:renderCalendar:function_hotspot": {
+      "file": "dashboard.js",
+      "finding_id": "renderCalendar:function_hotspot",
+      "message": "renderCalendar has been modified across 3 commits (repo p80=2) and carries CCN=10 / nesting=3",
+      "raw": {
+        "biomarker_type": "function_hotspot",
+        "details": {
+          "ccn": 10,
+          "max_nesting": 3,
+          "modification_count": 3,
+          "repo_p80": 2
+        },
+        "file_path": "dashboard.js",
+        "function_name": "renderCalendar",
+        "health_impact": 0.287,
+        "reason": "renderCalendar has been modified across 3 commits (repo p80=2) and carries CCN=10 / nesting=3",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:renderCalendar:string_concat_in_loop": {
+      "file": "dashboard.js",
+      "finding_id": "renderCalendar:string_concat_in_loop",
+      "message": "string built by += in a loop; use a buffer / join for linear cost",
+      "raw": {
+        "biomarker_type": "string_concat_in_loop",
+        "details": {},
+        "file_path": "dashboard.js",
+        "function_name": "renderCalendar",
+        "health_impact": 0.0,
+        "reason": "string built by += in a loop; use a buffer / join for linear cost",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:renderCharts:complex_method": {
+      "file": "dashboard.js",
+      "finding_id": "renderCharts:complex_method",
+      "message": "renderCharts has cyclomatic complexity 20",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 20,
+          "cognitive": 20,
+          "nloc": 34
+        },
+        "file_path": "dashboard.js",
+        "function_name": "renderCharts",
+        "health_impact": 0.213,
+        "reason": "renderCharts has cyclomatic complexity 20",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:renderCharts:function_hotspot": {
+      "file": "dashboard.js",
+      "finding_id": "renderCharts:function_hotspot",
+      "message": "renderCharts has been modified across 2 commits (repo p80=2) and carries CCN=20 / nesting=2",
+      "raw": {
+        "biomarker_type": "function_hotspot",
+        "details": {
+          "ccn": 20,
+          "max_nesting": 2,
+          "modification_count": 2,
+          "repo_p80": 2
+        },
+        "file_path": "dashboard.js",
+        "function_name": "renderCharts",
+        "health_impact": 0.493,
+        "reason": "renderCharts has been modified across 2 commits (repo p80=2) and carries CCN=20 / nesting=2",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:renderDay:bumpy_road": {
+      "file": "dashboard.js",
+      "finding_id": "renderDay:bumpy_road",
+      "message": "renderDay has 24 nested blocks at the same level (bumpy road)",
+      "raw": {
+        "biomarker_type": "bumpy_road",
+        "details": {
+          "bumps": 24,
+          "ccn": 139,
+          "max_nesting": 3
+        },
+        "file_path": "dashboard.js",
+        "function_name": "renderDay",
+        "health_impact": 0.6,
+        "reason": "renderDay has 24 nested blocks at the same level (bumpy road)",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:renderDay:complex_method": {
+      "file": "dashboard.js",
+      "finding_id": "renderDay:complex_method",
+      "message": "renderDay has cyclomatic complexity 139",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 139,
+          "cognitive": 182,
+          "nloc": 122
+        },
+        "file_path": "dashboard.js",
+        "function_name": "renderDay",
+        "health_impact": 0.354,
+        "reason": "renderDay has cyclomatic complexity 139",
+        "severity": "critical"
+      },
+      "risk_score": 10.0,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:renderDay:function_hotspot": {
+      "file": "dashboard.js",
+      "finding_id": "renderDay:function_hotspot",
+      "message": "renderDay has been modified across 5 commits (repo p80=2) and carries CCN=139 / nesting=3",
+      "raw": {
+        "biomarker_type": "function_hotspot",
+        "details": {
+          "ccn": 139,
+          "max_nesting": 3,
+          "modification_count": 5,
+          "repo_p80": 2
+        },
+        "file_path": "dashboard.js",
+        "function_name": "renderDay",
+        "health_impact": 0.493,
+        "reason": "renderDay has been modified across 5 commits (repo p80=2) and carries CCN=139 / nesting=3",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:renderDay:large_method": {
+      "file": "dashboard.js",
+      "finding_id": "renderDay:large_method",
+      "message": "renderDay is 122 lines long",
+      "raw": {
+        "biomarker_type": "large_method",
+        "details": {
+          "ccn": 139,
+          "nloc": 122
+        },
+        "file_path": "dashboard.js",
+        "function_name": "renderDay",
+        "health_impact": 0.22,
+        "reason": "renderDay is 122 lines long",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:updateFreshness:function_hotspot": {
+      "file": "dashboard.js",
+      "finding_id": "updateFreshness:function_hotspot",
+      "message": "updateFreshness has been modified across 2 commits (repo p80=2) and carries CCN=8 / nesting=3",
+      "raw": {
+        "biomarker_type": "function_hotspot",
+        "details": {
+          "ccn": 8,
+          "max_nesting": 3,
+          "modification_count": 2,
+          "repo_p80": 2
+        },
+        "file_path": "dashboard.js",
+        "function_name": "updateFreshness",
+        "health_impact": 0.287,
+        "reason": "updateFreshness has been modified across 2 commits (repo p80=2) and carries CCN=8 / nesting=3",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:fetch_sources.py:fetch_file:complex_method": {
+      "file": "fetch_sources.py",
+      "finding_id": "fetch_file:complex_method",
+      "message": "fetch_file has cyclomatic complexity 10",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 10,
+          "cognitive": 28,
+          "nloc": 54
+        },
+        "file_path": "fetch_sources.py",
+        "function_name": "fetch_file",
+        "health_impact": 0.847,
+        "reason": "fetch_file has cyclomatic complexity 10",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:fetch_sources.py:fetch_file:io_in_loop": {
+      "file": "fetch_sources.py",
+      "finding_id": "fetch_file:io_in_loop",
+      "message": "a network call runs once per loop iteration (N+1 / IO-in-loop)",
+      "raw": {
+        "biomarker_type": "io_in_loop",
+        "details": {
+          "boundary_kind": "network",
+          "cross_function": false
+        },
+        "file_path": "fetch_sources.py",
+        "function_name": "fetch_file",
+        "health_impact": 0.0,
+        "reason": "a network call runs once per loop iteration (N+1 / IO-in-loop)",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:fetch_sources.py:fetch_file:nested_complexity": {
+      "file": "fetch_sources.py",
+      "finding_id": "fetch_file:nested_complexity",
+      "message": "fetch_file nests 4 levels deep",
+      "raw": {
+        "biomarker_type": "nested_complexity",
+        "details": {
+          "ccn": 10,
+          "cognitive": 28,
+          "max_nesting": 4
+        },
+        "file_path": "fetch_sources.py",
+        "function_name": "fetch_file",
+        "health_impact": 0.938,
+        "reason": "fetch_file nests 4 levels deep",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:fetch_sources.py:fetch_file:primitive_obsession": {
+      "file": "fetch_sources.py",
+      "finding_id": "fetch_file:primitive_obsession",
+      "message": "fetch_file takes 6 parameters",
+      "raw": {
+        "biomarker_type": "primitive_obsession",
+        "details": {
+          "param_count": 6
+        },
+        "file_path": "fetch_sources.py",
+        "function_name": "fetch_file",
+        "health_impact": 0.15,
+        "reason": "fetch_file takes 6 parameters",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:fetch_sources.py:metric": {
+      "file": "fetch_sources.py",
+      "finding_id": "metric",
+      "message": "overall file health score 8.06/10 (max CCN 10, max nesting 4)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": null,
+        "file_path": "fetch_sources.py",
+        "has_test_file": false,
+        "line_coverage_pct": null,
+        "max_ccn": 10,
+        "max_nesting": 4,
+        "nloc": 186,
+        "score": 8.06
+      },
+      "risk_score": 1.94,
+      "source": "repowise"
+    },
+    "repowise:generate_audit_report.py:load_audit_records:nested_complexity": {
+      "file": "generate_audit_report.py",
+      "finding_id": "load_audit_records:nested_complexity",
+      "message": "load_audit_records nests 4 levels deep",
+      "raw": {
+        "biomarker_type": "nested_complexity",
+        "details": {
+          "ccn": 5,
+          "cognitive": 11,
+          "max_nesting": 4
+        },
+        "file_path": "generate_audit_report.py",
+        "function_name": "load_audit_records",
+        "health_impact": 0.938,
+        "reason": "load_audit_records nests 4 levels deep",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:generate_audit_report.py:metric": {
+      "file": "generate_audit_report.py",
+      "finding_id": "metric",
+      "message": "overall file health score 9.06/10 (max CCN 5, max nesting 4)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": null,
+        "file_path": "generate_audit_report.py",
+        "has_test_file": false,
+        "line_coverage_pct": null,
+        "max_ccn": 5,
+        "max_nesting": 4,
+        "nloc": 92,
+        "score": 9.06
+      },
+      "risk_score": 0.94,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_ci_log_collector.py:None:dry_violation": {
+      "file": "tests/codegeeko/test_ci_log_collector.py",
+      "finding_id": "None:dry_violation",
+      "message": "29% of file duplicated; worst clone shares 32 lines with tests/codegeeko/test_ci_log_collector.py",
+      "raw": {
+        "biomarker_type": "dry_violation",
+        "details": {
+          "clone_pair_count": 3,
+          "duplication_pct": 29.27,
+          "worst_clone_co_change": 0,
+          "worst_clone_lines": 32,
+          "worst_clone_partner": "tests/codegeeko/test_ci_log_collector.py"
+        },
+        "file_path": "tests/codegeeko/test_ci_log_collector.py",
+        "function_name": null,
+        "health_impact": 0.35,
+        "reason": "29% of file duplicated; worst clone shares 32 lines with tests/codegeeko/test_ci_log_collector.py",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_ci_log_collector.py:None:duplicated_assertion_block": {
+      "file": "tests/codegeeko/test_ci_log_collector.py",
+      "finding_id": "None:duplicated_assertion_block",
+      "message": "assertion block at lines 51-58 is duplicated in tests/codegeeko/test_repowise_collector.py",
+      "raw": {
+        "biomarker_type": "duplicated_assertion_block",
+        "details": {
+          "assertion_lines": [
+            51,
+            58
+          ],
+          "partner_file": "tests/codegeeko/test_repowise_collector.py"
+        },
+        "file_path": "tests/codegeeko/test_ci_log_collector.py",
+        "function_name": null,
+        "health_impact": 0.5,
+        "reason": "assertion block at lines 51-58 is duplicated in tests/codegeeko/test_repowise_collector.py",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_ci_log_collector.py:None:prior_defect": {
+      "file": "tests/codegeeko/test_ci_log_collector.py",
+      "finding_id": "None:prior_defect",
+      "message": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 1,
+          "window_days": 180
+        },
+        "file_path": "tests/codegeeko/test_ci_log_collector.py",
+        "function_name": null,
+        "health_impact": 0.3,
+        "reason": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_ci_log_collector.py:metric": {
+      "file": "tests/codegeeko/test_ci_log_collector.py",
+      "finding_id": "metric",
+      "message": "overall file health score 8.85/10 (max CCN 2, max nesting 1)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": 29.27,
+        "file_path": "tests/codegeeko/test_ci_log_collector.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 2,
+        "max_nesting": 1,
+        "nloc": 138,
+        "score": 8.85
+      },
+      "risk_score": 1.15,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_fixer.py:None:dry_violation": {
+      "file": "tests/codegeeko/test_fixer.py",
+      "finding_id": "None:dry_violation",
+      "message": "65% of file duplicated; worst clone shares 12 lines with tests/codegeeko/test_fixer.py",
+      "raw": {
+        "biomarker_type": "dry_violation",
+        "details": {
+          "clone_pair_count": 10,
+          "duplication_pct": 64.65,
+          "worst_clone_co_change": 0,
+          "worst_clone_lines": 12,
+          "worst_clone_partner": "tests/codegeeko/test_fixer.py"
+        },
+        "file_path": "tests/codegeeko/test_fixer.py",
+        "function_name": null,
+        "health_impact": 0.35,
+        "reason": "65% of file duplicated; worst clone shares 12 lines with tests/codegeeko/test_fixer.py",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_fixer.py:None:duplicated_assertion_block": {
+      "file": "tests/codegeeko/test_fixer.py",
+      "finding_id": "None:duplicated_assertion_block",
+      "message": "assertion block at lines 26-27 is duplicated in tests/codegeeko/test_fixer.py (occurs 2 times)",
+      "raw": {
+        "biomarker_type": "duplicated_assertion_block",
+        "details": {
+          "assertion_lines": [
+            26,
+            27
+          ],
+          "partner_file": "tests/codegeeko/test_fixer.py"
+        },
+        "file_path": "tests/codegeeko/test_fixer.py",
+        "function_name": null,
+        "health_impact": 0.25,
+        "reason": "assertion block at lines 26-27 is duplicated in tests/codegeeko/test_fixer.py",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_fixer.py:metric": {
+      "file": "tests/codegeeko/test_fixer.py",
+      "finding_id": "metric",
+      "message": "overall file health score 9.15/10 (max CCN 2, max nesting 0)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": 64.65,
+        "file_path": "tests/codegeeko/test_fixer.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 2,
+        "max_nesting": 0,
+        "nloc": 86,
+        "score": 9.15
+      },
+      "risk_score": 0.85,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_repowise_collector.py:None:dry_violation": {
+      "file": "tests/codegeeko/test_repowise_collector.py",
+      "finding_id": "None:dry_violation",
+      "message": "29% of file duplicated; worst clone shares 15 lines with tests/codegeeko/test_semgrep_collector.py",
+      "raw": {
+        "biomarker_type": "dry_violation",
+        "details": {
+          "clone_pair_count": 5,
+          "duplication_pct": 29.03,
+          "worst_clone_co_change": 0,
+          "worst_clone_lines": 15,
+          "worst_clone_partner": "tests/codegeeko/test_semgrep_collector.py"
+        },
+        "file_path": "tests/codegeeko/test_repowise_collector.py",
+        "function_name": null,
+        "health_impact": 0.35,
+        "reason": "29% of file duplicated; worst clone shares 15 lines with tests/codegeeko/test_semgrep_collector.py",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_repowise_collector.py:None:duplicated_assertion_block": {
+      "file": "tests/codegeeko/test_repowise_collector.py",
+      "finding_id": "None:duplicated_assertion_block",
+      "message": "assertion block at lines 18-25 is duplicated in tests/codegeeko/test_ci_log_collector.py (occurs 2 times)",
+      "raw": {
+        "biomarker_type": "duplicated_assertion_block",
+        "details": {
+          "assertion_lines": [
+            18,
+            25
+          ],
+          "partner_file": "tests/codegeeko/test_ci_log_collector.py"
+        },
+        "file_path": "tests/codegeeko/test_repowise_collector.py",
+        "function_name": null,
+        "health_impact": 0.25,
+        "reason": "assertion block at lines 18-25 is duplicated in tests/codegeeko/test_ci_log_collector.py",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_repowise_collector.py:None:prior_defect": {
+      "file": "tests/codegeeko/test_repowise_collector.py",
+      "finding_id": "None:prior_defect",
+      "message": "3 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 3,
+          "window_days": 180
+        },
+        "file_path": "tests/codegeeko/test_repowise_collector.py",
+        "function_name": null,
+        "health_impact": 1.2,
+        "reason": "3 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_repowise_collector.py:metric": {
+      "file": "tests/codegeeko/test_repowise_collector.py",
+      "finding_id": "metric",
+      "message": "overall file health score 7.95/10 (max CCN 6, max nesting 1)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": 29.03,
+        "file_path": "tests/codegeeko/test_repowise_collector.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 6,
+        "max_nesting": 1,
+        "nloc": 159,
+        "score": 7.95
+      },
+      "risk_score": 2.05,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_run.py:None:dry_violation": {
+      "file": "tests/codegeeko/test_run.py",
+      "finding_id": "None:dry_violation",
+      "message": "40% of file duplicated; worst clone shares 10 lines with tests/codegeeko/test_run.py",
+      "raw": {
+        "biomarker_type": "dry_violation",
+        "details": {
+          "clone_pair_count": 6,
+          "duplication_pct": 39.51,
+          "worst_clone_co_change": 0,
+          "worst_clone_lines": 10,
+          "worst_clone_partner": "tests/codegeeko/test_run.py"
+        },
+        "file_path": "tests/codegeeko/test_run.py",
+        "function_name": null,
+        "health_impact": 0.35,
+        "reason": "40% of file duplicated; worst clone shares 10 lines with tests/codegeeko/test_run.py",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_run.py:None:prior_defect": {
+      "file": "tests/codegeeko/test_run.py",
+      "finding_id": "None:prior_defect",
+      "message": "2 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 2,
+          "window_days": 180
+        },
+        "file_path": "tests/codegeeko/test_run.py",
+        "function_name": null,
+        "health_impact": 0.7,
+        "reason": "2 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_run.py:metric": {
+      "file": "tests/codegeeko/test_run.py",
+      "finding_id": "metric",
+      "message": "overall file health score 8.95/10 (max CCN 1, max nesting 0)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": 39.51,
+        "file_path": "tests/codegeeko/test_run.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 1,
+        "max_nesting": 0,
+        "nloc": 72,
+        "score": 8.95
+      },
+      "risk_score": 1.05,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_semgrep_collector.py:None:change_entropy": {
+      "file": "tests/codegeeko/test_semgrep_collector.py",
+      "finding_id": "None:change_entropy",
+      "message": "changes are scattered across noisy commits (top 15% change entropy); a strong history-based fault predictor",
+      "raw": {
+        "biomarker_type": "change_entropy",
+        "details": {
+          "change_entropy": 1.9843,
+          "change_entropy_pct": 0.852,
+          "commit_count_90d": 4
+        },
+        "file_path": "tests/codegeeko/test_semgrep_collector.py",
+        "function_name": null,
+        "health_impact": 1.057,
+        "reason": "changes are scattered across noisy commits (top 15% change entropy); a strong history-based fault predictor",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_semgrep_collector.py:None:dry_violation": {
+      "file": "tests/codegeeko/test_semgrep_collector.py",
+      "finding_id": "None:dry_violation",
+      "message": "14% of file duplicated; worst clone shares 15 lines with tests/codegeeko/test_repowise_collector.py",
+      "raw": {
+        "biomarker_type": "dry_violation",
+        "details": {
+          "clone_pair_count": 4,
+          "duplication_pct": 13.53,
+          "worst_clone_co_change": 0,
+          "worst_clone_lines": 15,
+          "worst_clone_partner": "tests/codegeeko/test_repowise_collector.py"
+        },
+        "file_path": "tests/codegeeko/test_semgrep_collector.py",
+        "function_name": null,
+        "health_impact": 0.15,
+        "reason": "14% of file duplicated; worst clone shares 15 lines with tests/codegeeko/test_repowise_collector.py",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_semgrep_collector.py:None:duplicated_assertion_block": {
+      "file": "tests/codegeeko/test_semgrep_collector.py",
+      "finding_id": "None:duplicated_assertion_block",
+      "message": "assertion block at lines 18-25 is duplicated in tests/codegeeko/test_ci_log_collector.py",
+      "raw": {
+        "biomarker_type": "duplicated_assertion_block",
+        "details": {
+          "assertion_lines": [
+            18,
+            25
+          ],
+          "partner_file": "tests/codegeeko/test_ci_log_collector.py"
+        },
+        "file_path": "tests/codegeeko/test_semgrep_collector.py",
+        "function_name": null,
+        "health_impact": 0.5,
+        "reason": "assertion block at lines 18-25 is duplicated in tests/codegeeko/test_ci_log_collector.py",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_semgrep_collector.py:None:prior_defect": {
+      "file": "tests/codegeeko/test_semgrep_collector.py",
+      "finding_id": "None:prior_defect",
+      "message": "3 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 3,
+          "window_days": 180
+        },
+        "file_path": "tests/codegeeko/test_semgrep_collector.py",
+        "function_name": null,
+        "health_impact": 2.0,
+        "reason": "3 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "critical"
+      },
+      "risk_score": 10.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_semgrep_collector.py:metric": {
+      "file": "tests/codegeeko/test_semgrep_collector.py",
+      "finding_id": "metric",
+      "message": "overall file health score 6.29/10 (max CCN 3, max nesting 1)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": 13.53,
+        "file_path": "tests/codegeeko/test_semgrep_collector.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 3,
+        "max_nesting": 1,
+        "nloc": 206,
+        "score": 6.29
+      },
+      "risk_score": 3.71,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_triage.py:None:change_entropy": {
+      "file": "tests/codegeeko/test_triage.py",
+      "finding_id": "None:change_entropy",
+      "message": "changes are scattered across noisy commits (top 4% change entropy); a strong history-based fault predictor",
+      "raw": {
+        "biomarker_type": "change_entropy",
+        "details": {
+          "change_entropy": 2.9842,
+          "change_entropy_pct": 0.963,
+          "commit_count_90d": 7
+        },
+        "file_path": "tests/codegeeko/test_triage.py",
+        "function_name": null,
+        "health_impact": 1.804,
+        "reason": "changes are scattered across noisy commits (top 4% change entropy); a strong history-based fault predictor",
+        "severity": "critical"
+      },
+      "risk_score": 10.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_triage.py:None:churn_risk": {
+      "file": "tests/codegeeko/test_triage.py",
+      "finding_id": "None:churn_risk",
+      "message": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 11% of repo churn)",
+      "raw": {
+        "biomarker_type": "churn_risk",
+        "details": {
+          "churn_percentile": 0.889,
+          "commit_count_90d": 7,
+          "lines_added_90d": 306,
+          "lines_deleted_90d": 37,
+          "nloc": 151,
+          "relative_churn": 2.27
+        },
+        "file_path": "tests/codegeeko/test_triage.py",
+        "function_name": null,
+        "health_impact": 0.502,
+        "reason": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 11% of repo churn)",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_triage.py:None:dry_violation": {
+      "file": "tests/codegeeko/test_triage.py",
+      "finding_id": "None:dry_violation",
+      "message": "71% of file duplicated; worst clone shares 33 lines with tests/codegeeko/test_triage.py",
+      "raw": {
+        "biomarker_type": "dry_violation",
+        "details": {
+          "clone_pair_count": 9,
+          "duplication_pct": 71.43,
+          "worst_clone_co_change": 0,
+          "worst_clone_lines": 33,
+          "worst_clone_partner": "tests/codegeeko/test_triage.py"
+        },
+        "file_path": "tests/codegeeko/test_triage.py",
+        "function_name": null,
+        "health_impact": 0.35,
+        "reason": "71% of file duplicated; worst clone shares 33 lines with tests/codegeeko/test_triage.py",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_triage.py:None:duplicated_assertion_block": {
+      "file": "tests/codegeeko/test_triage.py",
+      "finding_id": "None:duplicated_assertion_block",
+      "message": "assertion block at lines 139-140 is duplicated in tests/codegeeko/test_triage.py (occurs 9 times)",
+      "raw": {
+        "biomarker_type": "duplicated_assertion_block",
+        "details": {
+          "assertion_lines": [
+            139,
+            140
+          ],
+          "partner_file": "tests/codegeeko/test_triage.py"
+        },
+        "file_path": "tests/codegeeko/test_triage.py",
+        "function_name": null,
+        "health_impact": 0.056,
+        "reason": "assertion block at lines 139-140 is duplicated in tests/codegeeko/test_triage.py",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_triage.py:None:prior_defect": {
+      "file": "tests/codegeeko/test_triage.py",
+      "finding_id": "None:prior_defect",
+      "message": "5 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 5,
+          "window_days": 180
+        },
+        "file_path": "tests/codegeeko/test_triage.py",
+        "function_name": null,
+        "health_impact": 1.195,
+        "reason": "5 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "critical"
+      },
+      "risk_score": 10.0,
+      "source": "repowise"
+    },
+    "repowise:tests/codegeeko/test_triage.py:metric": {
+      "file": "tests/codegeeko/test_triage.py",
+      "finding_id": "metric",
+      "message": "overall file health score 5.65/10 (max CCN 1, max nesting 0)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": 71.43,
+        "file_path": "tests/codegeeko/test_triage.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 1,
+        "max_nesting": 0,
+        "nloc": 151,
+        "score": 5.65
+      },
+      "risk_score": 4.35,
+      "source": "repowise"
+    },
+    "repowise:validate_sources.py:compare_schemas:complex_method": {
+      "file": "validate_sources.py",
+      "finding_id": "compare_schemas:complex_method",
+      "message": "compare_schemas has cyclomatic complexity 10",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 10,
+          "cognitive": 9,
+          "nloc": 21
+        },
+        "file_path": "validate_sources.py",
+        "function_name": "compare_schemas",
+        "health_impact": 0.475,
+        "reason": "compare_schemas has cyclomatic complexity 10",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:validate_sources.py:metric": {
+      "file": "validate_sources.py",
+      "finding_id": "metric",
+      "message": "overall file health score 8.15/10 (max CCN 18, max nesting 3)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": null,
+        "file_path": "validate_sources.py",
+        "has_test_file": false,
+        "line_coverage_pct": null,
+        "max_ccn": 18,
+        "max_nesting": 3,
+        "nloc": 263,
+        "score": 8.15
+      },
+      "risk_score": 1.85,
+      "source": "repowise"
+    },
+    "repowise:validate_sources.py:validate_csv:bumpy_road": {
+      "file": "validate_sources.py",
+      "finding_id": "validate_csv:bumpy_road",
+      "message": "validate_csv has 4 nested blocks at the same level (bumpy road)",
+      "raw": {
+        "biomarker_type": "bumpy_road",
+        "details": {
+          "bumps": 4,
+          "ccn": 18,
+          "max_nesting": 3
+        },
+        "file_path": "validate_sources.py",
+        "function_name": "validate_csv",
+        "health_impact": 0.35,
+        "reason": "validate_csv has 4 nested blocks at the same level (bumpy road)",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:validate_sources.py:validate_csv:complex_method": {
+      "file": "validate_sources.py",
+      "finding_id": "validate_csv:complex_method",
+      "message": "validate_csv has cyclomatic complexity 18",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 18,
+          "cognitive": 30,
+          "nloc": 85
+        },
+        "file_path": "validate_sources.py",
+        "function_name": "validate_csv",
+        "health_impact": 0.815,
+        "reason": "validate_csv has cyclomatic complexity 18",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:validate_sources.py:validate_csv:large_method": {
+      "file": "validate_sources.py",
+      "finding_id": "validate_csv:large_method",
+      "message": "validate_csv is 85 lines long",
+      "raw": {
+        "biomarker_type": "large_method",
+        "details": {
+          "ccn": 18,
+          "nloc": 85
+        },
+        "file_path": "validate_sources.py",
+        "function_name": "validate_csv",
+        "health_impact": 0.21,
+        "reason": "validate_csv is 85 lines long",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "semgrep:.github/workflows/consolidate.yml:yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:59": {
+      "file": ".github/workflows/consolidate.yml",
+      "finding_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:59",
+      "message": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag: GitHub Actions step uses a mutable tag or branch reference. Tags and branch names can be silently repointed by the action owner, enabling supply-chain attacks \u2014 as seen in the trivy-action and kics-github-action compromises. Pin the reference to a full 40-character commit SHA instead, e.g. `uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608`.",
+      "raw": {
+        "check_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag",
+        "end": {
+          "col": 34,
+          "line": 59,
+          "offset": 2700
+        },
+        "extra": {
+          "engine_kind": "OSS",
+          "fingerprint": "requires login",
+          "lines": "requires login",
+          "message": "GitHub Actions step uses a mutable tag or branch reference. Tags and branch names can be silently repointed by the action owner, enabling supply-chain attacks \u2014 as seen in the trivy-action and kics-github-action compromises. Pin the reference to a full 40-character commit SHA instead, e.g. `uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608`.",
+          "metadata": {
+            "category": "security",
+            "confidence": "HIGH",
+            "cwe": [
+              "CWE-1357: Reliance on Insufficiently Trustworthy Component",
+              "CWE-353: Missing Support for Integrity Check"
+            ],
+            "impact": "HIGH",
+            "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+            "likelihood": "MEDIUM",
+            "owasp": [
+              "A08:2021 - Software and Data Integrity Failures",
+              "A08:2025 - Software and Data Integrity Failures"
+            ],
+            "references": [
+              "https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions"
+            ],
+            "shortlink": "https://sg.run/2LgAL",
+            "source": "https://semgrep.dev/r/yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag",
+            "subcategory": [
+              "vuln"
+            ],
+            "technology": [
+              "github-actions"
+            ],
+            "vulnerability_class": [
+              "Cryptographic Issues",
+              "Other"
+            ]
+          },
+          "severity": "WARNING",
+          "validation_state": "NO_VALIDATOR"
+        },
+        "path": ".github/workflows/consolidate.yml",
+        "start": {
+          "col": 9,
+          "line": 59,
+          "offset": 2675
+        }
+      },
+      "risk_score": 6.0,
+      "source": "semgrep"
+    },
+    "semgrep:.github/workflows/consolidate.yml:yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:65": {
+      "file": ".github/workflows/consolidate.yml",
+      "finding_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:65",
+      "message": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag: GitHub Actions step uses a mutable tag or branch reference. Tags and branch names can be silently repointed by the action owner, enabling supply-chain attacks \u2014 as seen in the trivy-action and kics-github-action compromises. Pin the reference to a full 40-character commit SHA instead, e.g. `uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608`.",
+      "raw": {
+        "check_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag",
+        "end": {
+          "col": 38,
+          "line": 65,
+          "offset": 2989
+        },
+        "extra": {
+          "engine_kind": "OSS",
+          "fingerprint": "requires login",
+          "lines": "requires login",
+          "message": "GitHub Actions step uses a mutable tag or branch reference. Tags and branch names can be silently repointed by the action owner, enabling supply-chain attacks \u2014 as seen in the trivy-action and kics-github-action compromises. Pin the reference to a full 40-character commit SHA instead, e.g. `uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608`.",
+          "metadata": {
+            "category": "security",
+            "confidence": "HIGH",
+            "cwe": [
+              "CWE-1357: Reliance on Insufficiently Trustworthy Component",
+              "CWE-353: Missing Support for Integrity Check"
+            ],
+            "impact": "HIGH",
+            "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+            "likelihood": "MEDIUM",
+            "owasp": [
+              "A08:2021 - Software and Data Integrity Failures",
+              "A08:2025 - Software and Data Integrity Failures"
+            ],
+            "references": [
+              "https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions"
+            ],
+            "shortlink": "https://sg.run/2LgAL",
+            "source": "https://semgrep.dev/r/yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag",
+            "subcategory": [
+              "vuln"
+            ],
+            "technology": [
+              "github-actions"
+            ],
+            "vulnerability_class": [
+              "Cryptographic Issues",
+              "Other"
+            ]
+          },
+          "severity": "WARNING",
+          "validation_state": "NO_VALIDATOR"
+        },
+        "path": ".github/workflows/consolidate.yml",
+        "start": {
+          "col": 9,
+          "line": 65,
+          "offset": 2960
+        }
+      },
+      "risk_score": 6.0,
+      "source": "semgrep"
+    },
+    "semgrep:.github/workflows/validate_only.yml:yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:28": {
+      "file": ".github/workflows/validate_only.yml",
+      "finding_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:28",
+      "message": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag: GitHub Actions step uses a mutable tag or branch reference. Tags and branch names can be silently repointed by the action owner, enabling supply-chain attacks \u2014 as seen in the trivy-action and kics-github-action compromises. Pin the reference to a full 40-character commit SHA instead, e.g. `uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608`.",
+      "raw": {
+        "check_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag",
+        "end": {
+          "col": 34,
+          "line": 28,
+          "offset": 899
+        },
+        "extra": {
+          "engine_kind": "OSS",
+          "fingerprint": "requires login",
+          "lines": "requires login",
+          "message": "GitHub Actions step uses a mutable tag or branch reference. Tags and branch names can be silently repointed by the action owner, enabling supply-chain attacks \u2014 as seen in the trivy-action and kics-github-action compromises. Pin the reference to a full 40-character commit SHA instead, e.g. `uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608`.",
+          "metadata": {
+            "category": "security",
+            "confidence": "HIGH",
+            "cwe": [
+              "CWE-1357: Reliance on Insufficiently Trustworthy Component",
+              "CWE-353: Missing Support for Integrity Check"
+            ],
+            "impact": "HIGH",
+            "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+            "likelihood": "MEDIUM",
+            "owasp": [
+              "A08:2021 - Software and Data Integrity Failures",
+              "A08:2025 - Software and Data Integrity Failures"
+            ],
+            "references": [
+              "https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions"
+            ],
+            "shortlink": "https://sg.run/2LgAL",
+            "source": "https://semgrep.dev/r/yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag",
+            "subcategory": [
+              "vuln"
+            ],
+            "technology": [
+              "github-actions"
+            ],
+            "vulnerability_class": [
+              "Cryptographic Issues",
+              "Other"
+            ]
+          },
+          "severity": "WARNING",
+          "validation_state": "NO_VALIDATOR"
+        },
+        "path": ".github/workflows/validate_only.yml",
+        "start": {
+          "col": 9,
+          "line": 28,
+          "offset": 874
+        }
+      },
+      "risk_score": 6.0,
+      "source": "semgrep"
+    },
+    "semgrep:.github/workflows/validate_only.yml:yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:31": {
+      "file": ".github/workflows/validate_only.yml",
+      "finding_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:31",
+      "message": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag: GitHub Actions step uses a mutable tag or branch reference. Tags and branch names can be silently repointed by the action owner, enabling supply-chain attacks \u2014 as seen in the trivy-action and kics-github-action compromises. Pin the reference to a full 40-character commit SHA instead, e.g. `uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608`.",
+      "raw": {
+        "check_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag",
+        "end": {
+          "col": 38,
+          "line": 31,
+          "offset": 971
+        },
+        "extra": {
+          "engine_kind": "OSS",
+          "fingerprint": "requires login",
+          "lines": "requires login",
+          "message": "GitHub Actions step uses a mutable tag or branch reference. Tags and branch names can be silently repointed by the action owner, enabling supply-chain attacks \u2014 as seen in the trivy-action and kics-github-action compromises. Pin the reference to a full 40-character commit SHA instead, e.g. `uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608`.",
+          "metadata": {
+            "category": "security",
+            "confidence": "HIGH",
+            "cwe": [
+              "CWE-1357: Reliance on Insufficiently Trustworthy Component",
+              "CWE-353: Missing Support for Integrity Check"
+            ],
+            "impact": "HIGH",
+            "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+            "likelihood": "MEDIUM",
+            "owasp": [
+              "A08:2021 - Software and Data Integrity Failures",
+              "A08:2025 - Software and Data Integrity Failures"
+            ],
+            "references": [
+              "https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions"
+            ],
+            "shortlink": "https://sg.run/2LgAL",
+            "source": "https://semgrep.dev/r/yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag",
+            "subcategory": [
+              "vuln"
+            ],
+            "technology": [
+              "github-actions"
+            ],
+            "vulnerability_class": [
+              "Cryptographic Issues",
+              "Other"
+            ]
+          },
+          "severity": "WARNING",
+          "validation_state": "NO_VALIDATOR"
+        },
+        "path": ".github/workflows/validate_only.yml",
+        "start": {
+          "col": 9,
+          "line": 31,
+          "offset": 942
+        }
+      },
+      "risk_score": 6.0,
+      "source": "semgrep"
+    },
+    "semgrep:codegeeko/collectors/semgrep_collector.py:python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1:154": {
+      "file": "codegeeko/collectors/semgrep_collector.py",
+      "finding_id": "python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1:154",
+      "message": "python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1: Detected SHA1 hash algorithm which is considered insecure. SHA1 is not collision resistant and is therefore not suitable as a cryptographic signature. Use SHA256 or SHA3 instead.",
+      "raw": {
+        "check_id": "python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1",
+        "end": {
+          "col": 14,
+          "line": 156,
+          "offset": 10978
+        },
+        "extra": {
+          "engine_kind": "OSS",
+          "fingerprint": "requires login",
+          "fix": "hashlib.sha256(\n                json.dumps(result, sort_keys=True, default=str).encode()\n            )",
+          "lines": "requires login",
+          "message": "Detected SHA1 hash algorithm which is considered insecure. SHA1 is not collision resistant and is therefore not suitable as a cryptographic signature. Use SHA256 or SHA3 instead.",
+          "metadata": {
+            "asvs": {
+              "control_id": "6.2.2 Insecure Custom Algorithm",
+              "control_url": "https://github.com/OWASP/ASVS/blob/master/4.0/en/0x14-V6-Cryptography.md#v62-algorithms",
+              "section": "V6 Stored Cryptography Verification Requirements",
+              "version": "4"
+            },
+            "bandit-code": "B303",
+            "category": "security",
+            "confidence": "MEDIUM",
+            "cwe": [
+              "CWE-327: Use of a Broken or Risky Cryptographic Algorithm"
+            ],
+            "impact": "MEDIUM",
+            "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+            "likelihood": "LOW",
+            "owasp": [
+              "A03:2017 - Sensitive Data Exposure",
+              "A02:2021 - Cryptographic Failures",
+              "A04:2025 - Cryptographic Failures"
+            ],
+            "references": [
+              "https://www.schneier.com/blog/archives/2012/10/when_will_we_se.html",
+              "https://www.trendmicro.com/vinfo/us/security/news/vulnerabilities-and-exploits/sha-1-collision-signals-the-end-of-the-algorithm-s-viability",
+              "http://2012.sharcs.org/slides/stevens.pdf",
+              "https://pycryptodome.readthedocs.io/en/latest/src/hash/sha3_256.html"
+            ],
+            "shortlink": "https://sg.run/ydYx",
+            "source": "https://semgrep.dev/r/python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1",
+            "source-rule-url": "https://github.com/PyCQA/bandit/blob/d5f8fa0d89d7b11442fc6ec80ca42953974354c8/bandit/blacklists/calls.py#L59",
+            "subcategory": [
+              "vuln"
+            ],
+            "technology": [
+              "python"
+            ],
+            "vulnerability_class": [
+              "Cryptographic Issues"
+            ]
+          },
+          "severity": "WARNING",
+          "validation_state": "NO_VALIDATOR"
+        },
+        "path": "codegeeko/collectors/semgrep_collector.py",
+        "start": {
+          "col": 22,
+          "line": 154,
+          "offset": 10878
+        }
+      },
+      "risk_score": 6.0,
+      "source": "semgrep"
+    },
+    "semgrep:codegeeko/pr.py:python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1:29": {
+      "file": "codegeeko/pr.py",
+      "finding_id": "python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1:29",
+      "message": "python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1: Detected SHA1 hash algorithm which is considered insecure. SHA1 is not collision resistant and is therefore not suitable as a cryptographic signature. Use SHA256 or SHA3 instead.",
+      "raw": {
+        "check_id": "python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1",
+        "end": {
+          "col": 48,
+          "line": 29,
+          "offset": 1432
+        },
+        "extra": {
+          "engine_kind": "OSS",
+          "fingerprint": "requires login",
+          "fix": "hashlib.sha256(text.encode(\"utf-8\"))",
+          "lines": "requires login",
+          "message": "Detected SHA1 hash algorithm which is considered insecure. SHA1 is not collision resistant and is therefore not suitable as a cryptographic signature. Use SHA256 or SHA3 instead.",
+          "metadata": {
+            "asvs": {
+              "control_id": "6.2.2 Insecure Custom Algorithm",
+              "control_url": "https://github.com/OWASP/ASVS/blob/master/4.0/en/0x14-V6-Cryptography.md#v62-algorithms",
+              "section": "V6 Stored Cryptography Verification Requirements",
+              "version": "4"
+            },
+            "bandit-code": "B303",
+            "category": "security",
+            "confidence": "MEDIUM",
+            "cwe": [
+              "CWE-327: Use of a Broken or Risky Cryptographic Algorithm"
+            ],
+            "impact": "MEDIUM",
+            "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+            "likelihood": "LOW",
+            "owasp": [
+              "A03:2017 - Sensitive Data Exposure",
+              "A02:2021 - Cryptographic Failures",
+              "A04:2025 - Cryptographic Failures"
+            ],
+            "references": [
+              "https://www.schneier.com/blog/archives/2012/10/when_will_we_se.html",
+              "https://www.trendmicro.com/vinfo/us/security/news/vulnerabilities-and-exploits/sha-1-collision-signals-the-end-of-the-algorithm-s-viability",
+              "http://2012.sharcs.org/slides/stevens.pdf",
+              "https://pycryptodome.readthedocs.io/en/latest/src/hash/sha3_256.html"
+            ],
+            "shortlink": "https://sg.run/ydYx",
+            "source": "https://semgrep.dev/r/python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1",
+            "source-rule-url": "https://github.com/PyCQA/bandit/blob/d5f8fa0d89d7b11442fc6ec80ca42953974354c8/bandit/blacklists/calls.py#L59",
+            "subcategory": [
+              "vuln"
+            ],
+            "technology": [
+              "python"
+            ],
+            "vulnerability_class": [
+              "Cryptographic Issues"
+            ]
+          },
+          "severity": "WARNING",
+          "validation_state": "NO_VALIDATOR"
+        },
+        "path": "codegeeko/pr.py",
+        "start": {
+          "col": 14,
+          "line": 29,
+          "offset": 1398
+        }
+      },
+      "risk_score": 6.0,
+      "source": "semgrep"
+    }
+  }
+}
