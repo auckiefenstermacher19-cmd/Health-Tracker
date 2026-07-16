@@ -1,4 +1,5 @@
 import os
+import sys
 
 from codegeeko.collectors.ci_log_collector import run_ci_log_check
 from codegeeko.collectors.repowise_collector import run_repowise
@@ -39,6 +40,23 @@ def collect_all(repo_path: str, owner: str, repo: str, github_token: str) -> tup
 
 
 def main() -> None:
+    """Run one nightly Code-Geeko pass: collect, diff against state, triage, report, optionally
+    fix, then save state -- except on the two guarded failure paths below, where state is
+    deliberately NOT saved and the process exits non-zero instead:
+
+    1. All collectors failed (`checked` non-empty and every value != "ok"): there is zero real
+       signal for the night, so we abort before paying for a triage SDK call and before
+       `save_state` -- saving `build_next_state([], ...)` here would wipe the entire state file
+       and re-fire every finding on recovery.
+    2. Triage itself failed (`triage_ok is False` from `triage_findings`, with at least one
+       delta present): a failed triage call is indistinguishable from "triage rejected
+       everything" unless we keep them separate. Saving state here would permanently mark that
+       night's deltas as seen, so instead we skip `save_state` and exit non-zero, letting the
+       next scheduled run retry the same deltas.
+
+    A successful triage run that legitimately accepts nothing (`triage_ok is True`, `triaged ==
+    []`) is NOT a failure -- deliberate suppression is by design, and state is saved as normal.
+    """
     repo_path = "."
     owner = "auckiefenstermacher19-cmd"
     repo = "Health-Tracker"
@@ -47,8 +65,13 @@ def main() -> None:
 
     previous_state = load_state(STATE_PATH)
     findings, checked = collect_all(repo_path, owner, repo, github_token)
+
+    if checked and all(status != "ok" for status in checked.values()):
+        print("WARNING: all collectors failed this run -- aborting before triage; state NOT saved.")
+        sys.exit(1)
+
     deltas = compute_deltas(previous_state, findings)
-    triaged = triage_findings(deltas)
+    triaged, triage_ok = triage_findings(deltas)
 
     print(format_report(triaged, checked))
 
@@ -73,6 +96,10 @@ def main() -> None:
                 continue
             detail = outcome.get("url") or outcome.get("error", "unknown")
             print(f"  -> {outcome['outcome']}: {detail}")
+
+    if deltas and not triage_ok:
+        print(f"WARNING: triage failed -- state NOT saved; {len(deltas)} delta(s) will retry tomorrow")
+        sys.exit(1)
 
     save_state(STATE_PATH, build_next_state(findings, checked))
 
