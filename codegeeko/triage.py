@@ -58,10 +58,18 @@ def _run_triage_query(deltas: list[dict]) -> dict | None:
     )
 
     async def _collect():
+        # Capture the success result but DRAIN the generator to completion -- do NOT `return`
+        # mid-iteration. An early return leaves query()'s async generator open; under the
+        # asyncio.wait_for() below, its teardown races the wait_for cancel scope and raises
+        # `RuntimeError: aclose(): asynchronous generator is already running`, which the broad
+        # `except Exception` then (mis)reads as a triage failure. The workflow's smoke step drains
+        # fully for exactly this reason. The ResultMessage(subtype="success") is terminal, so the
+        # loop ends right after it anyway -- draining to the end is free.
+        result = None
         async for message in query(prompt=prompt, options=options):
             if getattr(message, "subtype", None) == "success":
-                return getattr(message, "result", None)
-        return None
+                result = getattr(message, "result", None)
+        return result
 
     try:
         raw_result = asyncio.run(asyncio.wait_for(_collect(), timeout=_TRIAGE_TIMEOUT_SECONDS))
