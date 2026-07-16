@@ -71,50 +71,35 @@ def _run_triage_query(deltas: list[dict]) -> dict | None:
                 result = getattr(message, "result", None)
         return result
 
-    # --- TEMP DIAGNOSTIC INSTRUMENTATION (remove after root-causing the silent triage failure) ---
-    # All prints go to STDERR so they land in the Actions job log but NOT in the report piped to
-    # $GITHUB_STEP_SUMMARY (only stdout is teed). Goal: reveal which None-path fires and, on a
-    # parse failure, the raw model response (fenced? preamble? truncated?).
-    import sys as _sys
-    import traceback as _tb
-
-    def _dbg(msg):
-        print(f"[CODEGEEKO-TRIAGE-DEBUG] {msg}", file=_sys.stderr, flush=True)
-
-    _dbg(f"sending {len(deltas)} findings; prompt_chars={len(prompt)}")
-
     try:
         raw_result = asyncio.run(asyncio.wait_for(_collect(), timeout=_TRIAGE_TIMEOUT_SECONDS))
     except asyncio.TimeoutError:
-        _dbg(f"NONE-PATH=timeout after {_TRIAGE_TIMEOUT_SECONDS}s")
         return None
-    except Exception as e:
+    except Exception:
         # Broad catch is deliberate here: this is the external trust boundary (subprocess/API we
         # don't control), and every other failure mode in this function already degrades to the
         # same "triage call failed" outcome (None) rather than propagating.
-        _dbg(f"NONE-PATH=exception {type(e).__name__}: {e}")
-        _dbg("TRACEBACK:\n" + _tb.format_exc())
         return None
 
-    if raw_result is None:
+    if raw_result is None or not isinstance(raw_result, str):
         # No message with subtype "success" was ever seen, or one was seen but carried no
-        # "result" -- either way we never got a decisions payload.
-        _dbg("NONE-PATH=raw_result_none (no ResultMessage subtype='success', or it had no 'result')")
+        # (string) "result" -- either way we never got a decisions payload.
         return None
 
-    if isinstance(raw_result, str):
-        _dbg(f"raw_result len={len(raw_result)}")
-        _dbg("raw_result HEAD: " + repr(raw_result[:800]))
-        _dbg("raw_result TAIL: " + repr(raw_result[-300:]))
-    else:
-        _dbg(f"raw_result non-str: {raw_result!r}")
-
+    # claude-sonnet-5 routinely wraps its answer in a ```json ... ``` markdown fence (and can add
+    # preamble/postamble prose) despite the prompt's "Respond with ONLY a JSON object", so a bare
+    # json.loads(raw_result) fails at char 0 on the backticks. Extract the outermost JSON object
+    # (first "{" .. last "}") before parsing -- this tolerates the fence and any surrounding prose.
+    # No object at all is a genuine failure (None). Confirmed via run #4's instrumentation: the
+    # decisions payload was complete and correct, only fence-wrapped.
+    start = raw_result.find("{")
+    end = raw_result.rfind("}")
+    if start == -1 or end == -1 or end < start:
+        return None
     try:
-        parsed = json.loads(raw_result)
-    except (json.JSONDecodeError, TypeError) as e:
-        _dbg(f"NONE-PATH=json_parse_failed {type(e).__name__}: {e}")
+        parsed = json.loads(raw_result[start:end + 1])
+    except (json.JSONDecodeError, TypeError):
         return None
-    _dbg("json.loads OK")
 
     # `parsed` can be *syntactically* valid JSON while structurally nothing like the expected
     # `{"decisions": [...]}` shape — e.g. `[1, 2, 3]`, `null`, `"oops"`, or `42` all parse fine
@@ -126,10 +111,8 @@ def _run_triage_query(deltas: list[dict]) -> dict | None:
     # would be indistinguishable from "triage looked at everything and said no".
     decisions = parsed.get("decisions") if isinstance(parsed, dict) else None
     if not isinstance(decisions, list):
-        _dbg(f"NONE-PATH=structure_wrong parsed_type={type(parsed).__name__} decisions_type={type(decisions).__name__}")
         return None
 
-    _dbg(f"SUCCESS: {len(decisions)} decisions parsed")
     decisions_by_key = {}
     for item in decisions:
         try:

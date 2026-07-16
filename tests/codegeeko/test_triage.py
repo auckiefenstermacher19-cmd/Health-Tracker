@@ -28,6 +28,30 @@ def test_triage_findings_keeps_accepted_items_with_reason():
     assert result[0]["triage_reason"] == "clear fix available"
 
 
+def test_triage_findings_parses_json_wrapped_in_markdown_fence():
+    # claude-sonnet-5 routinely wraps its answer in a ```json ... ``` fence (and adds preamble
+    # prose) despite the prompt's "Respond with ONLY a JSON object". A bare json.loads() fails at
+    # char 0 on the backticks, which silently collapsed real triage results into the failure path
+    # (run #4 root cause). _run_triage_query now extracts the outermost {..} object, so a fenced,
+    # prose-wrapped response must still parse and apply normally.
+    inner = json.dumps({"decisions": [{"file": "consolidate.py", "finding_id": "metric", "accept": True, "reason": "fenced but fine"}]})
+
+    class _FencedResultMessage:
+        subtype = "success"
+        result = "Here are my decisions:\n```json\n" + inner + "\n```\n"
+
+    async def _fake_fenced_query(*args, **kwargs):
+        yield _FencedResultMessage()
+
+    with patch("codegeeko.triage.query", _fake_fenced_query):
+        result, triage_ok = triage_findings([DELTA])
+
+    assert triage_ok is True
+    assert len(result) == 1
+    assert result[0]["file"] == "consolidate.py"
+    assert result[0]["triage_reason"] == "fenced but fine"
+
+
 def test_triage_findings_drops_rejected_items():
     class _RejectResultMessage:
         subtype = "success"
