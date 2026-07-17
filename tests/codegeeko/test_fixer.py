@@ -1,7 +1,8 @@
 import asyncio
+import sys
 from unittest.mock import patch
 
-from codegeeko.fixer import fix_and_report
+from codegeeko.fixer import _run_tests, fix_and_report
 
 FINDING = {
     "source": "repowise", "file": "consolidate.py", "finding_id": "metric", "risk_score": 8.0,
@@ -91,6 +92,64 @@ def test_fix_and_report_abandons_branch_when_tests_never_pass(mock_subprocess, m
     all_calls = [c[0][0] for c in mock_subprocess.call_args_list]
     assert ["git", "checkout", "main"] in all_calls
     assert ["git", "branch", "-D", "codegeeko/repowise-consolidate-py-metric"] in all_calls
+
+
+@patch("codegeeko.fixer.open_fix_pr", return_value={"ok": True, "html_url": "https://github.com/x/y/pull/9"})
+@patch("codegeeko.fixer.subprocess.run")
+@patch("codegeeko.fixer.query", _fake_query)
+def test_fix_and_report_returns_to_main_after_a_successful_fix(mock_subprocess, mock_open_pr):
+    # Only the FAILURE path used to check out main again. Left on the fix branch, the caller's
+    # save_state writes there (so the workflow's state commit lands on the wrong branch and the
+    # main push quietly no-ops), and the NEXT finding's `git checkout -b` stacks its branch on top
+    # of this one -- cross-contaminating every subsequent PR in the same run.
+    mock_subprocess.return_value.returncode = 0
+
+    fix_and_report(FINDING, ".", "owner", "repo", "tok")
+
+    all_calls = [c[0][0] for c in mock_subprocess.call_args_list]
+    assert ["git", "checkout", "main"] in all_calls
+
+
+@patch("codegeeko.fixer.open_fix_pr", return_value={"ok": True, "html_url": "https://github.com/x/y/pull/9"})
+@patch("codegeeko.fixer.subprocess.run")
+@patch("codegeeko.fixer.query", _fake_query)
+def test_fix_and_report_returns_to_main_only_after_pushing_the_fix_branch(mock_subprocess, mock_open_pr):
+    # Order matters: checking out main before the push would push the wrong ref (or nothing).
+    mock_subprocess.return_value.returncode = 0
+
+    fix_and_report(FINDING, ".", "owner", "repo", "tok")
+
+    all_calls = [c[0][0] for c in mock_subprocess.call_args_list]
+    push = ["git", "push", "-u", "origin", "codegeeko/repowise-consolidate-py-metric"]
+    assert all_calls.index(["git", "checkout", "main"]) > all_calls.index(push)
+
+
+@patch("codegeeko.fixer.open_fix_pr", return_value={"ok": False, "error": "GitHub API timeout"})
+@patch("codegeeko.fixer.subprocess.run")
+@patch("codegeeko.fixer.query", _fake_query)
+def test_fix_and_report_returns_to_main_even_when_pr_creation_fails(mock_subprocess, mock_open_pr):
+    # A failed PR call still leaves HEAD on the fix branch unless the checkout happens before the
+    # PR attempt -- same contamination, just on the degraded path.
+    mock_subprocess.return_value.returncode = 0
+
+    fix_and_report(FINDING, ".", "owner", "repo", "tok")
+
+    all_calls = [c[0][0] for c in mock_subprocess.call_args_list]
+    assert ["git", "checkout", "main"] in all_calls
+
+
+@patch("codegeeko.fixer.subprocess.run")
+def test_run_tests_invokes_pytest_through_the_python_interpreter(mock_subprocess):
+    # Bare `pytest` does not put the repo root on sys.path, so the codegeeko package fails to
+    # import and the whole suite errors out -- exactly the bug that broke the CI self-test step
+    # (fixed there in 4c065a0). Here it would be worse than an obvious red: every fix attempt's
+    # test run would "fail", burning all 3 Claude attempts per finding and filing every accepted
+    # finding as an Issue instead of a PR, with the run still green.
+    mock_subprocess.return_value.returncode = 0
+
+    _run_tests(".")
+
+    assert mock_subprocess.call_args[0][0][:3] == [sys.executable, "-m", "pytest"]
 
 
 @patch("codegeeko.fixer.open_fix_pr", return_value={"ok": True, "html_url": "https://github.com/x/y/pull/9"})
