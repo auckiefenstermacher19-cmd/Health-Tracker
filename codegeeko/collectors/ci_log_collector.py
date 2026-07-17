@@ -1,8 +1,28 @@
+import sys
+import time
+
 import requests
 
 # Every failed run gets the same fixed risk_score -- unlike semgrep/repowise, GitHub's Actions
 # run schema carries no categorical severity to bucket on. A failed CI run is a failed CI run.
 _FAILURE_RISK = 8.0
+
+MAX_ATTEMPTS = 3
+_BACKOFF_BASE_SECONDS = 1.0
+
+
+def _report_failure(message: str) -> None:
+    """Emit a terminal-failure diagnostic for the operator.
+
+    STDERR specifically: only stdout is teed into the report / $GITHUB_STEP_SUMMARY, so writing
+    here reaches the Actions job log without polluting the nightly report.
+
+    This exists because the 2026-07-16 outage was expensive to diagnose for exactly one reason --
+    the collector failed silently. The report footer could say "ci_log failed" but never why, so
+    root-causing a one-line HTTP 503 cost a temporary-instrumentation commit and a full nightly
+    cycle. One line here makes the next incident readable straight from the job log.
+    """
+    print(f"[ci_log] {message}", file=sys.stderr, flush=True)
 
 
 def parse_workflow_runs(raw: dict) -> list[dict]:
@@ -101,49 +121,69 @@ def run_ci_log_check(owner: str, repo: str, token: str) -> tuple[list[dict], boo
     list) -- that case reaches `parse_workflow_runs`, which already degrades it to `[]` without
     raising, and is still reported as `ok=True` since the request+response cycle itself was
     valid, just empty of the expected structure.
+
+    Transient server errors (5xx) and connection-level failures are retried up to `MAX_ATTEMPTS`
+    with exponential backoff, because a single blip would otherwise cost a whole night of CI
+    signal -- this collector runs once per night, so there is no next attempt until tomorrow.
+    Client errors (4xx) are NOT retried: a 401/403/404 is a real misconfiguration, not a blip,
+    and retrying only delays the signal while masking the cause.
+
+    Scope note (2026-07-16 outage): GitHub served HTTP 503 "Unicorn" HTML from this endpoint for
+    ~77 minutes, failing six consecutive dispatches. A bounded retry does NOT rescue an outage of
+    that length, and is not intended to -- after the budget is spent the collector still degrades
+    to `([], False)`, the run stays green, and the next night recovers (which is exactly what
+    happened, unaided, on 2026-07-17). The retry exists for the SHORT blip, which is the common
+    5xx case and the one a once-nightly job is most vulnerable to.
+
+    No jitter: jitter de-synchronizes a herd of competing clients, and this is one nightly job
+    issuing one request. It would add nondeterminism without preventing any contention.
     """
-    # --- TEMP DIAGNOSTIC INSTRUMENTATION (remove after root-causing the silent ci_log failure) ---
-    # All prints go to STDERR so they land in the Actions "Run Code-Geeko" job log but NOT in the
-    # report piped to $GITHUB_STEP_SUMMARY (only stdout is teed). Goal: reveal which failure path
-    # fires and the exact HTTP status/body/permission-headers GitHub returns for the runs-API call.
-    import sys as _sys
+    for attempt in range(MAX_ATTEMPTS):
+        is_final_attempt = attempt == MAX_ATTEMPTS - 1
 
-    def _dbg(msg):
-        print(f"[CODEGEEKO-CILOG-DEBUG] {msg}", file=_sys.stderr, flush=True)
+        try:
+            response = requests.get(
+                f"https://api.github.com/repos/{owner}/{repo}/actions/runs",
+                headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
+                params={"per_page": 20},
+                timeout=30,
+            )
+        except requests.RequestException as e:
+            # Connection-level failure (DNS, timeout, reset) -- no response to inspect, and
+            # retryable by nature.
+            if is_final_attempt:
+                _report_failure(
+                    f"giving up after {MAX_ATTEMPTS} attempts: {type(e).__name__}: {e}"
+                )
+                return [], False
+            time.sleep(_BACKOFF_BASE_SECONDS * (2 ** attempt))
+            continue
 
-    _dbg(f"owner={owner!r} repo={repo!r} token_present={bool(token)} token_len={len(token) if token else 0}")
+        # `isinstance(status, int)` is load-bearing, not defensive noise: a status of any other
+        # type can't be judged retryable, and comparing a non-int against 500/600 would raise
+        # TypeError -- turning an unknown status into a crash instead of a graceful `ok=False`.
+        # Anything not provably 5xx falls through to raise_for_status below, which classifies it.
+        status = response.status_code
+        if isinstance(status, int) and 500 <= status < 600 and not is_final_attempt:
+            time.sleep(_BACKOFF_BASE_SECONDS * (2 ** attempt))
+            continue
 
-    try:
-        response = requests.get(
-            f"https://api.github.com/repos/{owner}/{repo}/actions/runs",
-            headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
-            params={"per_page": 20},
-            timeout=30,
-        )
-    except requests.RequestException as e:
-        _dbg(f"NONE-PATH=network_error(pre-status) {type(e).__name__}: {e}")
-        return [], False
+        try:
+            response.raise_for_status()
+        except requests.RequestException as e:
+            # Covers both a non-retryable 4xx (first attempt) and a 5xx that outlived the retry
+            # budget (final attempt) -- the attempt count distinguishes them in the log.
+            _report_failure(f"HTTP {status} after {attempt + 1} attempt(s): {e}")
+            return [], False
 
-    _dbg(
-        f"HTTP {response.status_code} "
-        f"x-accepted-github-permissions={response.headers.get('x-accepted-github-permissions')!r} "
-        f"x-oauth-scopes={response.headers.get('x-oauth-scopes')!r} "
-        f"x-ratelimit-remaining={response.headers.get('x-ratelimit-remaining')!r} "
-        f"x-github-request-id={response.headers.get('x-github-request-id')!r}"
-    )
+        try:
+            body = response.json()
+        except ValueError as e:
+            _report_failure(f"response body was not valid JSON: {e}")
+            return [], False
 
-    try:
-        response.raise_for_status()
-    except requests.RequestException as e:
-        _dbg(f"NONE-PATH=non_2xx {type(e).__name__}: {e}; body[:500]={response.text[:500]!r}")
-        return [], False
+        return parse_workflow_runs(body), True
 
-    try:
-        body = response.json()
-    except ValueError as e:
-        _dbg(f"NONE-PATH=json_decode {type(e).__name__}: {e}; body[:500]={response.text[:500]!r}")
-        return [], False
-
-    _n = len(body.get("workflow_runs", [])) if isinstance(body, dict) else "N/A"
-    _dbg(f"SUCCESS: HTTP 200, workflow_runs len={_n}")
-    return parse_workflow_runs(body), True
+    # Unreachable: every path inside the loop either returns or continues, and the final attempt
+    # never continues. Present so the function has a total contract regardless of MAX_ATTEMPTS.
+    return [], False

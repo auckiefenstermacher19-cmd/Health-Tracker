@@ -1,7 +1,29 @@
 import requests
 from unittest.mock import MagicMock, patch
 
-from codegeeko.collectors.ci_log_collector import parse_workflow_runs, run_ci_log_check
+from codegeeko.collectors.ci_log_collector import (
+    MAX_ATTEMPTS,
+    parse_workflow_runs,
+    run_ci_log_check,
+)
+
+
+def _fake_response(status_code, json_body=None):
+    """Build a response mock carrying a REAL int status_code.
+
+    Deliberately distinct from the bare MagicMock responses the older tests below use: those
+    leave `status_code` as an auto-generated MagicMock, which exercises the collector's
+    isinstance-guarded retry check (a non-int status is never treated as retryable). These
+    helpers exercise the real-status paths.
+    """
+    response = MagicMock()
+    response.status_code = status_code
+    if status_code >= 400:
+        response.raise_for_status.side_effect = requests.HTTPError(f"{status_code} Error")
+    else:
+        response.raise_for_status.return_value = None
+        response.json.return_value = json_body
+    return response
 
 SAMPLE_RESPONSE = {
     "workflow_runs": [
@@ -160,11 +182,16 @@ def test_run_ci_log_check_calls_github_api_and_parses_output():
 
 
 def test_run_ci_log_check_returns_not_ok_on_request_exception():
-    with patch("requests.get", side_effect=requests.RequestException("boom")):
+    with patch("codegeeko.collectors.ci_log_collector.time.sleep") as mock_sleep, \
+            patch("requests.get", side_effect=requests.RequestException("boom")) as mock_get:
         findings, ok = run_ci_log_check("owner", "repo", "token")
 
     assert findings == []
     assert ok is False
+    # A connection-level failure is retryable, so every attempt is spent before giving up.
+    assert mock_get.call_count == MAX_ATTEMPTS
+    # Pins the off-by-one: backoff happens BETWEEN attempts, never after the last one.
+    assert mock_sleep.call_count == MAX_ATTEMPTS - 1
 
 
 def test_run_ci_log_check_returns_not_ok_on_http_error_status():
@@ -210,3 +237,132 @@ def test_run_ci_log_check_returns_ok_when_json_decodes_but_shape_is_wrong():
 
     assert findings == []
     assert ok is True
+
+
+# --- Retry behaviour -------------------------------------------------------------------------
+# Regression tests for the 2026-07-16 outage: GitHub's /actions/runs returned HTTP 503
+# ("Unicorn" HTML error page) and the collector made a single request with no retry, so it
+# degraded to a silent ([], False) and the nightly lost its CI signal. These cover the SHORT
+# blip that a bounded retry genuinely rescues. Note the historical outage itself lasted ~77
+# minutes and would still exhaust these retries -- that is intended: after the bounded budget
+# the collector degrades gracefully and the next night recovers, which is what actually
+# happened (run #7, 2026-07-17, returned 200 with no code change).
+
+
+def test_run_ci_log_check_retries_on_5xx_then_succeeds():
+    responses = [_fake_response(503), _fake_response(200, SAMPLE_RESPONSE)]
+
+    with patch("codegeeko.collectors.ci_log_collector.time.sleep"), \
+            patch("requests.get", side_effect=responses) as mock_get:
+        findings, ok = run_ci_log_check("owner", "repo", "token")
+
+    assert ok is True
+    assert len(findings) == 1
+    assert findings[0]["finding_id"] == "111"
+    assert mock_get.call_count == 2
+
+
+def test_run_ci_log_check_gives_up_after_bounded_retries_on_persistent_5xx():
+    responses = [_fake_response(503) for _ in range(MAX_ATTEMPTS)]
+
+    with patch("codegeeko.collectors.ci_log_collector.time.sleep") as mock_sleep, \
+            patch("requests.get", side_effect=responses) as mock_get:
+        findings, ok = run_ci_log_check("owner", "repo", "token")
+
+    # Exhausted retries stay non-blocking: ok=False degrades the source, the run stays green.
+    assert findings == []
+    assert ok is False
+    assert mock_get.call_count == MAX_ATTEMPTS
+    # Pins the off-by-one: no wasted backoff after the final attempt has already failed.
+    assert mock_sleep.call_count == MAX_ATTEMPTS - 1
+
+
+def test_run_ci_log_check_does_not_retry_client_errors():
+    # A 401/403/404 is a real problem, not a blip -- retrying wastes the budget and delays the
+    # signal. Fail fast on the first response.
+    with patch("codegeeko.collectors.ci_log_collector.time.sleep") as mock_sleep, \
+            patch("requests.get", return_value=_fake_response(401)) as mock_get:
+        findings, ok = run_ci_log_check("owner", "repo", "bad-token")
+
+    assert findings == []
+    assert ok is False
+    assert mock_get.call_count == 1
+    mock_sleep.assert_not_called()
+
+
+def test_run_ci_log_check_retries_on_connection_error_then_succeeds():
+    responses = [requests.ConnectionError("dropped"), _fake_response(200, SAMPLE_RESPONSE)]
+
+    with patch("codegeeko.collectors.ci_log_collector.time.sleep"), \
+            patch("requests.get", side_effect=responses) as mock_get:
+        findings, ok = run_ci_log_check("owner", "repo", "token")
+
+    assert ok is True
+    assert len(findings) == 1
+    assert mock_get.call_count == 2
+
+
+# --- Failure diagnostics ---------------------------------------------------------------------
+# The 2026-07-16 outage took a code change and a full nightly cycle to root-cause purely because
+# this collector failed SILENTLY -- the footer said "ci_log failed" but never why. These pin a
+# permanent, minimal diagnostic on every terminal failure path so the next incident is readable
+# straight from the job log. STDERR only: stdout is teed to $GITHUB_STEP_SUMMARY and this must
+# not leak into the report.
+
+
+def test_run_ci_log_check_reports_diagnostic_when_retries_exhausted(capsys):
+    responses = [_fake_response(503) for _ in range(MAX_ATTEMPTS)]
+
+    with patch("codegeeko.collectors.ci_log_collector.time.sleep"), \
+            patch("requests.get", side_effect=responses):
+        run_ci_log_check("owner", "repo", "token")
+
+    captured = capsys.readouterr()
+    assert "503" in captured.err
+    assert str(MAX_ATTEMPTS) in captured.err
+    assert captured.out == ""
+
+
+def test_run_ci_log_check_reports_diagnostic_on_client_error(capsys):
+    with patch("requests.get", return_value=_fake_response(401)):
+        run_ci_log_check("owner", "repo", "bad-token")
+
+    captured = capsys.readouterr()
+    assert "401" in captured.err
+    assert captured.out == ""
+
+
+def test_run_ci_log_check_reports_diagnostic_on_undecodable_body(capsys):
+    fake_response = MagicMock()
+    fake_response.json.side_effect = ValueError("not valid JSON")
+    fake_response.raise_for_status.return_value = None
+
+    with patch("requests.get", return_value=fake_response):
+        run_ci_log_check("owner", "repo", "token")
+
+    captured = capsys.readouterr()
+    assert captured.err.strip()
+    assert captured.out == ""
+
+
+def test_run_ci_log_check_stays_quiet_on_success(capsys):
+    with patch("requests.get", return_value=_fake_response(200, SAMPLE_RESPONSE)):
+        findings, ok = run_ci_log_check("owner", "repo", "token")
+
+    # A healthy run must not add noise to the nightly log.
+    assert ok is True
+    captured = capsys.readouterr()
+    assert captured.err == ""
+    assert captured.out == ""
+
+
+def test_run_ci_log_check_backs_off_between_retries():
+    responses = [_fake_response(503), _fake_response(503), _fake_response(200, SAMPLE_RESPONSE)]
+
+    with patch("codegeeko.collectors.ci_log_collector.time.sleep") as mock_sleep, \
+            patch("requests.get", side_effect=responses):
+        findings, ok = run_ci_log_check("owner", "repo", "token")
+
+    assert ok is True
+    # Exponential, and only BETWEEN attempts -- never after the final one.
+    assert [call.args[0] for call in mock_sleep.call_args_list] == [1.0, 2.0]
