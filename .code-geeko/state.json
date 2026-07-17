@@ -5,468 +5,6 @@
     "semgrep": "ok"
   },
   "findings": {
-    "ci_log:None:29537575113": {
-      "file": null,
-      "finding_id": "29537575113",
-      "message": "Workflow 'Code-Geeko Nightly' failed on 2026-07-16T21:52:18Z (https://github.com/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29537575113)",
-      "raw": {
-        "actor": {
-          "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
-          "events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/events{/privacy}",
-          "followers_url": "https://api.github.com/users/auckiefenstermacher19-cmd/followers",
-          "following_url": "https://api.github.com/users/auckiefenstermacher19-cmd/following{/other_user}",
-          "gists_url": "https://api.github.com/users/auckiefenstermacher19-cmd/gists{/gist_id}",
-          "gravatar_id": "",
-          "html_url": "https://github.com/auckiefenstermacher19-cmd",
-          "id": 238894793,
-          "login": "auckiefenstermacher19-cmd",
-          "node_id": "U_kgDODj0-yQ",
-          "organizations_url": "https://api.github.com/users/auckiefenstermacher19-cmd/orgs",
-          "received_events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/received_events",
-          "repos_url": "https://api.github.com/users/auckiefenstermacher19-cmd/repos",
-          "site_admin": false,
-          "starred_url": "https://api.github.com/users/auckiefenstermacher19-cmd/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/auckiefenstermacher19-cmd/subscriptions",
-          "type": "User",
-          "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
-          "user_view_type": "public"
-        },
-        "artifacts_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29537575113/artifacts",
-        "cancel_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29537575113/cancel",
-        "check_suite_id": 79984473700,
-        "check_suite_node_id": "CS_kwDOS8vfO88AAAASn3I2ZA",
-        "check_suite_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/check-suites/79984473700",
-        "conclusion": "failure",
-        "created_at": "2026-07-16T21:52:18Z",
-        "display_title": "Code-Geeko Nightly",
-        "event": "workflow_dispatch",
-        "head_branch": "main",
-        "head_commit": {
-          "author": {
-            "email": "auckiefenstermacher19@gmail.com",
-            "name": "Auckie Fenstermacher"
-          },
-          "committer": {
-            "email": "auckiefenstermacher19@gmail.com",
-            "name": "Auckie Fenstermacher"
-          },
-          "id": "0e2ae1f3c3336f466be8e46d1db4caf1e4d149c7",
-          "message": "chore(code-geeko): auth nightly via Max-plan CLAUDE_CODE_OAUTH_TOKEN\n\nSwap ANTHROPIC_API_KEY -> CLAUDE_CODE_OAUTH_TOKEN in the smoke + run steps so the nightly authenticates on the Max subscription (1-year setup-token) instead of the metered API. No Python changes: the Agent SDK/bundled CLI reads the token from env. ANTHROPIC_API_KEY is intentionally not set here -- it outranks the OAuth token in the CLI auth precedence and would shadow it.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-          "timestamp": "2026-07-16T21:47:52Z",
-          "tree_id": "4f9aeac645eec25fa554ceeae267d901ee8d5e6a"
-        },
-        "head_repository": {
-          "archive_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/{archive_format}{/ref}",
-          "assignees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/assignees{/user}",
-          "blobs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/blobs{/sha}",
-          "branches_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/branches{/branch}",
-          "collaborators_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/collaborators{/collaborator}",
-          "comments_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/comments{/number}",
-          "commits_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/commits{/sha}",
-          "compare_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/compare/{base}...{head}",
-          "contents_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/contents/{+path}",
-          "contributors_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/contributors",
-          "deployments_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/deployments",
-          "description": null,
-          "downloads_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/downloads",
-          "events_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/events",
-          "fork": false,
-          "forks_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/forks",
-          "full_name": "auckiefenstermacher19-cmd/Health-Tracker",
-          "git_commits_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/commits{/sha}",
-          "git_refs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/refs{/sha}",
-          "git_tags_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/tags{/sha}",
-          "hooks_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/hooks",
-          "html_url": "https://github.com/auckiefenstermacher19-cmd/Health-Tracker",
-          "id": 1271652155,
-          "issue_comment_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues/comments{/number}",
-          "issue_events_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues/events{/number}",
-          "issues_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues{/number}",
-          "keys_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/keys{/key_id}",
-          "labels_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/labels{/name}",
-          "languages_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/languages",
-          "merges_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/merges",
-          "milestones_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/milestones{/number}",
-          "name": "Health-Tracker",
-          "node_id": "R_kgDOS8vfOw",
-          "notifications_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/notifications{?since,all,participating}",
-          "owner": {
-            "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
-            "events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/events{/privacy}",
-            "followers_url": "https://api.github.com/users/auckiefenstermacher19-cmd/followers",
-            "following_url": "https://api.github.com/users/auckiefenstermacher19-cmd/following{/other_user}",
-            "gists_url": "https://api.github.com/users/auckiefenstermacher19-cmd/gists{/gist_id}",
-            "gravatar_id": "",
-            "html_url": "https://github.com/auckiefenstermacher19-cmd",
-            "id": 238894793,
-            "login": "auckiefenstermacher19-cmd",
-            "node_id": "U_kgDODj0-yQ",
-            "organizations_url": "https://api.github.com/users/auckiefenstermacher19-cmd/orgs",
-            "received_events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/received_events",
-            "repos_url": "https://api.github.com/users/auckiefenstermacher19-cmd/repos",
-            "site_admin": false,
-            "starred_url": "https://api.github.com/users/auckiefenstermacher19-cmd/starred{/owner}{/repo}",
-            "subscriptions_url": "https://api.github.com/users/auckiefenstermacher19-cmd/subscriptions",
-            "type": "User",
-            "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
-            "user_view_type": "public"
-          },
-          "private": false,
-          "pulls_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/pulls{/number}",
-          "releases_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/releases{/id}",
-          "stargazers_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/stargazers",
-          "statuses_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/statuses/{sha}",
-          "subscribers_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/subscribers",
-          "subscription_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/subscription",
-          "tags_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/tags",
-          "teams_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/teams",
-          "trees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/trees{/sha}",
-          "url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker"
-        },
-        "head_sha": "0e2ae1f3c3336f466be8e46d1db4caf1e4d149c7",
-        "html_url": "https://github.com/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29537575113",
-        "id": 29537575113,
-        "jobs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29537575113/jobs",
-        "logs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29537575113/logs",
-        "name": "Code-Geeko Nightly",
-        "node_id": "WFR_kwLOS8vfO88AAAAG4JOgyQ",
-        "path": ".github/workflows/code-geeko-nightly.yml",
-        "previous_attempt_url": null,
-        "pull_requests": [],
-        "referenced_workflows": [],
-        "repository": {
-          "archive_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/{archive_format}{/ref}",
-          "assignees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/assignees{/user}",
-          "blobs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/blobs{/sha}",
-          "branches_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/branches{/branch}",
-          "collaborators_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/collaborators{/collaborator}",
-          "comments_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/comments{/number}",
-          "commits_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/commits{/sha}",
-          "compare_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/compare/{base}...{head}",
-          "contents_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/contents/{+path}",
-          "contributors_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/contributors",
-          "deployments_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/deployments",
-          "description": null,
-          "downloads_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/downloads",
-          "events_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/events",
-          "fork": false,
-          "forks_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/forks",
-          "full_name": "auckiefenstermacher19-cmd/Health-Tracker",
-          "git_commits_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/commits{/sha}",
-          "git_refs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/refs{/sha}",
-          "git_tags_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/tags{/sha}",
-          "hooks_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/hooks",
-          "html_url": "https://github.com/auckiefenstermacher19-cmd/Health-Tracker",
-          "id": 1271652155,
-          "issue_comment_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues/comments{/number}",
-          "issue_events_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues/events{/number}",
-          "issues_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues{/number}",
-          "keys_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/keys{/key_id}",
-          "labels_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/labels{/name}",
-          "languages_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/languages",
-          "merges_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/merges",
-          "milestones_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/milestones{/number}",
-          "name": "Health-Tracker",
-          "node_id": "R_kgDOS8vfOw",
-          "notifications_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/notifications{?since,all,participating}",
-          "owner": {
-            "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
-            "events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/events{/privacy}",
-            "followers_url": "https://api.github.com/users/auckiefenstermacher19-cmd/followers",
-            "following_url": "https://api.github.com/users/auckiefenstermacher19-cmd/following{/other_user}",
-            "gists_url": "https://api.github.com/users/auckiefenstermacher19-cmd/gists{/gist_id}",
-            "gravatar_id": "",
-            "html_url": "https://github.com/auckiefenstermacher19-cmd",
-            "id": 238894793,
-            "login": "auckiefenstermacher19-cmd",
-            "node_id": "U_kgDODj0-yQ",
-            "organizations_url": "https://api.github.com/users/auckiefenstermacher19-cmd/orgs",
-            "received_events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/received_events",
-            "repos_url": "https://api.github.com/users/auckiefenstermacher19-cmd/repos",
-            "site_admin": false,
-            "starred_url": "https://api.github.com/users/auckiefenstermacher19-cmd/starred{/owner}{/repo}",
-            "subscriptions_url": "https://api.github.com/users/auckiefenstermacher19-cmd/subscriptions",
-            "type": "User",
-            "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
-            "user_view_type": "public"
-          },
-          "private": false,
-          "pulls_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/pulls{/number}",
-          "releases_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/releases{/id}",
-          "stargazers_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/stargazers",
-          "statuses_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/statuses/{sha}",
-          "subscribers_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/subscribers",
-          "subscription_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/subscription",
-          "tags_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/tags",
-          "teams_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/teams",
-          "trees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/trees{/sha}",
-          "url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker"
-        },
-        "rerun_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29537575113/rerun",
-        "run_attempt": 1,
-        "run_number": 1,
-        "run_started_at": "2026-07-16T21:52:18Z",
-        "status": "completed",
-        "triggering_actor": {
-          "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
-          "events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/events{/privacy}",
-          "followers_url": "https://api.github.com/users/auckiefenstermacher19-cmd/followers",
-          "following_url": "https://api.github.com/users/auckiefenstermacher19-cmd/following{/other_user}",
-          "gists_url": "https://api.github.com/users/auckiefenstermacher19-cmd/gists{/gist_id}",
-          "gravatar_id": "",
-          "html_url": "https://github.com/auckiefenstermacher19-cmd",
-          "id": 238894793,
-          "login": "auckiefenstermacher19-cmd",
-          "node_id": "U_kgDODj0-yQ",
-          "organizations_url": "https://api.github.com/users/auckiefenstermacher19-cmd/orgs",
-          "received_events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/received_events",
-          "repos_url": "https://api.github.com/users/auckiefenstermacher19-cmd/repos",
-          "site_admin": false,
-          "starred_url": "https://api.github.com/users/auckiefenstermacher19-cmd/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/auckiefenstermacher19-cmd/subscriptions",
-          "type": "User",
-          "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
-          "user_view_type": "public"
-        },
-        "updated_at": "2026-07-16T21:56:25Z",
-        "url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29537575113",
-        "workflow_id": 314488135,
-        "workflow_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/workflows/314488135"
-      },
-      "risk_score": 8.0,
-      "source": "ci_log"
-    },
-    "ci_log:None:29538204955": {
-      "file": null,
-      "finding_id": "29538204955",
-      "message": "Workflow 'Code-Geeko Nightly' failed on 2026-07-16T22:02:50Z (https://github.com/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29538204955)",
-      "raw": {
-        "actor": {
-          "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
-          "events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/events{/privacy}",
-          "followers_url": "https://api.github.com/users/auckiefenstermacher19-cmd/followers",
-          "following_url": "https://api.github.com/users/auckiefenstermacher19-cmd/following{/other_user}",
-          "gists_url": "https://api.github.com/users/auckiefenstermacher19-cmd/gists{/gist_id}",
-          "gravatar_id": "",
-          "html_url": "https://github.com/auckiefenstermacher19-cmd",
-          "id": 238894793,
-          "login": "auckiefenstermacher19-cmd",
-          "node_id": "U_kgDODj0-yQ",
-          "organizations_url": "https://api.github.com/users/auckiefenstermacher19-cmd/orgs",
-          "received_events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/received_events",
-          "repos_url": "https://api.github.com/users/auckiefenstermacher19-cmd/repos",
-          "site_admin": false,
-          "starred_url": "https://api.github.com/users/auckiefenstermacher19-cmd/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/auckiefenstermacher19-cmd/subscriptions",
-          "type": "User",
-          "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
-          "user_view_type": "public"
-        },
-        "artifacts_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29538204955/artifacts",
-        "cancel_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29538204955/cancel",
-        "check_suite_id": 79986223101,
-        "check_suite_node_id": "CS_kwDOS8vfO88AAAASn4zn_Q",
-        "check_suite_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/check-suites/79986223101",
-        "conclusion": "failure",
-        "created_at": "2026-07-16T22:02:50Z",
-        "display_title": "Code-Geeko Nightly",
-        "event": "workflow_dispatch",
-        "head_branch": "main",
-        "head_commit": {
-          "author": {
-            "email": "auckiefenstermacher19@gmail.com",
-            "name": "Auckie Fenstermacher"
-          },
-          "committer": {
-            "email": "auckiefenstermacher19@gmail.com",
-            "name": "Auckie Fenstermacher"
-          },
-          "id": "4c065a0cc0646a66fa21ff7d15a1d09d1b39243c",
-          "message": "fix(code-geeko): run self-test via 'python -m pytest' so codegeeko imports in CI\n\nBare 'pytest tests/codegeeko' raised ModuleNotFoundError on the codegeeko package in the Actions runner (repo root not on sys.path); it passed locally only because local runs used 'python -m pytest', which prepends CWD. Matches the working 'python -m codegeeko.run' step. The smoke check already confirmed CLAUDE_CODE_OAUTH_TOKEN auth works on the Max subscription.\n\nCo-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>",
-          "timestamp": "2026-07-16T21:58:57Z",
-          "tree_id": "5aca05075336eb0669cf3b2672764338880bfc4b"
-        },
-        "head_repository": {
-          "archive_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/{archive_format}{/ref}",
-          "assignees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/assignees{/user}",
-          "blobs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/blobs{/sha}",
-          "branches_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/branches{/branch}",
-          "collaborators_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/collaborators{/collaborator}",
-          "comments_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/comments{/number}",
-          "commits_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/commits{/sha}",
-          "compare_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/compare/{base}...{head}",
-          "contents_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/contents/{+path}",
-          "contributors_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/contributors",
-          "deployments_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/deployments",
-          "description": null,
-          "downloads_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/downloads",
-          "events_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/events",
-          "fork": false,
-          "forks_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/forks",
-          "full_name": "auckiefenstermacher19-cmd/Health-Tracker",
-          "git_commits_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/commits{/sha}",
-          "git_refs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/refs{/sha}",
-          "git_tags_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/tags{/sha}",
-          "hooks_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/hooks",
-          "html_url": "https://github.com/auckiefenstermacher19-cmd/Health-Tracker",
-          "id": 1271652155,
-          "issue_comment_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues/comments{/number}",
-          "issue_events_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues/events{/number}",
-          "issues_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues{/number}",
-          "keys_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/keys{/key_id}",
-          "labels_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/labels{/name}",
-          "languages_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/languages",
-          "merges_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/merges",
-          "milestones_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/milestones{/number}",
-          "name": "Health-Tracker",
-          "node_id": "R_kgDOS8vfOw",
-          "notifications_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/notifications{?since,all,participating}",
-          "owner": {
-            "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
-            "events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/events{/privacy}",
-            "followers_url": "https://api.github.com/users/auckiefenstermacher19-cmd/followers",
-            "following_url": "https://api.github.com/users/auckiefenstermacher19-cmd/following{/other_user}",
-            "gists_url": "https://api.github.com/users/auckiefenstermacher19-cmd/gists{/gist_id}",
-            "gravatar_id": "",
-            "html_url": "https://github.com/auckiefenstermacher19-cmd",
-            "id": 238894793,
-            "login": "auckiefenstermacher19-cmd",
-            "node_id": "U_kgDODj0-yQ",
-            "organizations_url": "https://api.github.com/users/auckiefenstermacher19-cmd/orgs",
-            "received_events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/received_events",
-            "repos_url": "https://api.github.com/users/auckiefenstermacher19-cmd/repos",
-            "site_admin": false,
-            "starred_url": "https://api.github.com/users/auckiefenstermacher19-cmd/starred{/owner}{/repo}",
-            "subscriptions_url": "https://api.github.com/users/auckiefenstermacher19-cmd/subscriptions",
-            "type": "User",
-            "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
-            "user_view_type": "public"
-          },
-          "private": false,
-          "pulls_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/pulls{/number}",
-          "releases_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/releases{/id}",
-          "stargazers_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/stargazers",
-          "statuses_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/statuses/{sha}",
-          "subscribers_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/subscribers",
-          "subscription_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/subscription",
-          "tags_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/tags",
-          "teams_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/teams",
-          "trees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/trees{/sha}",
-          "url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker"
-        },
-        "head_sha": "4c065a0cc0646a66fa21ff7d15a1d09d1b39243c",
-        "html_url": "https://github.com/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29538204955",
-        "id": 29538204955,
-        "jobs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29538204955/jobs",
-        "logs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29538204955/logs",
-        "name": "Code-Geeko Nightly",
-        "node_id": "WFR_kwLOS8vfO88AAAAG4J09Gw",
-        "path": ".github/workflows/code-geeko-nightly.yml",
-        "previous_attempt_url": null,
-        "pull_requests": [],
-        "referenced_workflows": [],
-        "repository": {
-          "archive_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/{archive_format}{/ref}",
-          "assignees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/assignees{/user}",
-          "blobs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/blobs{/sha}",
-          "branches_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/branches{/branch}",
-          "collaborators_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/collaborators{/collaborator}",
-          "comments_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/comments{/number}",
-          "commits_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/commits{/sha}",
-          "compare_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/compare/{base}...{head}",
-          "contents_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/contents/{+path}",
-          "contributors_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/contributors",
-          "deployments_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/deployments",
-          "description": null,
-          "downloads_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/downloads",
-          "events_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/events",
-          "fork": false,
-          "forks_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/forks",
-          "full_name": "auckiefenstermacher19-cmd/Health-Tracker",
-          "git_commits_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/commits{/sha}",
-          "git_refs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/refs{/sha}",
-          "git_tags_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/tags{/sha}",
-          "hooks_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/hooks",
-          "html_url": "https://github.com/auckiefenstermacher19-cmd/Health-Tracker",
-          "id": 1271652155,
-          "issue_comment_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues/comments{/number}",
-          "issue_events_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues/events{/number}",
-          "issues_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues{/number}",
-          "keys_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/keys{/key_id}",
-          "labels_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/labels{/name}",
-          "languages_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/languages",
-          "merges_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/merges",
-          "milestones_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/milestones{/number}",
-          "name": "Health-Tracker",
-          "node_id": "R_kgDOS8vfOw",
-          "notifications_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/notifications{?since,all,participating}",
-          "owner": {
-            "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
-            "events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/events{/privacy}",
-            "followers_url": "https://api.github.com/users/auckiefenstermacher19-cmd/followers",
-            "following_url": "https://api.github.com/users/auckiefenstermacher19-cmd/following{/other_user}",
-            "gists_url": "https://api.github.com/users/auckiefenstermacher19-cmd/gists{/gist_id}",
-            "gravatar_id": "",
-            "html_url": "https://github.com/auckiefenstermacher19-cmd",
-            "id": 238894793,
-            "login": "auckiefenstermacher19-cmd",
-            "node_id": "U_kgDODj0-yQ",
-            "organizations_url": "https://api.github.com/users/auckiefenstermacher19-cmd/orgs",
-            "received_events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/received_events",
-            "repos_url": "https://api.github.com/users/auckiefenstermacher19-cmd/repos",
-            "site_admin": false,
-            "starred_url": "https://api.github.com/users/auckiefenstermacher19-cmd/starred{/owner}{/repo}",
-            "subscriptions_url": "https://api.github.com/users/auckiefenstermacher19-cmd/subscriptions",
-            "type": "User",
-            "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
-            "user_view_type": "public"
-          },
-          "private": false,
-          "pulls_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/pulls{/number}",
-          "releases_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/releases{/id}",
-          "stargazers_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/stargazers",
-          "statuses_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/statuses/{sha}",
-          "subscribers_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/subscribers",
-          "subscription_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/subscription",
-          "tags_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/tags",
-          "teams_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/teams",
-          "trees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/trees{/sha}",
-          "url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker"
-        },
-        "rerun_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29538204955/rerun",
-        "run_attempt": 1,
-        "run_number": 2,
-        "run_started_at": "2026-07-16T22:02:50Z",
-        "status": "completed",
-        "triggering_actor": {
-          "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
-          "events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/events{/privacy}",
-          "followers_url": "https://api.github.com/users/auckiefenstermacher19-cmd/followers",
-          "following_url": "https://api.github.com/users/auckiefenstermacher19-cmd/following{/other_user}",
-          "gists_url": "https://api.github.com/users/auckiefenstermacher19-cmd/gists{/gist_id}",
-          "gravatar_id": "",
-          "html_url": "https://github.com/auckiefenstermacher19-cmd",
-          "id": 238894793,
-          "login": "auckiefenstermacher19-cmd",
-          "node_id": "U_kgDODj0-yQ",
-          "organizations_url": "https://api.github.com/users/auckiefenstermacher19-cmd/orgs",
-          "received_events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/received_events",
-          "repos_url": "https://api.github.com/users/auckiefenstermacher19-cmd/repos",
-          "site_admin": false,
-          "starred_url": "https://api.github.com/users/auckiefenstermacher19-cmd/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/auckiefenstermacher19-cmd/subscriptions",
-          "type": "User",
-          "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
-          "user_view_type": "public"
-        },
-        "updated_at": "2026-07-16T22:06:05Z",
-        "url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/29538204955",
-        "workflow_id": 314488135,
-        "workflow_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/workflows/314488135"
-      },
-      "risk_score": 8.0,
-      "source": "ci_log"
-    },
     "ci_log:None:29538836525": {
       "file": null,
       "finding_id": "29538836525",
@@ -2087,38 +1625,38 @@
     "repowise:codegeeko/collectors/ci_log_collector.py:None:prior_defect": {
       "file": "codegeeko/collectors/ci_log_collector.py",
       "finding_id": "None:prior_defect",
-      "message": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "message": "2 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
       "raw": {
         "biomarker_type": "prior_defect",
         "details": {
-          "prior_defect_count": 1,
+          "prior_defect_count": 2,
           "window_days": 180
         },
         "file_path": "codegeeko/collectors/ci_log_collector.py",
         "function_name": null,
-        "health_impact": 0.3,
-        "reason": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
-        "severity": "low"
+        "health_impact": 0.7,
+        "reason": "2 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "medium"
       },
-      "risk_score": 2.5,
+      "risk_score": 5.0,
       "source": "repowise"
     },
     "repowise:codegeeko/collectors/ci_log_collector.py:metric": {
       "file": "codegeeko/collectors/ci_log_collector.py",
       "finding_id": "metric",
-      "message": "overall file health score 8.7/10 (max CCN 11, max nesting 2)",
+      "message": "overall file health score 6.86/10 (max CCN 11, max nesting 4)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": null,
         "file_path": "codegeeko/collectors/ci_log_collector.py",
-        "has_test_file": true,
+        "has_test_file": false,
         "line_coverage_pct": null,
         "max_ccn": 11,
-        "max_nesting": 2,
-        "nloc": 122,
-        "score": 8.7
+        "max_nesting": 4,
+        "nloc": 148,
+        "score": 6.86
       },
-      "risk_score": 1.3,
+      "risk_score": 3.14,
       "source": "repowise"
     },
     "repowise:codegeeko/collectors/ci_log_collector.py:parse_workflow_runs:complex_method": {
@@ -2134,31 +1672,70 @@
         },
         "file_path": "codegeeko/collectors/ci_log_collector.py",
         "function_name": "parse_workflow_runs",
-        "health_impact": 0.847,
+        "health_impact": 0.75,
         "reason": "parse_workflow_runs has cyclomatic complexity 11",
         "severity": "medium"
       },
       "risk_score": 5.0,
       "source": "repowise"
     },
-    "repowise:codegeeko/collectors/ci_log_collector.py:run_ci_log_check:bumpy_road": {
+    "repowise:codegeeko/collectors/ci_log_collector.py:run_ci_log_check:complex_method": {
       "file": "codegeeko/collectors/ci_log_collector.py",
-      "finding_id": "run_ci_log_check:bumpy_road",
-      "message": "run_ci_log_check has 3 nested blocks at the same level (bumpy road)",
+      "finding_id": "run_ci_log_check:complex_method",
+      "message": "run_ci_log_check has cyclomatic complexity 9",
       "raw": {
-        "biomarker_type": "bumpy_road",
+        "biomarker_type": "complex_method",
         "details": {
-          "bumps": 3,
-          "ccn": 6,
-          "max_nesting": 2
+          "ccn": 9,
+          "cognitive": 24,
+          "nloc": 33
         },
         "file_path": "codegeeko/collectors/ci_log_collector.py",
         "function_name": "run_ci_log_check",
-        "health_impact": 0.15,
-        "reason": "run_ci_log_check has 3 nested blocks at the same level (bumpy road)",
-        "severity": "low"
+        "health_impact": 0.75,
+        "reason": "run_ci_log_check has cyclomatic complexity 9",
+        "severity": "medium"
       },
-      "risk_score": 2.5,
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/ci_log_collector.py:run_ci_log_check:io_in_loop": {
+      "file": "codegeeko/collectors/ci_log_collector.py",
+      "finding_id": "run_ci_log_check:io_in_loop",
+      "message": "a network call runs once per loop iteration (N+1 / IO-in-loop)",
+      "raw": {
+        "biomarker_type": "io_in_loop",
+        "details": {
+          "boundary_kind": "network",
+          "cross_function": false
+        },
+        "file_path": "codegeeko/collectors/ci_log_collector.py",
+        "function_name": "run_ci_log_check",
+        "health_impact": 0.0,
+        "reason": "a network call runs once per loop iteration (N+1 / IO-in-loop)",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/ci_log_collector.py:run_ci_log_check:nested_complexity": {
+      "file": "codegeeko/collectors/ci_log_collector.py",
+      "finding_id": "run_ci_log_check:nested_complexity",
+      "message": "run_ci_log_check nests 4 levels deep",
+      "raw": {
+        "biomarker_type": "nested_complexity",
+        "details": {
+          "ccn": 9,
+          "cognitive": 24,
+          "max_nesting": 4
+        },
+        "file_path": "codegeeko/collectors/ci_log_collector.py",
+        "function_name": "run_ci_log_check",
+        "health_impact": 0.938,
+        "reason": "run_ci_log_check nests 4 levels deep",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
       "source": "repowise"
     },
     "repowise:codegeeko/collectors/repowise_collector.py:None:prior_defect": {
@@ -2263,37 +1840,14 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.9802,
+          "change_entropy": 1.9784,
           "change_entropy_pct": 0.815,
           "commit_count_90d": 5
         },
         "file_path": "codegeeko/collectors/semgrep_collector.py",
         "function_name": null,
-        "health_impact": 0.699,
+        "health_impact": 1.014,
         "reason": "changes are scattered across noisy commits (top 19% change entropy); a strong history-based fault predictor",
-        "severity": "medium"
-      },
-      "risk_score": 5.0,
-      "source": "repowise"
-    },
-    "repowise:codegeeko/collectors/semgrep_collector.py:None:churn_risk": {
-      "file": "codegeeko/collectors/semgrep_collector.py",
-      "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 1.6x the file's size (285 lines over 179 NLOC, top 22% of repo churn)",
-      "raw": {
-        "biomarker_type": "churn_risk",
-        "details": {
-          "churn_percentile": 0.778,
-          "commit_count_90d": 5,
-          "lines_added_90d": 245,
-          "lines_deleted_90d": 40,
-          "nloc": 179,
-          "relative_churn": 1.59
-        },
-        "file_path": "codegeeko/collectors/semgrep_collector.py",
-        "function_name": null,
-        "health_impact": 0.556,
-        "reason": "90-day churn rewrote 1.6x the file's size (285 lines over 179 NLOC, top 22% of repo churn)",
         "severity": "medium"
       },
       "risk_score": 5.0,
@@ -2311,11 +1865,11 @@
         },
         "file_path": "codegeeko/collectors/semgrep_collector.py",
         "function_name": null,
-        "health_impact": 1.324,
+        "health_impact": 1.151,
         "reason": "3 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
-        "severity": "critical"
+        "severity": "high"
       },
-      "risk_score": 10.0,
+      "risk_score": 7.5,
       "source": "repowise"
     },
     "repowise:codegeeko/collectors/semgrep_collector.py:metric": {
@@ -2370,7 +1924,7 @@
         },
         "file_path": "codegeeko/collectors/semgrep_collector.py",
         "function_name": "parse_semgrep_output",
-        "health_impact": 0.921,
+        "health_impact": 1.335,
         "reason": "parse_semgrep_output has been modified across 5 commits (repo p80=2) and carries CCN=12 / nesting=2",
         "severity": "high"
       },
@@ -2567,7 +2121,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.535,
+          "change_entropy": 2.5327,
           "change_entropy_pct": 0.889,
           "commit_count_90d": 5
         },
@@ -2719,6 +2273,24 @@
       "risk_score": 5.08,
       "source": "repowise"
     },
+    "repowise:codegeeko/state.py:load_state:hot_path_sync_io": {
+      "file": "codegeeko/state.py",
+      "finding_id": "load_state:hot_path_sync_io",
+      "message": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+      "raw": {
+        "biomarker_type": "hot_path_sync_io",
+        "details": {
+          "boundary_kind": "filesystem"
+        },
+        "file_path": "codegeeko/state.py",
+        "function_name": "load_state",
+        "health_impact": 0.0,
+        "reason": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
     "repowise:codegeeko/triage.py:None:change_entropy": {
       "file": "codegeeko/triage.py",
       "finding_id": "None:change_entropy",
@@ -2726,37 +2298,14 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.9779,
+          "change_entropy": 2.9752,
           "change_entropy_pct": 0.926,
           "commit_count_90d": 8
         },
         "file_path": "codegeeko/triage.py",
         "function_name": null,
-        "health_impact": 0.955,
+        "health_impact": 1.219,
         "reason": "changes are scattered across noisy commits (top 7% change entropy); a strong history-based fault predictor",
-        "severity": "high"
-      },
-      "risk_score": 7.5,
-      "source": "repowise"
-    },
-    "repowise:codegeeko/triage.py:None:churn_risk": {
-      "file": "codegeeko/triage.py",
-      "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 3.2x the file's size (299 lines over 94 NLOC, top 19% of repo churn)",
-      "raw": {
-        "biomarker_type": "churn_risk",
-        "details": {
-          "churn_percentile": 0.815,
-          "commit_count_90d": 8,
-          "lines_added_90d": 225,
-          "lines_deleted_90d": 74,
-          "nloc": 94,
-          "relative_churn": 3.18
-        },
-        "file_path": "codegeeko/triage.py",
-        "function_name": null,
-        "health_impact": 0.759,
-        "reason": "90-day churn rewrote 3.2x the file's size (299 lines over 94 NLOC, top 19% of repo churn)",
         "severity": "high"
       },
       "risk_score": 7.5,
@@ -2792,7 +2341,7 @@
         },
         "file_path": "codegeeko/triage.py",
         "function_name": null,
-        "health_impact": 1.054,
+        "health_impact": 1.345,
         "reason": "6 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
         "severity": "critical"
       },
@@ -2853,7 +2402,7 @@
         },
         "file_path": "codegeeko/triage.py",
         "function_name": "_run_triage_query",
-        "health_impact": 0.733,
+        "health_impact": 0.936,
         "reason": "_run_triage_query has been modified across 7 commits (repo p80=2) and carries CCN=13 / nesting=3",
         "severity": "high"
       },
@@ -3574,87 +3123,6 @@
       "risk_score": 0.94,
       "source": "repowise"
     },
-    "repowise:tests/codegeeko/test_ci_log_collector.py:None:dry_violation": {
-      "file": "tests/codegeeko/test_ci_log_collector.py",
-      "finding_id": "None:dry_violation",
-      "message": "29% of file duplicated; worst clone shares 32 lines with tests/codegeeko/test_ci_log_collector.py",
-      "raw": {
-        "biomarker_type": "dry_violation",
-        "details": {
-          "clone_pair_count": 3,
-          "duplication_pct": 29.27,
-          "worst_clone_co_change": 0,
-          "worst_clone_lines": 32,
-          "worst_clone_partner": "tests/codegeeko/test_ci_log_collector.py"
-        },
-        "file_path": "tests/codegeeko/test_ci_log_collector.py",
-        "function_name": null,
-        "health_impact": 0.35,
-        "reason": "29% of file duplicated; worst clone shares 32 lines with tests/codegeeko/test_ci_log_collector.py",
-        "severity": "medium"
-      },
-      "risk_score": 5.0,
-      "source": "repowise"
-    },
-    "repowise:tests/codegeeko/test_ci_log_collector.py:None:duplicated_assertion_block": {
-      "file": "tests/codegeeko/test_ci_log_collector.py",
-      "finding_id": "None:duplicated_assertion_block",
-      "message": "assertion block at lines 51-58 is duplicated in tests/codegeeko/test_repowise_collector.py",
-      "raw": {
-        "biomarker_type": "duplicated_assertion_block",
-        "details": {
-          "assertion_lines": [
-            51,
-            58
-          ],
-          "partner_file": "tests/codegeeko/test_repowise_collector.py"
-        },
-        "file_path": "tests/codegeeko/test_ci_log_collector.py",
-        "function_name": null,
-        "health_impact": 0.5,
-        "reason": "assertion block at lines 51-58 is duplicated in tests/codegeeko/test_repowise_collector.py",
-        "severity": "medium"
-      },
-      "risk_score": 5.0,
-      "source": "repowise"
-    },
-    "repowise:tests/codegeeko/test_ci_log_collector.py:None:prior_defect": {
-      "file": "tests/codegeeko/test_ci_log_collector.py",
-      "finding_id": "None:prior_defect",
-      "message": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
-      "raw": {
-        "biomarker_type": "prior_defect",
-        "details": {
-          "prior_defect_count": 1,
-          "window_days": 180
-        },
-        "file_path": "tests/codegeeko/test_ci_log_collector.py",
-        "function_name": null,
-        "health_impact": 0.3,
-        "reason": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
-        "severity": "low"
-      },
-      "risk_score": 2.5,
-      "source": "repowise"
-    },
-    "repowise:tests/codegeeko/test_ci_log_collector.py:metric": {
-      "file": "tests/codegeeko/test_ci_log_collector.py",
-      "finding_id": "metric",
-      "message": "overall file health score 8.85/10 (max CCN 2, max nesting 1)",
-      "raw": {
-        "branch_coverage_pct": null,
-        "duplication_pct": 29.27,
-        "file_path": "tests/codegeeko/test_ci_log_collector.py",
-        "has_test_file": true,
-        "line_coverage_pct": null,
-        "max_ccn": 2,
-        "max_nesting": 1,
-        "nloc": 138,
-        "score": 8.85
-      },
-      "risk_score": 1.15,
-      "source": "repowise"
-    },
     "repowise:tests/codegeeko/test_fixer.py:None:dry_violation": {
       "file": "tests/codegeeko/test_fixer.py",
       "finding_id": "None:dry_violation",
@@ -3724,7 +3192,7 @@
       "raw": {
         "biomarker_type": "dry_violation",
         "details": {
-          "clone_pair_count": 5,
+          "clone_pair_count": 4,
           "duplication_pct": 29.03,
           "worst_clone_co_change": 0,
           "worst_clone_lines": 15,
@@ -3742,7 +3210,7 @@
     "repowise:tests/codegeeko/test_repowise_collector.py:None:duplicated_assertion_block": {
       "file": "tests/codegeeko/test_repowise_collector.py",
       "finding_id": "None:duplicated_assertion_block",
-      "message": "assertion block at lines 18-25 is duplicated in tests/codegeeko/test_ci_log_collector.py (occurs 2 times)",
+      "message": "assertion block at lines 18-25 is duplicated in tests/codegeeko/test_semgrep_collector.py (occurs 2 times)",
       "raw": {
         "biomarker_type": "duplicated_assertion_block",
         "details": {
@@ -3750,12 +3218,12 @@
             18,
             25
           ],
-          "partner_file": "tests/codegeeko/test_ci_log_collector.py"
+          "partner_file": "tests/codegeeko/test_semgrep_collector.py"
         },
         "file_path": "tests/codegeeko/test_repowise_collector.py",
         "function_name": null,
         "health_impact": 0.25,
-        "reason": "assertion block at lines 18-25 is duplicated in tests/codegeeko/test_ci_log_collector.py",
+        "reason": "assertion block at lines 18-25 is duplicated in tests/codegeeko/test_semgrep_collector.py",
         "severity": "medium"
       },
       "risk_score": 5.0,
@@ -3864,7 +3332,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.9802,
+          "change_entropy": 1.9784,
           "change_entropy_pct": 0.852,
           "commit_count_90d": 4
         },
@@ -3884,7 +3352,7 @@
       "raw": {
         "biomarker_type": "dry_violation",
         "details": {
-          "clone_pair_count": 4,
+          "clone_pair_count": 3,
           "duplication_pct": 13.53,
           "worst_clone_co_change": 0,
           "worst_clone_lines": 15,
@@ -3902,7 +3370,7 @@
     "repowise:tests/codegeeko/test_semgrep_collector.py:None:duplicated_assertion_block": {
       "file": "tests/codegeeko/test_semgrep_collector.py",
       "finding_id": "None:duplicated_assertion_block",
-      "message": "assertion block at lines 18-25 is duplicated in tests/codegeeko/test_ci_log_collector.py",
+      "message": "assertion block at lines 18-25 is duplicated in tests/codegeeko/test_repowise_collector.py",
       "raw": {
         "biomarker_type": "duplicated_assertion_block",
         "details": {
@@ -3910,12 +3378,12 @@
             18,
             25
           ],
-          "partner_file": "tests/codegeeko/test_ci_log_collector.py"
+          "partner_file": "tests/codegeeko/test_repowise_collector.py"
         },
         "file_path": "tests/codegeeko/test_semgrep_collector.py",
         "function_name": null,
         "health_impact": 0.5,
-        "reason": "assertion block at lines 18-25 is duplicated in tests/codegeeko/test_ci_log_collector.py",
+        "reason": "assertion block at lines 18-25 is duplicated in tests/codegeeko/test_repowise_collector.py",
         "severity": "medium"
       },
       "risk_score": 5.0,
@@ -3965,7 +3433,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.9779,
+          "change_entropy": 2.9752,
           "change_entropy_pct": 0.963,
           "commit_count_90d": 7
         },
@@ -3981,11 +3449,11 @@
     "repowise:tests/codegeeko/test_triage.py:None:churn_risk": {
       "file": "tests/codegeeko/test_triage.py",
       "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 11% of repo churn)",
+      "message": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 15% of repo churn)",
       "raw": {
         "biomarker_type": "churn_risk",
         "details": {
-          "churn_percentile": 0.889,
+          "churn_percentile": 0.852,
           "commit_count_90d": 7,
           "lines_added_90d": 306,
           "lines_deleted_90d": 37,
@@ -3995,7 +3463,7 @@
         "file_path": "tests/codegeeko/test_triage.py",
         "function_name": null,
         "health_impact": 0.502,
-        "reason": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 11% of repo churn)",
+        "reason": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 15% of repo churn)",
         "severity": "medium"
       },
       "risk_score": 5.0,
