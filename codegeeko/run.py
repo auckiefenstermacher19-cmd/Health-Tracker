@@ -10,6 +10,32 @@ from codegeeko.triage import triage_findings
 
 STATE_PATH = ".code-geeko/state.json"
 
+# Fix mode budgets up to MAX_ATTEMPTS x (fix + test) per finding, so an unbounded busy night could
+# both blow the workflow's job timeout and open a wall of PRs for review. Cap how many accepted
+# findings one run will act on; the rest are deferred to the next run (and deliberately NOT marked
+# seen -- see main()).
+DEFAULT_MAX_FIXES_PER_NIGHT = 5
+
+# Outcomes that mean the fix/flag actually LANDED, and so the finding may be marked seen in state.
+# Deliberately an allowlist, not a denylist of failures: a future outcome nobody remembers to
+# classify then degrades to "retry it tomorrow" rather than to "mark it seen and never look
+# again" -- the expensive direction of that mistake is silent suppression, not a duplicate run.
+_LANDED_OUTCOMES = frozenset({"pr", "issue"})
+
+
+def max_fixes_per_night(env: dict) -> int:
+    """Read the per-run fix cap from the environment, falling back to a safe default.
+
+    Anything that is not a positive integer (unset, empty, malformed, zero, negative, a float)
+    falls back to the default rather than being honoured or raising. Same philosophy as
+    `is_report_only`: a config typo must degrade to the known-safe value, never to "unbounded".
+    """
+    try:
+        value = int(env.get("MAX_FIXES_PER_NIGHT", ""))
+    except ValueError:
+        return DEFAULT_MAX_FIXES_PER_NIGHT
+    return value if value > 0 else DEFAULT_MAX_FIXES_PER_NIGHT
+
 
 def is_report_only(env: dict) -> bool:
     """Safe-by-default: report-only unless REPORT_ONLY is explicitly "false" (case/whitespace
@@ -56,6 +82,16 @@ def main() -> None:
 
     A successful triage run that legitimately accepts nothing (`triage_ok is True`, `triaged ==
     []`) is NOT a failure -- deliberate suppression is by design, and state is saved as normal.
+
+    When state IS saved, what goes into it is not simply "everything we collected". Two classes of
+    finding are held back so they re-delta on the next run (see `build_next_state`):
+
+    - findings of a collector that did not report "ok", carried forward from the previous state so
+      a one-night flap cannot re-fire that source's whole set on recovery; and
+    - findings this run accepted but did not successfully act on -- deferred past
+      `max_fixes_per_night`, or whose PR/Issue/git step failed. Only an outcome in
+      `_LANDED_OUTCOMES` marks a finding seen. "Collected it" and "acted on it" are different
+      facts, and conflating them is what silently drops work.
     """
     repo_path = "."
     owner = "auckiefenstermacher19-cmd"
@@ -75,12 +111,23 @@ def main() -> None:
 
     print(format_report(triaged, checked))
 
+    unacted: list[dict] = []
+
     if report_only:
         print("\n[REPORT_ONLY=true] Skipping fix/PR step.")
     else:
         from codegeeko.fixer import fix_and_report
 
-        for item in triaged:
+        cap = max_fixes_per_night(os.environ)
+        to_fix, deferred = triaged[:cap], triaged[cap:]
+        unacted += deferred
+        if deferred:
+            print(
+                f"\n{len(to_fix)} of {len(triaged)} accepted findings processed tonight; "
+                f"{len(deferred)} deferred to the next run."
+            )
+
+        for item in to_fix:
             try:
                 outcome = fix_and_report(item, repo_path, owner, repo, github_token)
             except Exception as exc:
@@ -93,15 +140,18 @@ def main() -> None:
                 # the whole nightly batch or skip save_state() for every other finding, so it's
                 # caught here, at the per-finding boundary, and reported like any other outcome.
                 print(f"  -> git_failed: {item.get('file')}/{item.get('finding_id')}: {exc}")
+                unacted.append(item)
                 continue
             detail = outcome.get("url") or outcome.get("error", "unknown")
             print(f"  -> {outcome['outcome']}: {detail}")
+            if outcome["outcome"] not in _LANDED_OUTCOMES:
+                unacted.append(item)
 
     if deltas and not triage_ok:
         print(f"WARNING: triage failed -- state NOT saved; {len(deltas)} delta(s) will retry tomorrow")
         sys.exit(1)
 
-    save_state(STATE_PATH, build_next_state(findings, checked))
+    save_state(STATE_PATH, build_next_state(findings, checked, previous_state, unacted))
 
 
 if __name__ == "__main__":

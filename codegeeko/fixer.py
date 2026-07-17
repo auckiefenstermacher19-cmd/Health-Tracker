@@ -1,5 +1,6 @@
 import asyncio
 import subprocess
+import sys
 
 from claude_agent_sdk import ClaudeAgentOptions, query
 
@@ -60,8 +61,30 @@ def _run_fix_attempt(finding: dict, repo_path: str) -> None:
         return
 
 
+def _discard_branch(repo_path: str, branch: str) -> None:
+    """Best-effort teardown of a fix branch, remote copy first, then local.
+
+    Deliberately best-effort (no `check=True`) unlike the rest of this module's git calls: this
+    only ever runs on an already-degraded path, where raising would convert a precise `pr_failed`
+    (with the GitHub error attached) into an opaque `git_failed` and throw away the diagnosis.
+    """
+    subprocess.run(["git", "push", "origin", "--delete", branch], cwd=repo_path, capture_output=True)
+    subprocess.run(["git", "branch", "-D", branch], cwd=repo_path, capture_output=True)
+
+
 def _run_tests(repo_path: str) -> bool:
-    result = subprocess.run(["pytest", "-x"], cwd=repo_path, capture_output=True, timeout=300)
+    """Run the repo's test suite to judge whether a fix attempt worked.
+
+    Invoked as `python -m pytest`, never bare `pytest`: only the module form puts the working
+    directory (the repo root) on `sys.path`, which the suite needs to import the `codegeeko`
+    package. Bare `pytest` is the exact failure that broke the CI self-test step (fixed there in
+    4c065a0), and it would be far quieter here -- every fix attempt's tests would error out on
+    import, so all MAX_ATTEMPTS would be burned per finding and every accepted finding would be
+    filed as an Issue rather than a PR, with the run still reporting green.
+    """
+    result = subprocess.run(
+        [sys.executable, "-m", "pytest", "-x"], cwd=repo_path, capture_output=True, timeout=300
+    )
     return result.returncode == 0
 
 
@@ -100,11 +123,29 @@ def fix_and_report(finding: dict, repo_path: str, owner: str, repo: str, token: 
     if passed:
         subprocess.run(["git", "commit", "-m", f"fix: {finding['message']}"], cwd=repo_path, check=True, capture_output=True)
         subprocess.run(["git", "push", "-u", "origin", branch], cwd=repo_path, check=True, capture_output=True)
+        # Back to main once the branch is safely pushed, and BEFORE the PR call so both the
+        # success and the pr_failed paths leave HEAD on main. Otherwise the caller's save_state
+        # writes to the fix branch (the workflow's main push then no-ops, green) and the next
+        # finding's `git checkout -b` stacks onto this branch, contaminating its PR.
+        subprocess.run(["git", "checkout", "main"], cwd=repo_path, check=True, capture_output=True)
         pr = open_fix_pr(owner, repo, token, branch, f"Code-Geeko: {finding['message']}", body + "\n\n**Tests:** passing.")
         if not pr.get("ok"):
+            # The branch is pushed but nothing references it. Left on the remote it makes the
+            # retry non-idempotent: run.py correctly leaves this finding unseen, so tomorrow it
+            # re-fires, cuts a fresh branch of the same name from main, and the push is rejected
+            # as a non-fast-forward -> git_failed -> unseen -> re-fires... identically, forever,
+            # with the job green, three real Claude fix attempts burned each night, and a
+            # permanent slot held under MAX_FIXES_PER_NIGHT. Tear it down so tomorrow starts clean.
+            _discard_branch(repo_path, branch)
             return {"outcome": "pr_failed", "error": pr.get("error", "unknown error")}
         return {"outcome": "pr", "url": pr["html_url"]}
 
+    # Every attempt was staged (`git add -A`) and none was committed, because none passed. Those
+    # edits must be destroyed here: `git checkout main` does NOT drop a staged tree, it CARRIES it
+    # (main and the fix branch sit on the same commit), so the rejected work would land on main's
+    # index -- where the workflow's next step commits `.code-geeko/state.json` and sweeps it up,
+    # pushing unreviewed, test-FAILING LLM output to main under a "chore: update state" message.
+    subprocess.run(["git", "reset", "--hard", "HEAD"], cwd=repo_path, check=True, capture_output=True)
     subprocess.run(["git", "checkout", "main"], cwd=repo_path, check=True, capture_output=True)
     subprocess.run(["git", "branch", "-D", branch], cwd=repo_path, check=True, capture_output=True)
     issue = open_flag_issue(owner, repo, token, f"Code-Geeko flag: {finding['message']}", body + f"\n\n**Tests:** failed after {MAX_ATTEMPTS} attempts, no fix applied.")
