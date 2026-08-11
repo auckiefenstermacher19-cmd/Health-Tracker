@@ -5,10 +5,10 @@
     "semgrep": "ok"
   },
   "findings": {
-    "ci_log:None:31116612371": {
+    "ci_log:None:31377698950": {
       "file": null,
-      "finding_id": "31116612371",
-      "message": "Workflow 'Health Tracker Consolidation' failed on 2026-08-06T15:36:19Z (https://github.com/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31116612371)",
+      "finding_id": "31377698950",
+      "message": "Workflow 'Validate Sources Only' failed on 2026-08-10T10:06:56Z (https://github.com/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31377698950)",
       "raw": {
         "actor": {
           "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
@@ -31,29 +31,29 @@
           "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
           "user_view_type": "public"
         },
-        "artifacts_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31116612371/artifacts",
-        "cancel_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31116612371/cancel",
-        "check_suite_id": 84409242372,
-        "check_suite_node_id": "CS_kwDOS8vfO88AAAATpy7TBA",
-        "check_suite_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/check-suites/84409242372",
+        "artifacts_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31377698950/artifacts",
+        "cancel_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31377698950/cancel",
+        "check_suite_id": 85105019786,
+        "check_suite_node_id": "CS_kwDOS8vfO88AAAAT0KeLig",
+        "check_suite_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/check-suites/85105019786",
         "conclusion": "failure",
-        "created_at": "2026-08-06T15:36:19Z",
-        "display_title": "Health Tracker Consolidation",
+        "created_at": "2026-08-10T10:06:56Z",
+        "display_title": "Validate Sources Only",
         "event": "schedule",
         "head_branch": "main",
         "head_commit": {
           "author": {
-            "email": "github-actions[bot]@users.noreply.github.com",
-            "name": "github-actions[bot]"
+            "email": "code-geeko@users.noreply.github.com",
+            "name": "code-geeko[bot]"
           },
           "committer": {
-            "email": "github-actions[bot]@users.noreply.github.com",
-            "name": "github-actions[bot]"
+            "email": "code-geeko@users.noreply.github.com",
+            "name": "code-geeko[bot]"
           },
-          "id": "22dea0f2a6bff1af2c6fd7283d97b0d724123890",
-          "message": "chore: consolidate health data 2026-08-06 [whoop_updated]",
-          "timestamp": "2026-08-06T14:29:32Z",
-          "tree_id": "b5d721df752902ee47ff33c727424837fb5a16b7"
+          "id": "90077ed147034921a4cd6d0bc6df99a456266e7d",
+          "message": "chore: update code-geeko state",
+          "timestamp": "2026-08-10T07:07:35Z",
+          "tree_id": "f2e37f5b665498148ce3959c28e878cfe3fb0205"
         },
         "head_repository": {
           "archive_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/{archive_format}{/ref}",
@@ -123,14 +123,14 @@
           "trees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/trees{/sha}",
           "url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker"
         },
-        "head_sha": "22dea0f2a6bff1af2c6fd7283d97b0d724123890",
-        "html_url": "https://github.com/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31116612371",
-        "id": 31116612371,
-        "jobs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31116612371/jobs",
-        "logs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31116612371/logs",
-        "name": "Health Tracker Consolidation",
-        "node_id": "WFR_kwLOS8vfO88AAAAHPrHTEw",
-        "path": ".github/workflows/consolidate.yml",
+        "head_sha": "90077ed147034921a4cd6d0bc6df99a456266e7d",
+        "html_url": "https://github.com/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31377698950",
+        "id": 31377698950,
+        "jobs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31377698950/jobs",
+        "logs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31377698950/logs",
+        "name": "Validate Sources Only",
+        "node_id": "WFR_kwLOS8vfO88AAAAHTkGwhg",
+        "path": ".github/workflows/validate_only.yml",
         "previous_attempt_url": null,
         "pull_requests": [],
         "referenced_workflows": [],
@@ -202,10 +202,10 @@
           "trees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/trees{/sha}",
           "url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker"
         },
-        "rerun_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31116612371/rerun",
+        "rerun_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31377698950/rerun",
         "run_attempt": 1,
-        "run_number": 184,
-        "run_started_at": "2026-08-06T15:36:19Z",
+        "run_number": 8,
+        "run_started_at": "2026-08-10T10:06:56Z",
         "status": "completed",
         "triggering_actor": {
           "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
@@ -228,10 +228,10 @@
           "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
           "user_view_type": "public"
         },
-        "updated_at": "2026-08-06T15:43:17Z",
-        "url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31116612371",
-        "workflow_id": 297258464,
-        "workflow_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/workflows/297258464"
+        "updated_at": "2026-08-10T10:07:12Z",
+        "url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/31377698950",
+        "workflow_id": 297258721,
+        "workflow_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/workflows/297258721"
       },
       "risk_score": 8.0,
       "source": "ci_log"
@@ -454,7 +454,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.7333,
+          "change_entropy": 1.7238,
           "change_entropy_pct": 0.821,
           "commit_count_90d": 5
         },
@@ -754,7 +754,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.5704,
+          "change_entropy": 2.5564,
           "change_entropy_pct": 0.893,
           "commit_count_90d": 6
         },
@@ -950,7 +950,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.6066,
+          "change_entropy": 2.5924,
           "change_entropy_pct": 0.929,
           "commit_count_90d": 8
         },
@@ -2098,7 +2098,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.7333,
+          "change_entropy": 1.7238,
           "change_entropy_pct": 0.857,
           "commit_count_90d": 4
         },
@@ -2236,7 +2236,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.6066,
+          "change_entropy": 2.5924,
           "change_entropy_pct": 0.964,
           "commit_count_90d": 7
         },
