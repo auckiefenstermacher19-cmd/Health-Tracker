@@ -50,7 +50,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/schema/ logs/
+          git add schema/ logs/
           git diff --staged --quiet \
             && echo "Schema unchanged — nothing to commit." \
             || git commit -m "chore: update schema snapshots [validate-only]" && git push
@@ -61,9 +61,9 @@ jobs:
           echo "=============================="
           echo "  Validation Run Complete"
           echo "=============================="
-          if [ -d data/schema ]; then
+          if [ -d schema ]; then
             echo "Schema snapshots:"
-            ls -la data/schema/
+            ls -la schema/
           fi
           if [ -d logs ]; then
             echo "Validation logs:"
