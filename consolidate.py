@@ -33,8 +33,9 @@ Exit codes
 import csv
 import json
 import logging
+import os
 import sys
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
@@ -266,6 +267,51 @@ def validate_output(
 # Audit Logging
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def newest_age_days(dates, today=None):
+    """Age in days of the most recent date in `dates`, or None if there are none.
+
+    Dates arrive as YYYY-MM-DD strings. Anything unparseable is ignored rather than
+    raising: a single malformed row must not take down the whole consolidation.
+    """
+    if today is None:
+        today = datetime.now(timezone.utc).date()
+    newest = None
+    for d in dates or ():
+        try:
+            parsed = date.fromisoformat(str(d)[:10])
+        except (ValueError, TypeError):
+            continue
+        if newest is None or parsed > newest:
+            newest = parsed
+    if newest is None:
+        return None
+    return (today - newest).days
+
+
+def staleness_report(sources, max_age_days, today=None):
+    """Classify each source as fresh or stale.
+
+    This exists because the consolidation reported SUCCESS every day for a week while
+    its WHOOP data sat frozen at 2026-08-19. It fetched faithfully; the upstream had
+    stopped moving and nothing checked, so a dead source and a quiet one looked the
+    same. A source with NO dates counts as stale - that is the most broken state, not
+    the healthiest.
+    """
+    ages = {}
+    stale = []
+    for name, dates in sources.items():
+        age = newest_age_days(dates, today=today)
+        ages[name] = age
+        if age is None or age > max_age_days:
+            stale.append(name)
+    return {
+        "ages": ages,
+        "stale_sources": sorted(stale),
+        "max_age_days": max_age_days,
+        "status": "STALE" if stale else "SUCCESS",
+    }
+
+
 def append_audit_log(record: dict) -> None:
     """Append a JSON audit record to the rolling audit log (JSONL format)."""
     with open(AUDIT_LOG, "a", encoding="utf-8") as f:
@@ -389,8 +435,32 @@ def build_consolidated() -> None:
         "overlap_dates":     len(whoop_dates & meal_dates),
         "whoop_only_dates":  len(whoop_dates - meal_dates),
         "meal_only_dates":   len(meal_dates  - whoop_dates),
-        "status":            "SUCCESS",
     }
+
+    # Freshness gate. Previously this record hardcoded status SUCCESS, so a week of runs
+    # over a frozen upstream all looked healthy. Now the age of each source is recorded
+    # and a stale one is named. The job is failed AFTER the commit step (see the workflow)
+    # so fresh data still lands even when another source has gone quiet.
+    max_age = int(os.environ.get("SOURCE_MAX_AGE_DAYS", "2"))
+    freshness = staleness_report({"whoop": whoop_dates, "meal": meal_dates}, max_age_days=max_age)
+    audit_record["source_ages_days"] = freshness["ages"]
+    audit_record["stale_sources"]    = freshness["stale_sources"]
+    audit_record["max_age_days"]     = max_age
+    audit_record["status"]           = freshness["status"]
+
+    for name, age in sorted(freshness["ages"].items()):
+        shown = "NO DATA" if age is None else "%d day(s) old" % age
+        log.info("Source freshness: %-6s newest is %s", name, shown)
+    if freshness["stale_sources"]:
+        detail = ", ".join(
+            "%s=%s" % (n, "NO DATA" if freshness["ages"][n] is None else "%dd" % freshness["ages"][n])
+            for n in freshness["stale_sources"]
+        )
+        log.error("STALE SOURCE(S): %s (threshold %dd)", detail, max_age)
+        # GitHub Actions annotation so this is visible on the run without opening logs.
+        print("::error title=Stale source data::%s exceeded the %d-day freshness threshold"
+              % (detail, max_age))
+
     append_audit_log(audit_record)
     log.info("")
     log.info("=" * 60)

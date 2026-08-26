@@ -122,6 +122,37 @@ jobs:
             echo "Health_Tracker_Master.csv committed and pushed."
           fi
 
+      # ── Step 8b: Freshness gate ───────────────────────────────────────────
+      # Runs AFTER the commit on purpose. Failing before it would block fresh data from
+      # landing whenever any OTHER source had gone quiet. The commit is the useful work;
+      # this step exists only to make the run visibly red so a dead upstream stops looking
+      # like a healthy one. That is the failure this workflow had for a week: it reported
+      # SUCCESS daily while serving WHOOP data frozen at 2026-08-19.
+      - name: Fail if any source is stale
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, sys, pathlib
+          log = pathlib.Path("logs/consolidation_audit.jsonl")
+          if not log.exists():
+              print("::warning::No audit log found; cannot assess freshness.")
+              sys.exit(0)
+          lines = [l for l in log.read_text().splitlines() if l.strip()]
+          if not lines:
+              print("::warning::Audit log is empty; cannot assess freshness.")
+              sys.exit(0)
+          rec = json.loads(lines[-1])
+          ages = rec.get("source_ages_days", {})
+          stale = rec.get("stale_sources", [])
+          for name, age in sorted(ages.items()):
+              print(f"  {name}: {'NO DATA' if age is None else str(age) + 'd old'}")
+          if stale:
+              print(f"::error title=Stale source data::{', '.join(stale)} "
+                    f"exceeded the {rec.get('max_age_days')}-day freshness threshold")
+              sys.exit(1)
+          print("All sources fresh.")
+          PY
+
       # ── Step 9: Summary ───────────────────────────────────────────────────
       - name: Print run summary
         if: always()
