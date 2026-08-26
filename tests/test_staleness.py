@@ -55,3 +55,34 @@ class TestStalenessReport:
         r = staleness_report({"whoop": set()}, max_age_days=2, today=date(2026, 8, 26))
         assert r["status"] == "STALE"
         assert r["ages"]["whoop"] is None
+
+
+class TestPerSourceSeverity:
+    """WHOOP syncs by itself, so 2 days of silence means something broke. Meals depend on
+    a human remembering to log, so a lapse is a habit, not an outage. Reporting both as
+    hard failures trains you to ignore red checks - which is how the original silent
+    staleness went unnoticed for a week in the first place."""
+
+    def test_a_warn_only_source_is_stale_but_does_not_fail_the_run(self):
+        r = staleness_report({"meal": {"2026-07-25"}}, max_age_days=2,
+                             today=date(2026, 8, 26), warn_only={"meal"})
+        assert r["status"] == "STALE"
+        assert r["stale_sources"] == ["meal"]
+        assert r["failing_sources"] == []
+        assert r["warning_sources"] == ["meal"]
+
+    def test_a_normal_source_still_fails_the_run(self):
+        r = staleness_report({"whoop": {"2026-08-19"}}, max_age_days=2,
+                             today=date(2026, 8, 26), warn_only={"meal"})
+        assert r["failing_sources"] == ["whoop"]
+
+    def test_a_stale_warn_only_source_never_masks_a_failing_one(self):
+        r = staleness_report({"whoop": {"2026-08-19"}, "meal": {"2026-07-25"}},
+                             max_age_days=2, today=date(2026, 8, 26), warn_only={"meal"})
+        assert r["failing_sources"] == ["whoop"]
+        assert r["warning_sources"] == ["meal"]
+        assert sorted(r["stale_sources"]) == ["meal", "whoop"]
+
+    def test_with_no_warn_only_every_stale_source_fails(self):
+        r = staleness_report({"whoop": {"2026-08-19"}}, max_age_days=2, today=date(2026, 8, 26))
+        assert r["failing_sources"] == ["whoop"]

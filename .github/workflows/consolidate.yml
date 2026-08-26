@@ -143,14 +143,20 @@ jobs:
               sys.exit(0)
           rec = json.loads(lines[-1])
           ages = rec.get("source_ages_days", {})
-          stale = rec.get("stale_sources", [])
+          warned = rec.get("warning_sources", [])
+          failing = rec.get("failing_sources", [])
           for name, age in sorted(ages.items()):
-              print(f"  {name}: {'NO DATA' if age is None else str(age) + 'd old'}")
-          if stale:
-              print(f"::error title=Stale source data::{', '.join(stale)} "
+              label = "NO DATA" if age is None else f"{age}d old"
+              tag = "  (warn-only)" if name in warned else ""
+              print(f"  {name}: {label}{tag}")
+          if warned:
+              print(f"::warning title=Stale source data::{', '.join(warned)} "
+                    f"has not updated in over {rec.get('max_age_days')} day(s)")
+          if failing:
+              print(f"::error title=Stale source data::{', '.join(failing)} "
                     f"exceeded the {rec.get('max_age_days')}-day freshness threshold")
               sys.exit(1)
-          print("All sources fresh.")
+          print("No source is failing the freshness gate.")
           PY
 
       # ── Step 9: Summary ───────────────────────────────────────────────────

@@ -288,7 +288,7 @@ def newest_age_days(dates, today=None):
     return (today - newest).days
 
 
-def staleness_report(sources, max_age_days, today=None):
+def staleness_report(sources, max_age_days, today=None, warn_only=()):
     """Classify each source as fresh or stale.
 
     This exists because the consolidation reported SUCCESS every day for a week while
@@ -297,6 +297,7 @@ def staleness_report(sources, max_age_days, today=None):
     same. A source with NO dates counts as stale - that is the most broken state, not
     the healthiest.
     """
+    warn_only = set(warn_only or ())
     ages = {}
     stale = []
     for name, dates in sources.items():
@@ -304,9 +305,16 @@ def staleness_report(sources, max_age_days, today=None):
         ages[name] = age
         if age is None or age > max_age_days:
             stale.append(name)
+    # A warn-only source is still reported stale, it just does not turn the run red.
+    # WHOOP syncs by itself, so silence means breakage. Meals depend on a human
+    # remembering to log, so a lapse is a habit, not an outage - and a check that is
+    # red every day is a check nobody reads, which is how the original silent staleness
+    # survived a week unnoticed.
     return {
         "ages": ages,
         "stale_sources": sorted(stale),
+        "warning_sources": sorted(n for n in stale if n in warn_only),
+        "failing_sources": sorted(n for n in stale if n not in warn_only),
         "max_age_days": max_age_days,
         "status": "STALE" if stale else "SUCCESS",
     }
@@ -442,22 +450,34 @@ def build_consolidated() -> None:
     # and a stale one is named. The job is failed AFTER the commit step (see the workflow)
     # so fresh data still lands even when another source has gone quiet.
     max_age = int(os.environ.get("SOURCE_MAX_AGE_DAYS", "2"))
-    freshness = staleness_report({"whoop": whoop_dates, "meal": meal_dates}, max_age_days=max_age)
+    warn_only = {s.strip() for s in os.environ.get("WARN_ONLY_SOURCES", "meal").split(",") if s.strip()}
+    freshness = staleness_report(
+        {"whoop": whoop_dates, "meal": meal_dates}, max_age_days=max_age, warn_only=warn_only
+    )
     audit_record["source_ages_days"] = freshness["ages"]
     audit_record["stale_sources"]    = freshness["stale_sources"]
+    audit_record["warning_sources"]  = freshness["warning_sources"]
+    audit_record["failing_sources"]  = freshness["failing_sources"]
     audit_record["max_age_days"]     = max_age
     audit_record["status"]           = freshness["status"]
 
     for name, age in sorted(freshness["ages"].items()):
         shown = "NO DATA" if age is None else "%d day(s) old" % age
         log.info("Source freshness: %-6s newest is %s", name, shown)
-    if freshness["stale_sources"]:
-        detail = ", ".join(
+    def _detail(names):
+        return ", ".join(
             "%s=%s" % (n, "NO DATA" if freshness["ages"][n] is None else "%dd" % freshness["ages"][n])
-            for n in freshness["stale_sources"]
+            for n in names
         )
+
+    if freshness["warning_sources"]:
+        detail = _detail(freshness["warning_sources"])
+        log.warning("Stale (warn-only): %s (threshold %dd)", detail, max_age)
+        print("::warning title=Stale source data::%s has not updated in over %d day(s)"
+              % (detail, max_age))
+    if freshness["failing_sources"]:
+        detail = _detail(freshness["failing_sources"])
         log.error("STALE SOURCE(S): %s (threshold %dd)", detail, max_age)
-        # GitHub Actions annotation so this is visible on the run without opening logs.
         print("::error title=Stale source data::%s exceeded the %d-day freshness threshold"
               % (detail, max_age))
 
