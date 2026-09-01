@@ -189,13 +189,49 @@ def bed_on_time(local_start, cutoff):
     return since_noon(local_start) < since_noon(cutoff)
 
 
-def prefill(defs, day):
-    """What WHOOP can answer for day. Never guesses - unknown stays unknown."""
-    known, notes = {}, []
+def find_meal_log(defs):
+    for rel in defs["config"].get("meal_log_sources", []):
+        p = (REPO_DIR / rel).resolve()
+        if p.exists():
+            return p
+    return None
+
+
+def prefill_meal_log(defs, day, known, notes):
+    """Did the food log gain any entry for this day?
+
+    Unlike WHOOP, this file is the system of record rather than a synced copy,
+    so a day with no rows is a real "did not log", not a missing feed.
+    """
+    path = find_meal_log(defs)
+    if path is None:
+        notes.append("No meal log found - logged_food left blank.")
+        return
+
+    field = defs["config"].get("meal_log_date_field", "log_date")
+    target = day.isoformat()
+    count = 0
+    with path.open(newline="", encoding="utf-8-sig") as fh:
+        reader = csv.DictReader(fh)
+        if field not in (reader.fieldnames or []):
+            notes.append("Meal log has no " + field
+                         + " column - logged_food left blank.")
+            return
+        for row in reader:
+            if (row.get(field) or "").strip() == target:
+                count += 1
+
+    known["logged_food"] = "yes" if count else "no"
+    notes.append("Meal log: " + str(count) + " entries for " + target
+                 + " -> logged_food=" + known["logged_food"])
+
+
+def prefill_whoop(defs, day, known, notes):
+    """Fill workout and bed_on_time from WHOOP where the data supports it."""
     path = find_whoop_csv(defs)
     if path is None:
-        notes.append("No WHOOP CSV found; every habit needs a manual answer.")
-        return known, notes
+        notes.append("No WHOOP CSV found - workout and bed on time left blank.")
+        return
 
     notes.append("WHOOP source: " + str(path))
 
@@ -214,7 +250,7 @@ def prefill(defs, day):
     if row is None:
         notes.append("No WHOOP row for " + day.isoformat()
                      + " - workout and bed on time stay blank.")
-        return known, notes
+        return
 
     # Workout: a present row carrying cycle data means a blank workout_count is
     # a real "no workout", not a missing sync.
@@ -250,6 +286,16 @@ def prefill(defs, day):
             + cutoff_s + " -> bed_on_time=" + known["bed_on_time"]
         )
 
+
+def prefill(defs, day):
+    """Everything the machine already knows for `day`.
+
+    Never guesses: a source that cannot answer leaves the habit blank rather
+    than defaulting it to "no".
+    """
+    known, notes = {}, []
+    prefill_whoop(defs, day, known, notes)
+    prefill_meal_log(defs, day, known, notes)
     return known, notes
 
 

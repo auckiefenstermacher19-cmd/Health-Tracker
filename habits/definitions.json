@@ -2,14 +2,18 @@
   "version": 1,
   "note": "Column order mirrors the original 'Habit Tracker' tab in Auckie - 2B.xlsx.",
   "config": {
-    "bed_on_time_before": "23:30",
-    "_bed_on_time_before_note": "Local clock time. WHOOP sleep_start is UTC and is converted to machine-local time before comparison. CHANGE THIS if 23:30 is not your actual target.",
+    "bed_on_time_before": "22:00",
+    "_bed_on_time_before_note": "Local clock time, set from a 05:30 wake target. WHOOP sleep_start is when sleep actually began, so this is 'asleep by 10pm', not 'in bed by 10pm'. UTC is converted to machine-local time before comparison.",
     "whoop_sources": [
       "../whoop-data/data/daily_consolidated.csv",
       "raw/daily_consolidated.csv",
       "Health_Tracker_Master.csv"
     ],
-    "whoop_stale_after_days": 2
+    "whoop_stale_after_days": 2,
+    "meal_log_sources": [
+      "../MyFitnessClone/meal_log.csv"
+    ],
+    "meal_log_date_field": "log_date"
   },
   "habits": [
     {
@@ -69,6 +73,10 @@
     {
       "id": "reset_house", "label": "Reset House", "type": "binary", "source": "self",
       "aliases": ["reset house", "house reset", "tidied", "tidy"]
+    },
+    {
+      "id": "logged_food", "label": "Logged Food", "type": "binary", "source": "meal_log",
+      "aliases": ["logged food", "logged meals", "tracked food", "food log", "myfitness"]
     }
   ]
 }

@@ -176,12 +176,25 @@ def test_bad_date_exits():
 
 # -- definitions integrity ----------------------------------------------------
 
-def test_definitions_match_the_original_spreadsheet(defs):
-    assert [h["label"] for h in defs["habits"]] == [
+def test_original_spreadsheet_habits_survive_in_order(defs):
+    """New habits may be appended, but the backfilled 14 must not shift.
+
+    Their order is the CSV column order, and the March backfill was written
+    against it.
+    """
+    original = [
         "Made bed", "Workout", "Morning Vitamins", "Shower + Teeth", "Water",
         "Read Fiction", "Read Non-fiction", "Bed on time", "Night Vitamins",
         "No Junk", "No Fap", "Screentime", "Clean Sink", "Reset House",
     ]
+    assert [h["label"] for h in defs["habits"]][:len(original)] == original
+
+
+def test_added_habit_leaves_older_rows_blank_not_no(sandbox, defs, monkeypatch):
+    """Adding a habit must not retroactively mark past days as failures."""
+    _log(monkeypatch, date="2026-08-26", set=["made_bed=yes"])
+    row = habits.read_rows(defs)["2026-08-26"]
+    assert row["logged_food"] == ""
 
 
 def test_habit_ids_are_unique(defs):
