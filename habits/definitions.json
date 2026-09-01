@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "note": "Column order mirrors the original 'Habit Tracker' tab in Auckie - 2B.xlsx.",
+  "config": {
+    "bed_on_time_before": "23:30",
+    "_bed_on_time_before_note": "Local clock time. WHOOP sleep_start is UTC and is converted to machine-local time before comparison. CHANGE THIS if 23:30 is not your actual target.",
+    "whoop_sources": [
+      "../whoop-data/data/daily_consolidated.csv",
+      "raw/daily_consolidated.csv",
+      "Health_Tracker_Master.csv"
+    ],
+    "whoop_stale_after_days": 2
+  },
+  "habits": [
+    {
+      "id": "made_bed", "label": "Made bed", "type": "binary", "source": "self",
+      "aliases": ["made bed", "bed made", "made the bed"]
+    },
+    {
+      "id": "workout", "label": "Workout", "type": "binary", "source": "whoop",
+      "aliases": ["workout", "worked out", "gym", "lifted", "ran", "run", "training"]
+    },
+    {
+      "id": "morning_vitamins", "label": "Morning Vitamins", "type": "binary", "source": "self",
+      "aliases": ["morning vitamins", "am vitamins", "morning supplements"]
+    },
+    {
+      "id": "shower_teeth", "label": "Shower + Teeth", "type": "binary", "source": "self",
+      "aliases": ["shower", "showered", "teeth", "brushed"]
+    },
+    {
+      "id": "water", "label": "Water", "type": "count", "target": 5, "direction": "at_least",
+      "source": "self", "aliases": ["water", "glasses of water", "bottles"]
+    },
+    {
+      "id": "read_fiction", "label": "Read Fiction", "type": "binary", "source": "self",
+      "aliases": ["read fiction", "fiction", "novel"]
+    },
+    {
+      "id": "read_nonfiction", "label": "Read Non-fiction", "type": "binary", "source": "self",
+      "aliases": ["read nonfiction", "non-fiction", "nonfiction"]
+    },
+    {
+      "id": "bed_on_time", "label": "Bed on time", "type": "binary", "source": "whoop",
+      "aliases": ["bed on time", "bed early", "in bed by"]
+    },
+    {
+      "id": "night_vitamins", "label": "Night Vitamins", "type": "binary", "source": "self",
+      "aliases": ["night vitamins", "pm vitamins", "evening supplements"]
+    },
+    {
+      "id": "no_junk", "label": "No Junk", "type": "binary", "source": "self",
+      "inverted": true,
+      "aliases": ["no junk", "junk food", "junk", "clean eating"]
+    },
+    {
+      "id": "no_fap", "label": "No Fap", "type": "binary", "source": "self",
+      "inverted": true,
+      "aliases": ["no fap", "nofap"]
+    },
+    {
+      "id": "screentime", "label": "Screentime", "type": "hours", "target": 2, "direction": "at_most",
+      "source": "self", "aliases": ["screentime", "screen time", "phone time"]
+    },
+    {
+      "id": "clean_sink", "label": "Clean Sink", "type": "binary", "source": "self",
+      "aliases": ["clean sink", "sink", "dishes"]
+    },
+    {
+      "id": "reset_house", "label": "Reset House", "type": "binary", "source": "self",
+      "aliases": ["reset house", "house reset", "tidied", "tidy"]
+    }
+  ]
+}
