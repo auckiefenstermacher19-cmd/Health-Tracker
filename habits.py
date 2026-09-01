@@ -86,6 +86,17 @@ def columns(defs):
     return META_COLS + habit_ids(defs) + TAIL_COLS
 
 
+def daily_habit_ids(defs):
+    """The habits the nightly check-in should actually ask about.
+
+    Retired habits keep their column so their history survives, and weekly ones
+    are real but do not belong in a nightly prompt. Both stay writable; they are
+    just not questions.
+    """
+    return [h["id"] for h in defs["habits"]
+            if h.get("active", True) and h.get("cadence", "daily") == "daily"]
+
+
 # -- Value normalisation ------------------------------------------------------
 
 def normalise(habit, raw):
@@ -189,6 +200,17 @@ def bed_on_time(local_start, cutoff):
     return since_noon(local_start) < since_noon(cutoff)
 
 
+def _num(row, field):
+    """float(row[field]), or None when absent or unparseable."""
+    raw = (row.get(field) or "").strip()
+    if not raw:
+        return None
+    try:
+        return float(raw)
+    except ValueError:
+        return None
+
+
 def find_meal_log(defs):
     for rel in defs["config"].get("meal_log_sources", []):
         p = (REPO_DIR / rel).resolve()
@@ -286,6 +308,84 @@ def prefill_whoop(defs, day, known, notes):
             + cutoff_s + " -> bed_on_time=" + known["bed_on_time"]
         )
 
+    # Slept 7+: WHOOP has no total-sleep column, so the stages are summed. A
+    # missing stage would understate the total and manufacture a false "no", so
+    # all three are required.
+    stages = [_num(row, f) for f in
+              ("light_sleep_hrs", "slow_wave_sleep_hrs", "rem_sleep_hrs")]
+    if all(v is not None for v in stages):
+        total = sum(stages)
+        target = float(defs["config"].get("sleep_hours_target", 7.0))
+        known["slept_7h"] = "yes" if total >= target else "no"
+        notes.append("asleep %.2fh vs target %.1fh -> slept_7h=%s"
+                     % (total, target, known["slept_7h"]))
+    else:
+        notes.append("Incomplete sleep stages - slept_7h left blank.")
+
+    strain = _num(row, "day_strain")
+    if strain is None:
+        notes.append("No day_strain - active_day left blank.")
+    else:
+        floor = float(defs["config"].get("active_day_strain_min", 6.0))
+        known["active_day"] = "yes" if strain >= floor else "no"
+        notes.append("day_strain %.2f vs floor %.1f -> active_day=%s"
+                     % (strain, floor, known["active_day"]))
+
+    consistency = _num(row, "sleep_consistency_pct")
+    if consistency is None:
+        notes.append("No sleep_consistency_pct - consistent_wake left blank.")
+    else:
+        floor = float(defs["config"].get("consistent_wake_min_pct", 70))
+        known["consistent_wake"] = "yes" if consistency >= floor else "no"
+        notes.append("sleep_consistency %.0f%% vs floor %.0f%% -> consistent_wake=%s"
+                     % (consistency, floor, known["consistent_wake"]))
+
+
+def find_item_status(defs):
+    for rel in defs["config"].get("item_status_sources", []):
+        p = (REPO_DIR / rel).resolve()
+        if p.exists():
+            return p
+    return None
+
+
+def prefill_learning(defs, day, known, notes):
+    """Was anything in the ai-learning dashboard marked viewed on this day?
+
+    Reads item-status.json directly rather than the dashboard's built state,
+    because that file changes the instant an item is clicked while the state is
+    only rebuilt on a poll.
+
+    `viewed` without a `viewed_at` does not count. Those are items marked before
+    the stamp existed, and guessing a date for them would invent history.
+    """
+    path = find_item_status(defs)
+    if path is None:
+        notes.append("No ai-learning item status found - learning_consumed left blank.")
+        return
+    try:
+        data = json.loads(path.read_text(encoding="utf-8-sig", errors="replace"))
+    except (OSError, ValueError):
+        notes.append("ai-learning item status unreadable - learning_consumed left blank.")
+        return
+    if not isinstance(data, dict):
+        notes.append("ai-learning item status has an unexpected shape "
+                     "- learning_consumed left blank.")
+        return
+
+    target = day.isoformat()
+    count = 0
+    for entry in data.values():
+        if not isinstance(entry, dict) or not entry.get("viewed"):
+            continue
+        stamp = entry.get("viewed_at")
+        if isinstance(stamp, str) and stamp[:10] == target:
+            count += 1
+
+    known["learning_consumed"] = "yes" if count else "no"
+    notes.append("ai-learning: " + str(count) + " items viewed on " + target
+                 + " -> learning_consumed=" + known["learning_consumed"])
+
 
 def prefill(defs, day):
     """Everything the machine already knows for `day`.
@@ -296,6 +396,7 @@ def prefill(defs, day):
     known, notes = {}, []
     prefill_whoop(defs, day, known, notes)
     prefill_meal_log(defs, day, known, notes)
+    prefill_learning(defs, day, known, notes)
     return known, notes
 
 
@@ -349,7 +450,7 @@ def cmd_prefill(args):
     known, notes = prefill(defs, day)
     existing = read_rows(defs).get(day.isoformat(), {})
     ids = habit_ids(defs)
-    unknown = [h for h in ids
+    unknown = [h for h in daily_habit_ids(defs)
                if h not in known and not (existing.get(h) or "").strip()]
     out = {
         "date": day.isoformat(),
@@ -435,7 +536,7 @@ def cmd_log(args):
     else:
         print("no changes - every value already matched what was stored")
 
-    still = [h for h in habit_ids(defs) if not (row.get(h) or "").strip()]
+    still = [h for h in daily_habit_ids(defs) if not (row.get(h) or "").strip()]
     if still:
         labels = [habit_by_id(defs, h)["label"] for h in still]
         print("still blank (" + str(len(still)) + "): " + ", ".join(labels))

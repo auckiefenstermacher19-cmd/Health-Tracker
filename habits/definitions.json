@@ -13,70 +13,264 @@
     "meal_log_sources": [
       "../MyFitnessClone/meal_log.csv"
     ],
-    "meal_log_date_field": "log_date"
+    "meal_log_date_field": "log_date",
+    "sleep_hours_target": 7.0,
+    "active_day_strain_min": 6.0,
+    "consistent_wake_min_pct": 70,
+    "item_status_sources": [
+      "../ai-learning/pipeline/state/item-status.json"
+    ]
   },
   "habits": [
     {
-      "id": "made_bed", "label": "Made bed", "type": "binary", "source": "self",
-      "aliases": ["made bed", "bed made", "made the bed"]
+      "id": "made_bed",
+      "label": "Made bed",
+      "type": "binary",
+      "source": "self",
+      "aliases": [
+        "made bed",
+        "bed made",
+        "made the bed"
+      ]
     },
     {
-      "id": "workout", "label": "Workout", "type": "binary", "source": "whoop",
-      "aliases": ["workout", "worked out", "gym", "lifted", "ran", "run", "training"]
+      "id": "workout",
+      "label": "Workout",
+      "type": "binary",
+      "source": "whoop",
+      "aliases": [
+        "workout",
+        "worked out",
+        "gym",
+        "lifted",
+        "ran",
+        "run",
+        "training"
+      ]
     },
     {
-      "id": "morning_vitamins", "label": "Morning Vitamins", "type": "binary", "source": "self",
-      "aliases": ["morning vitamins", "am vitamins", "morning supplements"]
+      "id": "morning_vitamins",
+      "label": "Morning Vitamins",
+      "type": "binary",
+      "source": "self",
+      "aliases": [
+        "morning vitamins",
+        "am vitamins",
+        "morning supplements"
+      ]
     },
     {
-      "id": "shower_teeth", "label": "Shower + Teeth", "type": "binary", "source": "self",
-      "aliases": ["shower", "showered", "teeth", "brushed"]
+      "id": "shower_teeth",
+      "label": "Shower + Teeth",
+      "type": "binary",
+      "source": "self",
+      "aliases": [
+        "shower",
+        "showered",
+        "teeth",
+        "brushed"
+      ],
+      "active": false,
+      "retired_note": "Split into shower + teeth on 2026-08-31. History kept; not asked any more."
     },
     {
-      "id": "water", "label": "Water", "type": "count", "target": 5, "direction": "at_least",
-      "source": "self", "aliases": ["water", "glasses of water", "bottles"]
+      "id": "water",
+      "label": "Water target",
+      "type": "binary",
+      "source": "self",
+      "aliases": [
+        "water",
+        "hydrated",
+        "drank water",
+        "water target"
+      ]
     },
     {
-      "id": "read_fiction", "label": "Read Fiction", "type": "binary", "source": "self",
-      "aliases": ["read fiction", "fiction", "novel"]
+      "id": "read_fiction",
+      "label": "Read Fiction",
+      "type": "binary",
+      "source": "self",
+      "aliases": [
+        "read fiction",
+        "fiction",
+        "novel"
+      ]
     },
     {
-      "id": "read_nonfiction", "label": "Read Non-fiction", "type": "binary", "source": "self",
-      "aliases": ["read nonfiction", "non-fiction", "nonfiction"]
+      "id": "read_nonfiction",
+      "label": "Read Non-fiction",
+      "type": "binary",
+      "source": "self",
+      "aliases": [
+        "read nonfiction",
+        "non-fiction",
+        "nonfiction"
+      ]
     },
     {
-      "id": "bed_on_time", "label": "Bed on time", "type": "binary", "source": "whoop",
-      "aliases": ["bed on time", "bed early", "in bed by"]
+      "id": "bed_on_time",
+      "label": "Bed on time",
+      "type": "binary",
+      "source": "whoop",
+      "aliases": [
+        "bed on time",
+        "bed early",
+        "in bed by"
+      ]
     },
     {
-      "id": "night_vitamins", "label": "Night Vitamins", "type": "binary", "source": "self",
-      "aliases": ["night vitamins", "pm vitamins", "evening supplements"]
+      "id": "night_vitamins",
+      "label": "Night Vitamins",
+      "type": "binary",
+      "source": "self",
+      "aliases": [
+        "night vitamins",
+        "pm vitamins",
+        "evening supplements"
+      ]
     },
     {
-      "id": "no_junk", "label": "No Junk", "type": "binary", "source": "self",
+      "id": "no_junk",
+      "label": "No Junk",
+      "type": "binary",
+      "source": "self",
       "inverted": true,
-      "aliases": ["no junk", "junk food", "junk", "clean eating"]
+      "aliases": [
+        "no junk",
+        "junk food",
+        "junk",
+        "clean eating"
+      ]
     },
     {
-      "id": "no_fap", "label": "No Fap", "type": "binary", "source": "self",
+      "id": "no_fap",
+      "label": "No Fap",
+      "type": "binary",
+      "source": "self",
       "inverted": true,
-      "aliases": ["no fap", "nofap"]
+      "aliases": [
+        "no fap",
+        "nofap"
+      ]
     },
     {
-      "id": "screentime", "label": "Screentime", "type": "hours", "target": 2, "direction": "at_most",
-      "source": "self", "aliases": ["screentime", "screen time", "phone time"]
+      "id": "screentime",
+      "label": "Screentime",
+      "type": "hours",
+      "target": 2,
+      "direction": "at_most",
+      "source": "self",
+      "aliases": [
+        "screentime",
+        "screen time",
+        "phone time"
+      ]
     },
     {
-      "id": "clean_sink", "label": "Clean Sink", "type": "binary", "source": "self",
-      "aliases": ["clean sink", "sink", "dishes"]
+      "id": "clean_sink",
+      "label": "Clean Sink",
+      "type": "binary",
+      "source": "self",
+      "aliases": [
+        "clean sink",
+        "sink",
+        "dishes"
+      ],
+      "cadence": "weekly"
     },
     {
-      "id": "reset_house", "label": "Reset House", "type": "binary", "source": "self",
-      "aliases": ["reset house", "house reset", "tidied", "tidy"]
+      "id": "reset_house",
+      "label": "Reset House",
+      "type": "binary",
+      "source": "self",
+      "aliases": [
+        "reset house",
+        "house reset",
+        "tidied",
+        "tidy"
+      ],
+      "cadence": "weekly"
     },
     {
-      "id": "logged_food", "label": "Logged Food", "type": "binary", "source": "meal_log",
-      "aliases": ["logged food", "logged meals", "tracked food", "food log", "myfitness"]
+      "id": "logged_food",
+      "label": "Logged Food",
+      "type": "binary",
+      "source": "meal_log",
+      "aliases": [
+        "logged food",
+        "logged meals",
+        "tracked food",
+        "food log",
+        "myfitness"
+      ]
+    },
+    {
+      "id": "shower",
+      "label": "Shower",
+      "type": "binary",
+      "source": "self",
+      "aliases": [
+        "shower",
+        "showered",
+        "washed"
+      ]
+    },
+    {
+      "id": "teeth",
+      "label": "Teeth",
+      "type": "binary",
+      "source": "self",
+      "aliases": [
+        "teeth",
+        "brushed",
+        "brushed teeth",
+        "flossed"
+      ]
+    },
+    {
+      "id": "slept_7h",
+      "label": "Slept 7+ hours",
+      "type": "binary",
+      "source": "whoop",
+      "aliases": [
+        "slept enough",
+        "good sleep",
+        "seven hours"
+      ]
+    },
+    {
+      "id": "active_day",
+      "label": "Active day",
+      "type": "binary",
+      "source": "whoop",
+      "aliases": [
+        "active",
+        "moved",
+        "walked",
+        "steps"
+      ]
+    },
+    {
+      "id": "consistent_wake",
+      "label": "Consistent wake",
+      "type": "binary",
+      "source": "whoop",
+      "aliases": [
+        "consistent wake",
+        "same wake time"
+      ]
+    },
+    {
+      "id": "learning_consumed",
+      "label": "Learning consumed",
+      "type": "binary",
+      "source": "item_status",
+      "aliases": [
+        "learning",
+        "read something",
+        "watched something",
+        "studied"
+      ]
     }
   ]
 }

@@ -1,47 +1,82 @@
 # Habit log
 
-One row per day, 14 habits, carried over from the `Habit Tracker` tab of
-`Auckie - 2B.xlsx`. Data lives in `habits.csv` at the repo root, joinable on
-`date` with `Health_Tracker_Master.csv`.
+One row per day, date-keyed so it joins to `Health_Tracker_Master.csv`. Grew
+out of the `Habit Tracker` tab of `Auckie - 2B.xlsx`, whose March data is
+backfilled into it.
 
 ## Why it is shaped this way
 
 The spreadsheet died after eight days because it asked for fourteen manual
-cells every night. This replaces that with **one sentence a night**. An agent
-reads `definitions.json`, turns what you said into explicit flags, and
-`habits.py` does the validated write.
+cells every night. This replaces that with **one sentence a night**, and
+answers everything it can without asking at all.
 
-Parsing lives with the agent because judgement lives there. The script stays
-dumb on purpose: it validates, it never guesses.
+An agent reads `definitions.json`, turns what you said into explicit flags, and
+`habits.py` does the validated write. Parsing lives with the agent because
+judgement lives there. The script stays dumb on purpose: it validates, it never
+guesses.
 
 ## The one rule that matters
 
-**Blank is not "no".** A habit you did not mention stays empty. Only an
+**Blank is not "no".** A habit nothing could answer stays empty. Only an
 explicit "no" records a miss. This is why a quiet night cannot fabricate a
-broken streak, and why blanks are never allowed to overwrite a recorded value.
+broken streak, why blanks never overwrite a recorded value, and why every
+derived source below leaves its habit blank when its data is missing rather
+than defaulting to a failure.
+
+## The habit set
+
+**Derived — 7, never asked:**
+
+| Habit | Source | Rule |
+|---|---|---|
+| Workout | WHOOP | `workout_count > 0`. A day with cycle data but no workout is a real "no"; no WHOOP row at all stays blank. |
+| Bed on time | WHOOP | `sleep_start` (UTC → local) before `bed_on_time_before`. |
+| Slept 7+ hours | WHOOP | light + SWS + REM ≥ `sleep_hours_target`. All three stages required, since a missing one understates the total. |
+| Active day | WHOOP | `day_strain` ≥ `active_day_strain_min`. |
+| Consistent wake | WHOOP | `sleep_consistency_pct` ≥ `consistent_wake_min_pct`. |
+| Logged Food | MyFitnessClone | Any `meal_log.csv` row for the date. That file is the record, not a synced copy, so no rows is a real "did not log". |
+| Learning consumed | ai-learning | Any item with `viewed_at` on the date. A `viewed` flag with no stamp does not count. |
+
+**Self-report — 11, the nightly sentence:** made bed, morning vitamins, night
+vitamins, shower, teeth, water target, no junk, no fap, read fiction, read
+non-fiction, screentime.
+
+**Weekly — asked separately, not nightly:** clean sink, reset house.
+
+**Retired — column and history kept, never asked:** Shower + Teeth.
+
+## Current thresholds
+
+Set in `definitions.json`. All are judgement calls, not physics:
+
+| Setting | Value | Why |
+|---|---|---|
+| `bed_on_time_before` | 22:00 | From a 05:30 wake. WHOOP's `sleep_start` is when sleep began, so this is "asleep by 10", not "in bed by 10". |
+| `sleep_hours_target` | 7.0 | **Stricter than current reality** — the median since June is 6.66h, so expect early "no"s. |
+| `active_day_strain_min` | 6.0 | Median day is 4.28, max 13.5. |
+| `consistent_wake_min_pct` | 70 | WHOOP's own consistency measure. |
 
 ## Commands
 
-Ask WHOOP what it already knows, before asking Auckie anything:
+Ask every source what it already knows, before asking Auckie anything:
 
 ```bash
 python habits.py prefill --date today
 ```
 
-Returns JSON: `known` (what WHOOP answered), `already_logged` (what is already
-in the row), `still_unknown` (what to actually ask about), and `notes`
-(including a warning when the WHOOP sync has gone stale).
+Returns `known` (what was derived), `already_logged`, `still_unknown` (what to
+actually ask about — retired and weekly habits are excluded), and `notes`,
+including a warning when the WHOOP sync has gone stale.
 
 Write a day:
 
 ```bash
-python habits.py log --date today --whoop --set made_bed=yes --set water=6 --set no_junk=no
+python habits.py log --date today --whoop --set made_bed=yes --set water=yes --set no_junk=no
 ```
 
-`--whoop` fills `workout` and `bed_on_time` from WHOOP where you did not give
-them. Anything you pass explicitly always wins. Re-running merges into the
-existing row rather than replacing it, so corrections and second passes are
-safe.
+`--whoop` fills every derived habit you did not give explicitly. Anything you
+pass wins. Re-running merges into the existing row, so corrections and second
+passes are safe.
 
 Review:
 
@@ -49,41 +84,39 @@ Review:
 python habits.py show --last 7
 ```
 
-## What WHOOP can and cannot answer
+## Design decisions worth remembering
 
-| Habit | Source | How |
-|---|---|---|
-| Workout | WHOOP | `workout_count > 0`. A day with cycle data but no workout counts as a real "no"; a day with no WHOOP row at all stays blank. |
-| Bed on time | WHOOP | `sleep_start`, converted from UTC to local, against `config.bed_on_time_before`. |
-| The other 12 | You | No sensor knows whether you made the bed. |
-
-**`bed_on_time_before` currently defaults to 23:30 and is a guess.** Change it
-in `definitions.json` to your real target.
-
-Bedtimes straddle midnight, so the comparison folds both times onto an axis
-starting at noon. Without that, 00:40 reads as *earlier* than 23:30 and every
-late night scores as a win.
+- **Shower + Teeth was split** because it asked two questions in one cell and
+  scored *no* on 6 of 8 days. The old column is retired rather than deleted:
+  its history is real and cannot be un-merged into two answers.
+- **Water became a yes/no.** It and Screentime were the only numeric habits and
+  both have zero entries in their entire life. A number you have to recall is
+  the highest-friction question there is.
+- **Clean Sink and Reset House went weekly** for the same reason: never filled
+  once. Asking nightly and getting blanks trains you to ignore the prompt.
+- **Screentime cannot be automated.** Neither iOS Screen Time nor Android
+  Wellbeing exports without manual work.
 
 ## Agent notes for the nightly check-in
 
-- Run `prefill` first. Only ask about `still_unknown`; never re-ask something
-  WHOOP or a previous entry already answered.
+- Run `prefill` first. Only ask about `still_unknown`; never re-ask something a
+  source or a previous entry already answered.
 - `aliases` in `definitions.json` map everyday phrasing to habit ids.
 - Two habits are `inverted`: `no_junk` and `no_fap`. "Ate junk" means
   `no_junk=no`. Getting this backwards silently records the opposite of the
-  truth, so confirm rather than assume when the phrasing is ambiguous.
-- Leave anything genuinely unmentioned out of the command. Do not pass "no"
-  to be tidy.
+  truth, so confirm rather than assume when phrasing is ambiguous.
+- Leave anything genuinely unmentioned out of the command. Do not pass "no" to
+  be tidy.
 
 ## Files
 
 | Path | What |
 |---|---|
 | `habits.csv` | The log. Oldest first, one row per date. |
-| `habits/definitions.json` | Habit set, order, types, targets, aliases, config. |
+| `habits/definitions.json` | Habit set, order, types, sources, thresholds, aliases. |
 | `habits.py` | prefill / log / show. |
 | `logs/habits_audit.jsonl` | Every write, with before and after values. |
-| `tests/test_habits.py` | 25 tests, mostly on midnight and blank-vs-no. |
+| `tests/test_habits.py` | 42 tests, concentrated on midnight, blank-vs-no, and each derived source's failure mode. |
 
 Writes go to a staging file, get validated, then atomically replace
 `habits.csv`, matching how `consolidate.py` handles the master CSV.

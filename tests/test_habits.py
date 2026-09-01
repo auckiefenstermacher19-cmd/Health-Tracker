@@ -74,13 +74,20 @@ def test_binary_rejects_ambiguous_input(defs):
         habits.normalise(made_bed, "sort of")
 
 
-def test_count_requires_whole_non_negative_number(defs):
-    water = habits.habit_by_id(defs, "water")
-    assert habits.normalise(water, "5") == "5"
+def test_numeric_habits_reject_negatives_and_nonsense(defs):
+    screen = habits.habit_by_id(defs, "screentime")
     with pytest.raises(ValueError):
-        habits.normalise(water, "2.5")
+        habits.normalise(screen, "-1")
     with pytest.raises(ValueError):
-        habits.normalise(water, "-1")
+        habits.normalise(screen, "ages")
+
+
+def test_count_type_requires_a_whole_number():
+    """No count habit is active today, but the rule guards the next one."""
+    fake = {"id": "glasses", "type": "count"}
+    assert habits.normalise(fake, "5") == "5"
+    with pytest.raises(ValueError):
+        habits.normalise(fake, "2.5")
 
 
 def test_hours_keeps_fractions(defs):
@@ -107,11 +114,11 @@ def _log(monkeypatch, **kw):
 
 
 def test_log_writes_and_reads_back(sandbox, defs, monkeypatch):
-    _log(monkeypatch, set=["made_bed=yes", "water=6", "no_junk=no"])
+    _log(monkeypatch, set=["made_bed=yes", "water=yes", "no_junk=no"])
     rows = habits.read_rows(defs)
     row = rows["2026-08-26"]
     assert row["made_bed"] == "yes"
-    assert row["water"] == "6"
+    assert row["water"] == "yes"
     assert row["no_junk"] == "no"
     assert row["day_of_week"] == "Wednesday"
     # Everything untouched stays blank, not "no".
@@ -132,9 +139,9 @@ def test_explicit_correction_overwrites(sandbox, defs, monkeypatch):
 
 def test_second_log_merges_rather_than_replacing_the_row(sandbox, defs, monkeypatch):
     _log(monkeypatch, set=["made_bed=yes"])
-    _log(monkeypatch, set=["water=5"])
+    _log(monkeypatch, set=["water=yes"])
     row = habits.read_rows(defs)["2026-08-26"]
-    assert row["made_bed"] == "yes" and row["water"] == "5"
+    assert row["made_bed"] == "yes" and row["water"] == "yes"
 
 
 def test_unknown_habit_id_is_refused(sandbox, monkeypatch):
@@ -183,11 +190,11 @@ def test_original_spreadsheet_habits_survive_in_order(defs):
     against it.
     """
     original = [
-        "Made bed", "Workout", "Morning Vitamins", "Shower + Teeth", "Water",
-        "Read Fiction", "Read Non-fiction", "Bed on time", "Night Vitamins",
-        "No Junk", "No Fap", "Screentime", "Clean Sink", "Reset House",
+        "made_bed", "workout", "morning_vitamins", "shower_teeth", "water",
+        "read_fiction", "read_nonfiction", "bed_on_time", "night_vitamins",
+        "no_junk", "no_fap", "screentime", "clean_sink", "reset_house",
     ]
-    assert [h["label"] for h in defs["habits"]][:len(original)] == original
+    assert habits.habit_ids(defs)[:len(original)] == original
 
 
 def test_added_habit_leaves_older_rows_blank_not_no(sandbox, defs, monkeypatch):
@@ -200,3 +207,155 @@ def test_added_habit_leaves_older_rows_blank_not_no(sandbox, defs, monkeypatch):
 def test_habit_ids_are_unique(defs):
     ids = habits.habit_ids(defs)
     assert len(ids) == len(set(ids))
+
+
+# -- derived sources ----------------------------------------------------------
+# Each source answers only what its data supports. A source that cannot answer
+# leaves the habit blank, because a wrong "no" is worse than an empty cell.
+
+def _whoop(tmp_path, monkeypatch, **fields):
+    row = {"date": "2026-08-26", "day_strain": "", "workout_count": "",
+           "sleep_start": "", "light_sleep_hrs": "", "slow_wave_sleep_hrs": "",
+           "rem_sleep_hrs": "", "sleep_consistency_pct": ""}
+    row.update(fields)
+    path = tmp_path / "whoop.csv"
+    with path.open("w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(row))
+        w.writeheader()
+        w.writerow(row)
+    monkeypatch.setattr(habits, "find_whoop_csv", lambda defs: path)
+    return path
+
+
+def _run_whoop(defs, tmp_path, monkeypatch, **fields):
+    _whoop(tmp_path, monkeypatch, **fields)
+    known, notes = {}, []
+    habits.prefill_whoop(defs, date(2026, 8, 26), known, notes)
+    return known
+
+
+def test_slept_7h_needs_all_three_sleep_stages(defs, tmp_path, monkeypatch):
+    """Total sleep is the sum of the stages; a missing stage understates it."""
+    known = _run_whoop(defs, tmp_path, monkeypatch, light_sleep_hrs="4",
+                       slow_wave_sleep_hrs="2", rem_sleep_hrs="1.5")
+    assert known["slept_7h"] == "yes"
+
+    known = _run_whoop(defs, tmp_path, monkeypatch, light_sleep_hrs="4",
+                       slow_wave_sleep_hrs="1", rem_sleep_hrs="1")
+    assert known["slept_7h"] == "no"
+
+    known = _run_whoop(defs, tmp_path, monkeypatch, light_sleep_hrs="4",
+                       slow_wave_sleep_hrs="2")
+    assert "slept_7h" not in known
+
+
+def test_active_day_uses_the_strain_threshold(defs, tmp_path, monkeypatch):
+    assert _run_whoop(defs, tmp_path, monkeypatch,
+                      day_strain="9.1")["active_day"] == "yes"
+    assert _run_whoop(defs, tmp_path, monkeypatch,
+                      day_strain="4.2")["active_day"] == "no"
+
+
+def test_active_day_blank_when_strain_is_missing(defs, tmp_path, monkeypatch):
+    """A day WHOOP did not score is not a lazy day."""
+    assert "active_day" not in _run_whoop(defs, tmp_path, monkeypatch)
+
+
+def test_consistent_wake_uses_the_percentage(defs, tmp_path, monkeypatch):
+    assert _run_whoop(defs, tmp_path, monkeypatch,
+                      sleep_consistency_pct="82")["consistent_wake"] == "yes"
+    assert _run_whoop(defs, tmp_path, monkeypatch,
+                      sleep_consistency_pct="41")["consistent_wake"] == "no"
+
+
+def test_unparseable_whoop_numbers_leave_the_habit_blank(defs, tmp_path, monkeypatch):
+    known = _run_whoop(defs, tmp_path, monkeypatch, day_strain="n/a",
+                       sleep_consistency_pct="--")
+    assert "active_day" not in known and "consistent_wake" not in known
+
+
+def _status_file(tmp_path, monkeypatch, payload):
+    path = tmp_path / "item-status.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    monkeypatch.setattr(habits, "find_item_status", lambda defs: path)
+    return path
+
+
+def _run_learning(defs, tmp_path, monkeypatch, payload, day=date(2026, 8, 26)):
+    _status_file(tmp_path, monkeypatch, payload)
+    known, notes = {}, []
+    habits.prefill_learning(defs, day, known, notes)
+    return known
+
+
+def test_learning_counts_an_item_viewed_that_day(defs, tmp_path, monkeypatch):
+    known = _run_learning(defs, tmp_path, monkeypatch,
+                          {"a": {"viewed": True, "viewed_at": "2026-08-26T20:11:00-04:00"}})
+    assert known["learning_consumed"] == "yes"
+
+
+def test_learning_ignores_a_different_day(defs, tmp_path, monkeypatch):
+    known = _run_learning(defs, tmp_path, monkeypatch,
+                          {"a": {"viewed": True, "viewed_at": "2026-08-25T20:11:00-04:00"}})
+    assert known["learning_consumed"] == "no"
+
+
+def test_learning_ignores_viewed_without_a_stamp(defs, tmp_path, monkeypatch):
+    """Items marked viewed before viewed_at existed have no date to trust."""
+    known = _run_learning(defs, tmp_path, monkeypatch, {"a": {"viewed": True}})
+    assert known["learning_consumed"] == "no"
+
+
+def test_learning_ignores_saved_and_archived(defs, tmp_path, monkeypatch):
+    """Saving something for later is not reading it."""
+    known = _run_learning(defs, tmp_path, monkeypatch,
+                          {"a": {"saved": True, "archived": True}})
+    assert known["learning_consumed"] == "no"
+
+
+def test_learning_blank_when_the_status_file_is_missing(defs, monkeypatch):
+    monkeypatch.setattr(habits, "find_item_status", lambda defs: None)
+    known, notes = {}, []
+    habits.prefill_learning(defs, date(2026, 8, 26), known, notes)
+    assert "learning_consumed" not in known
+
+
+def test_learning_survives_a_corrupt_status_file(defs, tmp_path, monkeypatch):
+    path = tmp_path / "item-status.json"
+    path.write_text("{not json", encoding="utf-8")
+    monkeypatch.setattr(habits, "find_item_status", lambda defs: path)
+    known, notes = {}, []
+    habits.prefill_learning(defs, date(2026, 8, 26), known, notes)
+    assert "learning_consumed" not in known
+
+
+# -- active / cadence ---------------------------------------------------------
+
+def test_retired_habit_keeps_its_column_and_its_history(defs):
+    """Shower + Teeth cannot be un-merged, so its March data must survive."""
+    retired = habits.habit_by_id(defs, "shower_teeth")
+    assert retired["active"] is False
+    assert "shower_teeth" in habits.columns(defs)
+    rows = habits.read_rows(defs)
+    assert rows["2026-03-23"]["shower_teeth"] == "no"
+
+
+def test_nightly_prompt_skips_retired_and_weekly_habits(defs):
+    asked = habits.daily_habit_ids(defs)
+    assert "shower_teeth" not in asked      # retired
+    assert "clean_sink" not in asked        # weekly
+    assert "reset_house" not in asked       # weekly
+    assert "shower" in asked and "teeth" in asked
+
+
+def test_retired_habit_can_still_be_written_explicitly(sandbox, defs, monkeypatch):
+    """Not asked is not the same as refused - old rows stay correctable."""
+    _log(monkeypatch, set=["shower_teeth=yes"])
+    assert habits.read_rows(defs)["2026-08-26"]["shower_teeth"] == "yes"
+
+
+def test_water_is_now_a_yes_no(defs):
+    """It was a count with zero entries in its entire life."""
+    water = habits.habit_by_id(defs, "water")
+    assert water["type"] == "binary"
+    assert habits.normalise(water, "yes") == "yes"
