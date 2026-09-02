@@ -521,3 +521,57 @@ def test_cmd_log_holds_the_lock_across_read_and_write(sandbox, defs, monkeypatch
     assert seen["lock_at_read"] is True
     assert seen["locked"] is True
     assert not habits.LOCK_PATH.exists()    # and released afterwards
+
+
+# -- logged_at means somebody wrote something ----------------------------------
+# The dashboard reads logged_at to decide whether a day was ticked at all. The
+# 07:00 sync runs --whoop over yesterday unconditionally, so if that stamped,
+# every untouched day looked ticked and "not ticked yet" could never fire.
+
+def test_whoop_only_run_fills_habits_but_does_not_stamp(sandbox, defs, monkeypatch):
+    _fake_whoop(monkeypatch, workout_count="1", day_strain="9",
+                sleep_consistency_pct="82")
+    _log(monkeypatch, whoop=True)
+    row = habits.read_rows(defs)["2026-08-26"]
+    assert row["workout_whoop"] == "yes"        # derived values landed
+    assert row["active_day"] == "yes"
+    assert row["logged_at"] == ""               # but nobody ticked anything
+
+
+def test_explicit_set_stamps_logged_at(sandbox, defs, monkeypatch):
+    _log(monkeypatch, set=["devices_off_9pm=yes"])
+    row = habits.read_rows(defs)["2026-08-26"]
+    assert row["devices_off_9pm"] == "yes"
+    assert row["logged_at"] != ""
+
+
+def test_note_alone_stamps_logged_at(sandbox, defs, monkeypatch):
+    _log(monkeypatch, note="rough night")
+    row = habits.read_rows(defs)["2026-08-26"]
+    assert row["note"] == "rough night"
+    assert row["logged_at"] != ""
+
+
+def test_whoop_only_run_with_nothing_to_change_leaves_the_file_alone(
+        sandbox, defs, monkeypatch):
+    """A no-op derive must not churn habits.csv - readers poll it every 5 s."""
+    _fake_whoop(monkeypatch, workout_count="1", day_strain="9")
+    _log(monkeypatch, whoop=True)
+
+    before_bytes = habits.HABITS_CSV.read_bytes()
+    before_mtime = habits.HABITS_CSV.stat().st_mtime_ns
+    _time.sleep(0.02)
+
+    _log(monkeypatch, whoop=True)               # identical derived values
+
+    assert habits.HABITS_CSV.read_bytes() == before_bytes
+    assert habits.HABITS_CSV.stat().st_mtime_ns == before_mtime
+
+
+def test_an_explicit_run_that_changes_nothing_still_stamps(sandbox, defs, monkeypatch):
+    """Re-ticking a day you already ticked is still a human saying 'yes, today'."""
+    _log(monkeypatch, set=["made_bed=yes"])
+    first = habits.read_rows(defs)["2026-08-26"]["logged_at"]
+    assert first != ""
+    _log(monkeypatch, set=["made_bed=yes"])
+    assert habits.read_rows(defs)["2026-08-26"]["logged_at"] != ""

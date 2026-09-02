@@ -54,6 +54,17 @@ finished (running total). `workout` is now self-reported; `workout_whoop`
 records what WHOOP saw so the two can disagree visibly. The dashboard never
 passes `--whoop`; the 7:00 WHOOP sync step does, and it only fills blanks.
 
+## What `logged_at` means
+
+`logged_at` means a human or an explicit caller wrote something; derived-only
+runs never stamp it. A `log` call carrying `--set`, `--json`, or `--note`
+stamps the column, even if every value already matched what was stored — you
+still said it. A `--whoop`-only run does not, no matter how many derived
+habits it fills, and when such a run has nothing to change it does not rewrite
+`habits.csv` at all. The dashboard reads this column to tell "yesterday is
+untouched" from "yesterday was ticked", so a 7:00 sync stamping it would
+report every quiet day as done.
+
 Writes take `habits.lock` and retry the final rename; another writer holding
 the lock for over 60 s is treated as dead. Days resolve in `America/New_York`
 (`--tz` to override).

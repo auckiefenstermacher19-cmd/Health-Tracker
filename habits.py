@@ -571,6 +571,11 @@ def cmd_log(args):
         k, v = pair.split("=", 1)
         incoming[k.strip()] = v
 
+    # Everything the caller named itself, captured before --whoop adds its
+    # derived answers. This set, not the merged one, decides whether the run
+    # counts as somebody writing something down.
+    explicit = set(incoming)
+
     prefilled = set()
     if args.whoop:
         known, notes = prefill(defs, day)
@@ -581,8 +586,8 @@ def cmd_log(args):
         for n in notes:
             print("note: " + n, file=sys.stderr)
 
-    if not incoming:
-        die("nothing to log - pass --set, --json, or --whoop")
+    if not incoming and not args.note:
+        die("nothing to log - pass --set, --json, --whoop, or --note")
 
     unknown_keys = sorted(set(incoming) - ids)
     if unknown_keys:
@@ -624,10 +629,21 @@ def cmd_log(args):
 
         if args.note:
             row["note"] = args.note
-        row["logged_at"] = datetime.now().astimezone().isoformat(timespec="seconds")
 
-        rows[key] = row
-        write_rows(defs, rows, locked=True)
+        # logged_at means a human or an explicit caller wrote something down.
+        # The 07:00 sync runs --whoop over yesterday whether or not anybody
+        # touched it, so stamping there made every derived-only day look
+        # ticked to the dashboard. Derived runs never stamp.
+        touched = bool(explicit) or bool(args.note)
+        if touched:
+            row["logged_at"] = datetime.now().astimezone().isoformat(timespec="seconds")
+
+        # A derived-only run that changed nothing has nothing to say. Rewriting
+        # habits.csv anyway churns the file's mtime and the repo's diff for no
+        # reason, and other readers poll that file every few seconds.
+        if changes or touched:
+            rows[key] = row
+            write_rows(defs, rows, locked=True)
     finally:
         _release_lock()
     audit({"action": "log", "date": key, "changes": changes,
