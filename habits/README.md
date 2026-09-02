@@ -87,8 +87,11 @@ Write a day:
 python habits.py log --date today --whoop --set made_bed=yes --set water=yes --set no_junk=no
 ```
 
-`--whoop` fills every derived habit you did not give explicitly. Anything you
-pass wins. Re-running merges into the existing row, so corrections and second
+`--whoop` fills blanks only: a derived habit that already has a stored value
+keeps it, and anything you pass on the command line wins outright. So a
+self-reported `workout=yes` survives the 7:00 sync even when WHOOP saw no
+workout - WHOOP's answer lands in `workout_whoop` and the two disagree in
+public. Re-running merges into the existing row, so corrections and second
 passes are safe.
 
 Review:

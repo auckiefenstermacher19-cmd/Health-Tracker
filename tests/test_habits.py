@@ -174,12 +174,6 @@ def test_no_staging_file_survives_a_write(sandbox, monkeypatch):
 
 # -- dates --------------------------------------------------------------------
 
-def test_relative_dates():
-    assert habits.parse_date("today") == date.today()
-    assert (date.today() - habits.parse_date("yesterday")).days == 1
-    assert habits.parse_date("2026-08-26") == date(2026, 8, 26)
-
-
 def test_bad_date_exits():
     with pytest.raises(SystemExit):
         habits.parse_date("08/26/2026")
@@ -400,6 +394,12 @@ def test_parse_date_today_and_yesterday_use_the_zone():
     assert habits.parse_date("yesterday") == eastern_today - timedelta(days=1)
     assert (habits.parse_date("today", tz="Pacific/Kiritimati")
             == datetime.now(ZoneInfo("Pacific/Kiritimati")).date())
+    assert habits.parse_date("2026-08-26") == date(2026, 8, 26)
+
+
+def test_bad_timezone_exits_instead_of_tracebacking():
+    with pytest.raises(SystemExit):
+        habits.parse_date("today", tz="Bogus/Zone")
 
 
 # -- writes are locked and the rename retries ----------------------------------
@@ -460,3 +460,64 @@ def test_prefill_whoop_emits_workout_whoop(defs, monkeypatch):
         "sleep_consistency_pct": ""})
     habits.prefill_whoop(defs, date(2026, 9, 1), known, notes)
     assert known["workout"] == "yes" and known["workout_whoop"] == "yes"
+
+
+# -- --whoop fills blanks, end to end through cmd_log --------------------------
+
+def _fake_whoop(monkeypatch, **fields):
+    """Point prefill_whoop at one synthetic row without touching the disk."""
+    row = {"date": "2026-08-26", "day_strain": "", "workout_count": "",
+           "sleep_start": "", "light_sleep_hrs": "", "slow_wave_sleep_hrs": "",
+           "rem_sleep_hrs": "", "sleep_consistency_pct": ""}
+    row.update(fields)
+    monkeypatch.setattr(habits, "find_whoop_csv", lambda defs: Path("whoop.csv"))
+    monkeypatch.setattr(habits, "whoop_latest_date", lambda path: "2026-08-26")
+    monkeypatch.setattr(habits, "whoop_row_for", lambda path, day: row)
+    return row
+
+
+def test_whoop_never_overwrites_a_stored_self_reported_workout(sandbox, defs, monkeypatch):
+    """The 7:00 sync must not argue with what Auckie already ticked."""
+    _log(monkeypatch, set=["workout=yes"])
+    _fake_whoop(monkeypatch, workout_count="0", day_strain="5")
+    _log(monkeypatch, whoop=True)
+    row = habits.read_rows(defs)["2026-08-26"]
+    assert row["workout"] == "yes"          # stored value survives
+    assert row["workout_whoop"] == "no"     # WHOOP's view recorded beside it
+
+
+def test_whoop_still_fills_a_blank(sandbox, defs, monkeypatch):
+    """Filling blanks is the point; only overwriting is forbidden."""
+    _log(monkeypatch, set=["made_bed=yes"])
+    _fake_whoop(monkeypatch, workout_count="1", day_strain="9")
+    _log(monkeypatch, whoop=True)
+    row = habits.read_rows(defs)["2026-08-26"]
+    assert row["workout"] == "yes" and row["workout_whoop"] == "yes"
+
+
+def test_explicit_set_still_beats_whoop(sandbox, defs, monkeypatch):
+    _fake_whoop(monkeypatch, workout_count="0", day_strain="5")
+    _log(monkeypatch, whoop=True, set=["workout=yes"])
+    assert habits.read_rows(defs)["2026-08-26"]["workout"] == "yes"
+
+
+def test_cmd_log_holds_the_lock_across_read_and_write(sandbox, defs, monkeypatch):
+    """A writer landing between this one's read and write would be erased."""
+    seen = {}
+    real_read, real_write = habits.read_rows, habits.write_rows
+
+    def spy_read(d):
+        seen["lock_at_read"] = habits.LOCK_PATH.exists()
+        return real_read(d)
+
+    def spy_write(d, rows, locked=False):
+        seen["locked"] = locked
+        return real_write(d, rows, locked=locked)
+
+    monkeypatch.setattr(habits, "read_rows", spy_read)
+    monkeypatch.setattr(habits, "write_rows", spy_write)
+    _log(monkeypatch, set=["made_bed=yes"])
+
+    assert seen["lock_at_read"] is True
+    assert seen["locked"] is True
+    assert not habits.LOCK_PATH.exists()    # and released afterwards

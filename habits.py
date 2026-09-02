@@ -153,7 +153,12 @@ def normalise(habit, raw):
 
 
 def parse_date(s, tz=DEFAULT_TZ):
-    today = datetime.now(ZoneInfo(tz)).date()
+    try:
+        zone = ZoneInfo(tz)
+    except (KeyError, ValueError, TypeError):
+        # ZoneInfoNotFoundError is a KeyError; a malformed key raises ValueError.
+        die("unknown timezone " + repr(tz))
+    today = datetime.now(zone).date()
     if s is None or s.strip().lower() in ("", "today"):
         return today
     if s.strip().lower() == "yesterday":
@@ -566,8 +571,11 @@ def cmd_log(args):
         k, v = pair.split("=", 1)
         incoming[k.strip()] = v
 
+    prefilled = set()
     if args.whoop:
         known, notes = prefill(defs, day)
+        # Only what the sources answered that this invocation did not.
+        prefilled = set(known) - set(incoming)
         for k, v in known.items():
             incoming.setdefault(k, v)     # explicit values always win
         for n in notes:
@@ -597,6 +605,13 @@ def cmd_log(args):
             except ValueError as exc:
                 die(str(exc))
             prev = (row.get(hid) or "").strip()
+            if hid in prefilled and prev:
+                # --whoop fills blanks. It never argues with something already
+                # recorded - that disagreement is the whole point of keeping
+                # workout and workout_whoop apart.
+                print("note: kept existing " + hid + "=" + prev
+                      + " (--whoop fills blanks only)", file=sys.stderr)
+                continue
             if val == "":
                 # Blanks never erase recorded data.
                 if prev:
