@@ -1,9 +1,10 @@
-date,day_of_week,made_bed,workout,morning_vitamins,shower_teeth,water,read_fiction,read_nonfiction,bed_on_time,night_vitamins,no_junk,no_fap,screentime,clean_sink,reset_house,logged_at,note
-2026-03-23,Monday,yes,yes,yes,no,,yes,no,yes,yes,yes,yes,,,,2026-08-31T21:03:45-04:00,backfilled from Auckie - 2B.xlsx
-2026-03-24,Tuesday,yes,yes,yes,no,,yes,no,yes,yes,yes,yes,,,,2026-08-31T21:03:45-04:00,backfilled from Auckie - 2B.xlsx
-2026-03-25,Wednesday,yes,yes,yes,yes,,yes,no,yes,yes,yes,yes,,,,2026-08-31T21:03:45-04:00,backfilled from Auckie - 2B.xlsx
-2026-03-26,Thursday,yes,yes,yes,no,,yes,no,yes,yes,yes,no,,,,2026-08-31T21:03:45-04:00,backfilled from Auckie - 2B.xlsx
-2026-03-27,Friday,yes,yes,yes,no,,yes,no,no,no,yes,yes,,,,2026-08-31T21:03:45-04:00,backfilled from Auckie - 2B.xlsx
-2026-03-28,Saturday,yes,no,yes,no,,yes,no,no,yes,yes,no,,,,2026-08-31T21:03:45-04:00,backfilled from Auckie - 2B.xlsx
-2026-03-29,Sunday,yes,no,yes,no,,yes,no,yes,yes,yes,,,,,2026-08-31T21:03:46-04:00,backfilled from Auckie - 2B.xlsx
-2026-03-30,Monday,yes,yes,yes,,,,,,,,,,,,2026-08-31T21:03:46-04:00,backfilled from Auckie - 2B.xlsx
+date,day_of_week,made_bed,workout,morning_vitamins,shower_teeth,water,read_fiction,read_nonfiction,bed_on_time,night_vitamins,no_junk,no_fap,screentime,clean_sink,reset_house,logged_food,shower,teeth,slept_7h,active_day,consistent_wake,learning_consumed,workout_whoop,devices_off_9pm,reach_out,outbound,conversations,posts,warning_signs,sunday_review,dj_hour,mrr,bodyweight,books_finished,logged_at,note
+2026-03-23,Monday,yes,yes,yes,no,,yes,no,yes,yes,yes,yes,,,,,,,,,,,,,,,,,,,,,,,2026-08-31T21:03:45-04:00,backfilled from Auckie - 2B.xlsx
+2026-03-24,Tuesday,yes,yes,yes,no,,yes,no,yes,yes,yes,yes,,,,,,,,,,,,,,,,,,,,,,,2026-08-31T21:03:45-04:00,backfilled from Auckie - 2B.xlsx
+2026-03-25,Wednesday,yes,yes,yes,yes,,yes,no,yes,yes,yes,yes,,,,,,,,,,,,,,,,,,,,,,,2026-08-31T21:03:45-04:00,backfilled from Auckie - 2B.xlsx
+2026-03-26,Thursday,yes,yes,yes,no,,yes,no,yes,yes,yes,no,,,,,,,,,,,,,,,,,,,,,,,2026-08-31T21:03:45-04:00,backfilled from Auckie - 2B.xlsx
+2026-03-27,Friday,yes,yes,yes,no,,yes,no,no,no,yes,yes,,,,,,,,,,,,,,,,,,,,,,,2026-08-31T21:03:45-04:00,backfilled from Auckie - 2B.xlsx
+2026-03-28,Saturday,yes,no,yes,no,,yes,no,no,yes,yes,no,,,,,,,,,,,,,,,,,,,,,,,2026-08-31T21:03:45-04:00,backfilled from Auckie - 2B.xlsx
+2026-03-29,Sunday,yes,no,yes,no,,yes,no,yes,yes,yes,,,,,,,,,,,,,,,,,,,,,,,,2026-08-31T21:03:46-04:00,backfilled from Auckie - 2B.xlsx
+2026-03-30,Monday,yes,yes,yes,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2026-08-31T21:03:46-04:00,backfilled from Auckie - 2B.xlsx
+2026-09-01,Tuesday,,no,,,,,,no,,,,,,,no,,,no,no,no,no,no,,,,,,,,,,,,2026-09-02T08:24:38-04:00,
