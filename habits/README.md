@@ -29,7 +29,7 @@ than defaulting to a failure.
 
 | Habit | Source | Rule |
 |---|---|---|
-| Workout | WHOOP | `workout_count > 0`. A day with cycle data but no workout is a real "no"; no WHOOP row at all stays blank. |
+| Workout (WHOOP) | WHOOP | `workout_count > 0`. A day with cycle data but no workout is a real "no"; no WHOOP row at all stays blank. Lands in `workout_whoop`; `workout` itself is self-reported. |
 | Bed on time | WHOOP | `sleep_start` (UTC → local) before `bed_on_time_before`. |
 | Slept 7+ hours | WHOOP | light + SWS + REM ≥ `sleep_hours_target`. All three stages required, since a missing one understates the total. |
 | Active day | WHOOP | `day_strain` ≥ `active_day_strain_min`. |
@@ -44,6 +44,19 @@ non-fiction, screentime.
 **Weekly — asked separately, not nightly:** clean sink, reset house.
 
 **Retired — column and history kept, never asked:** Shower + Teeth.
+
+**Year-plan habits (2026-09-01).** Ticked the next morning on the GTD
+dashboard's Year tab, or logged by an agent: devices off by 9pm, reach-out
+(text: names), outbound / buyer conversations / public posts (counts),
+warning signs (text from a fixed list, `none` to clear). Weekly, typed in the
+Sunday review: Sunday review, DJ hour (optional), MRR, body weight, books
+finished (running total). `workout` is now self-reported; `workout_whoop`
+records what WHOOP saw so the two can disagree visibly. The dashboard never
+passes `--whoop`; the 7:00 WHOOP sync step does, and it only fills blanks.
+
+Writes take `habits.lock` and retry the final rename; another writer holding
+the lock for over 60 s is treated as dead. Days resolve in `America/New_York`
+(`--tz` to override).
 
 ## Current thresholds
 
@@ -116,7 +129,8 @@ python habits.py show --last 7
 | `habits/definitions.json` | Habit set, order, types, sources, thresholds, aliases. |
 | `habits.py` | prefill / log / show. |
 | `logs/habits_audit.jsonl` | Every write, with before and after values. |
-| `tests/test_habits.py` | 42 tests, concentrated on midnight, blank-vs-no, and each derived source's failure mode. |
+| `tests/test_habits.py` | 51 tests, concentrated on midnight, blank-vs-no, the write lock, and each derived source's failure mode. |
 
-Writes go to a staging file, get validated, then atomically replace
-`habits.csv`, matching how `consolidate.py` handles the master CSV.
+Writes go to a per-pid staging file, get validated, then atomically replace
+`habits.csv`, matching how `consolidate.py` handles the master CSV. The whole
+read-modify-write is held under `habits.lock`.

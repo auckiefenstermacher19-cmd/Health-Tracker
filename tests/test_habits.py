@@ -3,9 +3,12 @@
 import csv
 import importlib.util
 import json
+import os
 import sys
-from datetime import date, time
+import time as _time
+from datetime import date, datetime, time, timedelta
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -25,7 +28,7 @@ def defs():
 def sandbox(tmp_path, monkeypatch):
     """Redirect every write to tmp_path so the real habits.csv is untouched."""
     monkeypatch.setattr(habits, "HABITS_CSV", tmp_path / "habits.csv")
-    monkeypatch.setattr(habits, "STAGING_CSV", tmp_path / "habits.staging.csv")
+    monkeypatch.setattr(habits, "LOCK_PATH", tmp_path / "habits.lock")
     monkeypatch.setattr(habits, "LOG_DIR", tmp_path / "logs")
     monkeypatch.setattr(habits, "AUDIT_LOG", tmp_path / "logs" / "habits_audit.jsonl")
     return tmp_path
@@ -107,7 +110,8 @@ def test_empty_value_is_a_noop_not_a_no(defs):
 
 def _log(monkeypatch, **kw):
     args = type("A", (), {"date": "2026-08-26", "set": None, "json": None,
-                          "whoop": False, "note": None})()
+                          "whoop": False, "note": None,
+                          "tz": habits.DEFAULT_TZ})()
     for k, v in kw.items():
         setattr(args, k, v)
     habits.cmd_log(args)
@@ -165,7 +169,7 @@ def test_audit_log_records_the_change(sandbox, monkeypatch):
 
 def test_no_staging_file_survives_a_write(sandbox, monkeypatch):
     _log(monkeypatch, set=["made_bed=yes"])
-    assert not habits.STAGING_CSV.exists()
+    assert not list(sandbox.glob("habits.staging.*.csv"))
 
 
 # -- dates --------------------------------------------------------------------
@@ -359,3 +363,100 @@ def test_water_is_now_a_yes_no(defs):
     water = habits.habit_by_id(defs, "water")
     assert water["type"] == "binary"
     assert habits.normalise(water, "yes") == "yes"
+
+
+# -- text habits ---------------------------------------------------------------
+
+def test_text_kind_trims_and_rejoins():
+    assert habits.normalise({"id": "reach_out", "type": "text"},
+                            " Dad;Matt Gunter ; ") == "Dad; Matt Gunter"
+
+
+def test_text_kind_choices_enforced():
+    h = {"id": "warning_signs", "type": "text",
+         "choices": ["Anger", "Doomscrolling", "none"]}
+    assert habits.normalise(h, "Anger;Doomscrolling") == "Anger; Doomscrolling"
+    assert habits.normalise(h, "none") == "none"
+    with pytest.raises(ValueError):
+        habits.normalise(h, "Anger;Hunger")
+
+
+def test_new_plan_habits_defined_and_workout_is_self(defs):
+    ids = set(habits.habit_ids(defs))
+    for hid in ["devices_off_9pm", "reach_out", "outbound", "conversations",
+                "posts", "warning_signs", "sunday_review", "dj_hour", "mrr",
+                "bodyweight", "books_finished", "workout_whoop"]:
+        assert hid in ids, hid
+    assert habits.habit_by_id(defs, "workout")["source"] == "self"
+    assert habits.habit_by_id(defs, "workout_whoop")["source"] == "whoop"
+    assert "none" in habits.habit_by_id(defs, "warning_signs")["choices"]
+
+
+# -- the day is Eastern ---------------------------------------------------------
+
+def test_parse_date_today_and_yesterday_use_the_zone():
+    eastern_today = datetime.now(ZoneInfo("America/New_York")).date()
+    assert habits.parse_date("today") == eastern_today
+    assert habits.parse_date("yesterday") == eastern_today - timedelta(days=1)
+    assert (habits.parse_date("today", tz="Pacific/Kiritimati")
+            == datetime.now(ZoneInfo("Pacific/Kiritimati")).date())
+
+
+# -- writes are locked and the rename retries ----------------------------------
+
+def test_write_rows_uses_pid_staging_and_lock(defs, sandbox):
+    lock = sandbox / "habits.lock"
+    habits.write_rows(defs, {"2026-09-01": {"date": "2026-09-01",
+                                            "day_of_week": "Tuesday"}})
+    assert (sandbox / "habits.csv").exists()
+    assert not list(sandbox.glob("habits.staging.*.csv"))   # staging cleaned up
+    assert not lock.exists()                                # lock released
+
+
+def test_stale_lock_is_reclaimed(defs, sandbox):
+    lock = sandbox / "habits.lock"
+    lock.write_text("1", encoding="utf-8")
+    old = _time.time() - 120
+    os.utime(str(lock), (old, old))
+    habits.write_rows(defs, {"2026-09-01": {"date": "2026-09-01",
+                                            "day_of_week": "Tuesday"}})
+    assert (sandbox / "habits.csv").exists()
+
+
+def test_fresh_lock_times_out_with_a_sentence(defs, sandbox, monkeypatch):
+    (sandbox / "habits.lock").write_text("1", encoding="utf-8")
+    monkeypatch.setattr(habits, "LOCK_WAIT_S", 0.2)
+    with pytest.raises(SystemExit):
+        habits.write_rows(defs, {"2026-09-01": {"date": "2026-09-01",
+                                                "day_of_week": "Tuesday"}})
+
+
+def test_replace_retries_transient_failures(monkeypatch, tmp_path):
+    src, dst = tmp_path / "a", tmp_path / "b"
+    src.write_text("x", encoding="utf-8")
+    calls = {"n": 0}
+    real = habits.os.replace
+
+    def flaky(a, b):
+        calls["n"] += 1
+        if calls["n"] < 3:
+            raise PermissionError("sharing violation")
+        real(a, b)
+
+    monkeypatch.setattr(habits.os, "replace", flaky)
+    habits._replace_with_retry(src, dst)
+    assert dst.read_text(encoding="utf-8") == "x" and calls["n"] == 3
+
+
+# -- explicit workout survives --whoop; workout_whoop always recorded -----------
+
+def test_prefill_whoop_emits_workout_whoop(defs, monkeypatch):
+    known, notes = {}, []
+    monkeypatch.setattr(habits, "find_whoop_csv", lambda defs: Path("x.csv"))
+    monkeypatch.setattr(habits, "whoop_latest_date", lambda path: "2026-09-01")
+    monkeypatch.setattr(habits, "whoop_row_for", lambda path, day: {
+        "workout_count": "1", "sleep_start": "", "light_sleep_hrs": "",
+        "slow_wave_sleep_hrs": "", "rem_sleep_hrs": "", "day_strain": "",
+        "sleep_consistency_pct": ""})
+    habits.prefill_whoop(defs, date(2026, 9, 1), known, notes)
+    assert known["workout"] == "yes" and known["workout_whoop"] == "yes"

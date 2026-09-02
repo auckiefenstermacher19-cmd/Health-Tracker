@@ -37,15 +37,26 @@ import csv
 import json
 import os
 import sys
-from datetime import date, datetime, time, timedelta, timezone
+import time as _time
+from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 REPO_DIR    = Path(__file__).resolve().parent
 DEFS_PATH   = REPO_DIR / "habits" / "definitions.json"
 HABITS_CSV  = REPO_DIR / "habits.csv"
-STAGING_CSV = REPO_DIR / "habits.staging.csv"
 LOG_DIR     = REPO_DIR / "logs"
 AUDIT_LOG   = LOG_DIR / "habits_audit.jsonl"
+
+# One writer at a time. The dashboard collector and the nightly agent both
+# reach for habits.csv, and Windows will not replace a file another process
+# holds open.
+LOCK_PATH    = REPO_DIR / "habits.lock"
+LOCK_WAIT_S  = 10.0
+LOCK_STALE_S = 60.0
+
+# The day a habit belongs to is Auckie's day, not the machine's.
+DEFAULT_TZ  = "America/New_York"
 
 META_COLS   = ["date", "day_of_week"]
 TAIL_COLS   = ["logged_at", "note"]
@@ -119,6 +130,15 @@ def normalise(habit, raw):
             return "no"
         raise ValueError(habit["id"] + ": expected yes/no, got " + repr(val))
 
+    if kind == "text":
+        parts = [p.strip() for p in val.split(";") if p.strip()]
+        choices = habit.get("choices")
+        if choices:
+            bad = [p for p in parts if p not in choices]
+            if bad:
+                raise ValueError(habit["id"] + ": not in choices: " + ", ".join(bad))
+        return "; ".join(parts)
+
     try:
         num = float(val)
     except ValueError:
@@ -132,11 +152,12 @@ def normalise(habit, raw):
     return "%g" % num
 
 
-def parse_date(s):
+def parse_date(s, tz=DEFAULT_TZ):
+    today = datetime.now(ZoneInfo(tz)).date()
     if s is None or s.strip().lower() in ("", "today"):
-        return date.today()
+        return today
     if s.strip().lower() == "yesterday":
-        return date.today() - timedelta(days=1)
+        return today - timedelta(days=1)
     try:
         return datetime.strptime(s.strip(), "%Y-%m-%d").date()
     except ValueError:
@@ -281,11 +302,13 @@ def prefill_whoop(defs, day, known, notes):
     if wc:
         try:
             known["workout"] = "yes" if float(wc) > 0 else "no"
+            known["workout_whoop"] = known["workout"]
         except ValueError:
             notes.append("workout_count unparseable (" + repr(wc)
                          + ") - leaving workout blank.")
     elif has_cycle:
         known["workout"] = "no"
+        known["workout_whoop"] = "no"
         notes.append("No workout recorded by WHOOP for this day.")
     else:
         notes.append("WHOOP row has no cycle data - workout left blank.")
@@ -415,24 +438,85 @@ def read_rows(defs):
     return rows
 
 
-def write_rows(defs, rows):
+def _replace_with_retry(src, dst, attempts=10):
+    """os.replace with backoff. Windows refuses to replace a file another
+    process has open (the dashboard collector reads habits.csv every 5 s)."""
+    for i in range(attempts):
+        try:
+            os.replace(str(src), str(dst))
+            return
+        except PermissionError:
+            if i == attempts - 1:
+                raise
+            _time.sleep(0.05 + 0.01 * i)
+
+
+def _acquire_lock():
+    """Exclusive-create a lock file, waiting for a live holder to finish.
+
+    A lock older than LOCK_STALE_S belonged to a process that died mid-write;
+    reclaiming it is safer than wedging every later write for good.
+    """
+    deadline = _time.time() + LOCK_WAIT_S
+    while True:
+        try:
+            fd = os.open(str(LOCK_PATH), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.write(fd, str(os.getpid()).encode("ascii"))
+            os.close(fd)
+            return
+        except FileExistsError:
+            try:
+                age = _time.time() - LOCK_PATH.stat().st_mtime
+            except OSError:
+                age = 0
+            if age > LOCK_STALE_S:
+                LOCK_PATH.unlink(missing_ok=True)
+                continue
+            if _time.time() > deadline:
+                die("habits.csv is locked by another writer (habits.lock); "
+                    "try again in a moment")
+            _time.sleep(0.1)
+
+
+def _release_lock():
+    LOCK_PATH.unlink(missing_ok=True)
+
+
+def write_rows(defs, rows, locked=False):
+    """Rewrite habits.csv from `rows`.
+
+    Pass locked=True when the caller already holds the lock across its own
+    read-modify-write; otherwise the lock is taken here.
+    """
     cols = columns(defs)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
-    with STAGING_CSV.open("w", newline="", encoding="utf-8") as fh:
-        w = csv.DictWriter(fh, fieldnames=cols)
-        w.writeheader()
-        for d in sorted(rows):                      # oldest first
-            w.writerow(dict((c, rows[d].get(c, "")) for c in cols))
+    # Per-pid staging: two writers must never share one scratch file.
+    staging = HABITS_CSV.parent / ("habits.staging.%d.csv" % os.getpid())
+    if not locked:
+        _acquire_lock()
+    try:
+        with staging.open("w", newline="", encoding="utf-8") as fh:
+            w = csv.DictWriter(fh, fieldnames=cols)
+            w.writeheader()
+            for d in sorted(rows):                  # oldest first
+                w.writerow(dict((c, rows[d].get(c, "")) for c in cols))
 
-    # Validate the staging file parses and holds every row before it goes live.
-    with STAGING_CSV.open(newline="", encoding="utf-8-sig") as fh:
-        got = sum(1 for _ in csv.DictReader(fh))
-    if got != len(rows):
-        STAGING_CSV.unlink(missing_ok=True)
-        die("staging validation failed: wrote " + str(got)
-            + " rows, expected " + str(len(rows)))
+        # Validate the staging file parses and holds every row before it goes live.
+        with staging.open(newline="", encoding="utf-8-sig") as fh:
+            got = sum(1 for _ in csv.DictReader(fh))
+        if got != len(rows):
+            staging.unlink(missing_ok=True)
+            die("staging validation failed: wrote " + str(got)
+                + " rows, expected " + str(len(rows)))
 
-    os.replace(str(STAGING_CSV), str(HABITS_CSV))
+        try:
+            _replace_with_retry(staging, HABITS_CSV)
+        except PermissionError:
+            staging.unlink(missing_ok=True)
+            die("habits.csv is open in another program; close it and retry")
+    finally:
+        if not locked:
+            _release_lock()
 
 
 def audit(entry):
@@ -446,7 +530,7 @@ def audit(entry):
 
 def cmd_prefill(args):
     defs = load_defs()
-    day = parse_date(args.date)
+    day = parse_date(args.date, tz=args.tz)
     known, notes = prefill(defs, day)
     existing = read_rows(defs).get(day.isoformat(), {})
     ids = habit_ids(defs)
@@ -466,7 +550,7 @@ def cmd_prefill(args):
 
 def cmd_log(args):
     defs = load_defs()
-    day = parse_date(args.date)
+    day = parse_date(args.date, tz=args.tz)
     key = day.isoformat()
     ids = set(habit_ids(defs))
 
@@ -496,35 +580,41 @@ def cmd_log(args):
     if unknown_keys:
         die("unknown habit id(s): " + ", ".join(unknown_keys))
 
-    rows = read_rows(defs)
-    row = rows.get(key) or dict((c, "") for c in columns(defs))
-    row["date"] = key
-    row["day_of_week"] = day.strftime("%A")
+    # The lock spans read and write: another writer landing in between would
+    # have its row silently dropped by this one's rewrite.
+    _acquire_lock()
+    try:
+        rows = read_rows(defs)
+        row = rows.get(key) or dict((c, "") for c in columns(defs))
+        row["date"] = key
+        row["day_of_week"] = day.strftime("%A")
 
-    changes = {}
-    for hid, raw in incoming.items():
-        habit = habit_by_id(defs, hid)
-        try:
-            val = normalise(habit, raw)
-        except ValueError as exc:
-            die(str(exc))
-        prev = (row.get(hid) or "").strip()
-        if val == "":
-            # Blanks never erase recorded data.
-            if prev:
-                print("note: kept existing " + hid + "=" + prev
-                      + " (blank ignored)", file=sys.stderr)
-            continue
-        if val != prev:
-            changes[hid] = {"from": prev, "to": val}
-            row[hid] = val
+        changes = {}
+        for hid, raw in incoming.items():
+            habit = habit_by_id(defs, hid)
+            try:
+                val = normalise(habit, raw)
+            except ValueError as exc:
+                die(str(exc))
+            prev = (row.get(hid) or "").strip()
+            if val == "":
+                # Blanks never erase recorded data.
+                if prev:
+                    print("note: kept existing " + hid + "=" + prev
+                          + " (blank ignored)", file=sys.stderr)
+                continue
+            if val != prev:
+                changes[hid] = {"from": prev, "to": val}
+                row[hid] = val
 
-    if args.note:
-        row["note"] = args.note
-    row["logged_at"] = datetime.now().astimezone().isoformat(timespec="seconds")
+        if args.note:
+            row["note"] = args.note
+        row["logged_at"] = datetime.now().astimezone().isoformat(timespec="seconds")
 
-    rows[key] = row
-    write_rows(defs, rows)
+        rows[key] = row
+        write_rows(defs, rows, locked=True)
+    finally:
+        _release_lock()
     audit({"action": "log", "date": key, "changes": changes,
            "source": "whoop+manual" if args.whoop else "manual"})
 
@@ -550,7 +640,7 @@ def cmd_show(args):
         return
     ids = habit_ids(defs)
     if args.date:
-        keys = [parse_date(args.date).isoformat()]
+        keys = [parse_date(args.date, tz=args.tz).isoformat()]
     else:
         keys = sorted(rows)[-args.last:]
     for k in keys:
@@ -575,6 +665,7 @@ def main():
 
     p = sub.add_parser("prefill", help="what WHOOP already knows for a date")
     p.add_argument("--date", default="today")
+    p.add_argument("--tz", default=DEFAULT_TZ)
     p.set_defaults(func=cmd_prefill)
 
     p = sub.add_parser("log", help="upsert one date's row")
@@ -584,11 +675,13 @@ def main():
     p.add_argument("--whoop", action="store_true",
                    help="fill workout / bed_on_time from WHOOP where not given")
     p.add_argument("--note", help="free-text note for the day")
+    p.add_argument("--tz", default=DEFAULT_TZ)
     p.set_defaults(func=cmd_log)
 
     p = sub.add_parser("show", help="print recent rows")
     p.add_argument("--date")
     p.add_argument("--last", type=int, default=7)
+    p.add_argument("--tz", default=DEFAULT_TZ)
     p.set_defaults(func=cmd_show)
 
     args = ap.parse_args()

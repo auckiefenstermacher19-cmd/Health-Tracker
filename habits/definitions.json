@@ -37,7 +37,7 @@
       "id": "workout",
       "label": "Workout",
       "type": "binary",
-      "source": "whoop",
+      "source": "self",
       "aliases": [
         "workout",
         "worked out",
@@ -46,7 +46,8 @@
         "ran",
         "run",
         "training"
-      ]
+      ],
+      "note": "Tick it yourself; WHOOP's view lands in workout_whoop."
     },
     {
       "id": "morning_vitamins",
@@ -270,6 +271,148 @@
         "read something",
         "watched something",
         "studied"
+      ]
+    },
+    {
+      "id": "workout_whoop",
+      "label": "Workout (WHOOP)",
+      "type": "binary",
+      "source": "whoop",
+      "aliases": [],
+      "note": "What WHOOP saw. Never asked; written by the 7:00 sync step."
+    },
+    {
+      "id": "devices_off_9pm",
+      "label": "Devices off by 9pm",
+      "type": "binary",
+      "source": "self",
+      "aliases": [
+        "devices off",
+        "screens off",
+        "phone off",
+        "9pm shutdown"
+      ]
+    },
+    {
+      "id": "reach_out",
+      "label": "Reach-out",
+      "type": "text",
+      "source": "self",
+      "aliases": [
+        "reached out",
+        "called",
+        "texted",
+        "reach out"
+      ],
+      "note": "Names contacted, semicolon-separated. Last-contact dates derive from this."
+    },
+    {
+      "id": "outbound",
+      "label": "Outbound touches",
+      "type": "count",
+      "source": "self",
+      "aliases": [
+        "outbound",
+        "cold dms",
+        "cold emails"
+      ]
+    },
+    {
+      "id": "conversations",
+      "label": "Buyer conversations",
+      "type": "count",
+      "source": "self",
+      "aliases": [
+        "conversations",
+        "discovery calls",
+        "buyer calls"
+      ]
+    },
+    {
+      "id": "posts",
+      "label": "Public posts",
+      "type": "count",
+      "source": "self",
+      "aliases": [
+        "posted",
+        "posts",
+        "published"
+      ]
+    },
+    {
+      "id": "warning_signs",
+      "label": "Warning signs",
+      "type": "text",
+      "source": "self",
+      "choices": [
+        "Anger",
+        "Doing too much",
+        "Skipped workout",
+        "Doomscrolling",
+        "Pushing off work",
+        "none"
+      ],
+      "aliases": [
+        "warning signs",
+        "red flags"
+      ]
+    },
+    {
+      "id": "sunday_review",
+      "label": "Sunday review",
+      "type": "binary",
+      "source": "self",
+      "cadence": "weekly",
+      "aliases": [
+        "sunday review",
+        "weekly review"
+      ]
+    },
+    {
+      "id": "dj_hour",
+      "label": "DJ hour",
+      "type": "binary",
+      "source": "self",
+      "cadence": "weekly",
+      "optional": true,
+      "aliases": [
+        "dj",
+        "dj hour",
+        "mixed"
+      ]
+    },
+    {
+      "id": "mrr",
+      "label": "MRR ($)",
+      "type": "number",
+      "source": "self",
+      "cadence": "weekly",
+      "aliases": [
+        "mrr",
+        "monthly revenue"
+      ]
+    },
+    {
+      "id": "bodyweight",
+      "label": "Body weight (lb)",
+      "type": "number",
+      "source": "self",
+      "cadence": "weekly",
+      "aliases": [
+        "weight",
+        "bodyweight",
+        "weighed"
+      ]
+    },
+    {
+      "id": "books_finished",
+      "label": "Books finished (running total)",
+      "type": "count",
+      "source": "self",
+      "cadence": "weekly",
+      "aliases": [
+        "books",
+        "finished a book"
       ]
     }
   ]
