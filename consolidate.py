@@ -69,6 +69,19 @@ log = logging.getLogger(__name__)
 
 SPACER_SENTINEL = "__SPACER__"   # Internal name for the blank spacer column
 
+# The canonical water block, used ONLY to carry the block forward when the raw water file
+# is transiently missing but the published master already has one. The live layout still
+# comes from the file itself every run; this list never overrides a real header.
+WATER_COLUMNS = [
+    "date",
+    "water_fl_oz",
+    "water_goal_fl_oz",
+    "water_pct_of_goal",
+    "water_entries",
+    "water_big_count",
+    "water_small_count",
+]
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CSV Loading
@@ -404,6 +417,22 @@ def load_optional_water(path: Path) -> tuple[list[str] | None, dict[str, list[st
     return header, by_date
 
 
+def previous_output_has_water(path: Path) -> bool:
+    """True when the already-published master carries a water block.
+
+    Read defensively: a master we cannot parse is treated as having no water block, which
+    only costs us the carry-forward, never the merge.
+    """
+    if not path.exists():
+        return False
+    try:
+        with open(path, encoding="utf-8", newline="") as f:
+            header = next(csv.reader(f), [])
+    except (OSError, csv.Error, UnicodeDecodeError, StopIteration):
+        return False
+    return "water_date" in header
+
+
 def append_audit_log(record: dict) -> None:
     """Append a JSON audit record to the rolling audit log (JSONL format)."""
     with open(AUDIT_LOG, "a", encoding="utf-8") as f:
@@ -439,6 +468,20 @@ def build_consolidated() -> None:
     # that state the output must stay exactly the two-block file the dashboard has always
     # read. Loading and indexing happen together so a bad file degrades as one unit.
     water_header, water_by_date = load_optional_water(WATER_CSV)
+
+    # …with one exception. fetch_sources.py deletes the local copy when a water fetch fails,
+    # and the water dispatch fires on every tap, so a single transient failure would drop the
+    # block from a master that had it a minute ago — and the dashboard's water tiles would
+    # blink out and back. If the published master already has a water block, keep the block
+    # with blank cells instead. Only a master that never had water falls back to two blocks.
+    if water_header is None and previous_output_has_water(OUTPUT_PATH):
+        water_header = list(WATER_COLUMNS)
+        water_by_date = {}
+        log.warning(
+            "No usable water source this run, but %s already has a water block — carrying "
+            "the block forward with blank values so the dashboard's water tiles do not flap.",
+            OUTPUT_PATH,
+        )
 
     # ── 2. Index rows by date ─────────────────────────────────────────────────
     whoop_by_date = rows_to_date_dict(whoop_header, whoop_rows, date_col="date")

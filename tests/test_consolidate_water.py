@@ -388,3 +388,75 @@ class TestWaterStaleness:
         assert r["ages"]["water"] is None
         assert r["warning_sources"] == ["water"]
         assert r["failing_sources"] == ["whoop"]
+
+
+class TestATransientWaterFetchFailureDoesNotDropTheBlock:
+    """fetch_sources.py deletes the stale local copy when a water fetch fails, and the water
+    dispatch fires on every tap — so a single flaky fetch would otherwise republish the master
+    without its water block and the dashboard's water tiles would blink out and back."""
+
+    def _sources(self, tmp_path, monkeypatch, previous_master: str | None):
+        raw = tmp_path / "raw"
+        raw.mkdir()
+        (raw / "daily_consolidated.csv").write_text(
+            "date,recovery_score\n2026-09-11,72\n", encoding="utf-8")
+        (raw / "Meal_Data_Dashboard.csv").write_text(
+            "date,calories\n2026-09-11,2100\n", encoding="utf-8")
+        # No Water_Data_Dashboard.csv on disk: the fetch failed and the stale copy was removed.
+
+        out = tmp_path / "Health_Tracker_Master.csv"
+        if previous_master is not None:
+            out.write_text(previous_master, encoding="utf-8")
+
+        audit = tmp_path / "audit.jsonl"
+        monkeypatch.setattr(consolidate, "WHOOP_CSV", raw / "daily_consolidated.csv")
+        monkeypatch.setattr(consolidate, "MEAL_CSV", raw / "Meal_Data_Dashboard.csv")
+        monkeypatch.setattr(consolidate, "WATER_CSV", raw / "Water_Data_Dashboard.csv")
+        monkeypatch.setattr(consolidate, "OUTPUT_PATH", out)
+        monkeypatch.setattr(consolidate, "STAGING_PATH", tmp_path / "staging.csv")
+        monkeypatch.setattr(consolidate, "AUDIT_LOG", audit)
+        return out, audit
+
+    def test_the_water_block_is_carried_forward_blank_when_the_master_had_one(
+        self, tmp_path, monkeypatch
+    ):
+        previous = (
+            "date,recovery_score,,meal_date,calories,,"
+            + ",".join(["water_date"] + WATER_HEADER[1:])
+            + "\n2026-09-10,70,,2026-09-10,2000,,2026-09-10,96,128,75.0,5,3,2\n"
+        )
+        out, audit = self._sources(tmp_path, monkeypatch, previous)
+
+        consolidate.build_consolidated()
+
+        rows = list(csv.reader(out.read_text(encoding="utf-8").splitlines()))
+        assert rows[0] == [
+            "date", "recovery_score", "", "meal_date", "calories", "",
+            "water_date", "water_fl_oz", "water_goal_fl_oz", "water_pct_of_goal",
+            "water_entries", "water_big_count", "water_small_count",
+        ]
+        assert rows[1][-7:] == [""] * 7
+        assert len(rows) == 2   # header + the single date
+
+        # Freshness is unchanged: water has no raw file, so it is not reported at all.
+        record = json.loads(audit.read_text(encoding="utf-8").splitlines()[-1])
+        assert "water" not in record["source_ages_days"]
+
+    def test_no_previous_master_still_falls_back_to_two_blocks(self, tmp_path, monkeypatch):
+        out, _ = self._sources(tmp_path, monkeypatch, None)
+
+        consolidate.build_consolidated()
+
+        rows = list(csv.reader(out.read_text(encoding="utf-8").splitlines()))
+        assert rows[0] == ["date", "recovery_score", "", "meal_date", "calories"]
+
+    def test_a_previous_master_without_water_still_falls_back_to_two_blocks(
+        self, tmp_path, monkeypatch
+    ):
+        previous = "date,recovery_score,,meal_date,calories\n2026-09-10,70,,2026-09-10,2000\n"
+        out, _ = self._sources(tmp_path, monkeypatch, previous)
+
+        consolidate.build_consolidated()
+
+        rows = list(csv.reader(out.read_text(encoding="utf-8").splitlines()))
+        assert rows[0] == ["date", "recovery_score", "", "meal_date", "calories"]

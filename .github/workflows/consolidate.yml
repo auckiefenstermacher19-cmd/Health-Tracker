@@ -46,6 +46,12 @@ on:
           - "false"
           - "true"
 
+# Water dispatches fire on every tap, so several runs can be in flight at once and the
+# bare `git push` below would race them into rejections.
+concurrency:
+  group: consolidate
+  cancel-in-progress: false
+
 jobs:
   consolidate:
     name: Fetch → Validate → Consolidate → Commit
@@ -99,30 +105,52 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Stage the master output and supporting artifacts
-          git add Health_Tracker_Master.csv
-          git add schema/
-          git add logs/
+          TRIGGER="${{ github.event_name }}"
+          DATE=$(date -u '+%Y-%m-%d')
 
-          # Only commit if there are actual changes
-          if git diff --staged --quiet; then
-            echo "No changes to commit — Health_Tracker_Master.csv is already up to date."
+          if [ "$TRIGGER" = "repository_dispatch" ]; then
+            EVENT="${{ github.event.action }}"
+            MESSAGE="chore: consolidate health data ${DATE} [${EVENT}]"
+          elif [ "$TRIGGER" = "schedule" ]; then
+            MESSAGE="chore: consolidate health data ${DATE} [scheduled]"
           else
-            TRIGGER="${{ github.event_name }}"
-            DATE=$(date -u '+%Y-%m-%d')
+            MESSAGE="chore: consolidate health data ${DATE} [manual]"
+          fi
 
-            if [ "$TRIGGER" = "repository_dispatch" ]; then
-              EVENT="${{ github.event.action }}"
-              git commit -m "chore: consolidate health data ${DATE} [${EVENT}]"
-            elif [ "$TRIGGER" = "schedule" ]; then
-              git commit -m "chore: consolidate health data ${DATE} [scheduled]"
-            else
-              git commit -m "chore: consolidate health data ${DATE} [manual]"
+          for attempt in 1 2 3; do
+            # Stage the master output and supporting artifacts
+            git add Health_Tracker_Master.csv
+            git add schema/
+            git add logs/
+
+            # Only commit if there are actual changes
+            if git diff --staged --quiet; then
+              echo "No changes to commit — Health_Tracker_Master.csv is already up to date."
+              exit 0
             fi
 
-            git push
-            echo "Health_Tracker_Master.csv committed and pushed."
-          fi
+            git commit -q -m "$MESSAGE"
+
+            if git push; then
+              echo "Health_Tracker_Master.csv committed and pushed (attempt $attempt)."
+              exit 0
+            fi
+
+            # Health_Tracker_Master.csv is a GENERATED artifact, derived entirely from the
+            # files in raw/ (which are untracked, so a reset does not touch them). Rebasing
+            # it is always wrong: two independently generated CSVs conflict line-by-line and
+            # the rebase halts. Instead discard our commit, take whatever main now has, and
+            # regenerate on top of it — the same discard-and-regenerate pattern the
+            # MyFitnessClone dashboard workflow uses.
+            echo "Push rejected (attempt $attempt) — taking origin/main and regenerating."
+            git fetch origin main
+            git reset --hard FETCH_HEAD
+            python consolidate.py
+            python generate_audit_report.py
+          done
+
+          echo "::error::Could not push Health_Tracker_Master.csv after 3 attempts."
+          exit 1
 
       # ── Step 8b: Freshness gate ───────────────────────────────────────────
       # Runs AFTER the commit on purpose. Failing before it would block fresh data from
