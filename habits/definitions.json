@@ -195,8 +195,8 @@
         "phone time"
       ],
       "phone_order": 11,
-      "question": "Screentime under 2 hours?",
-      "note": "Was type hours with zero entries ever; became yes/no on 2026-09-11 for the phone flow."
+      "question": "Stayed under the 2-hour app limit?",
+      "note": "Yes means the iOS Screen Time App Limit (2 hours on the apps that count as phone time; Clock, Spotify and the Workout Tracker excluded so gym use never counts) was not hit that day. Apple's total cannot be exported, so the limit is the measure. Was type hours with zero entries ever; became yes/no on 2026-09-11."
     },
     {
       "id": "clean_sink",

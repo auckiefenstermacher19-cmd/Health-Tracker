@@ -1,55 +1,50 @@
 # Handoff
 
-## What was built this session
+Written 2026-09-11 (evening). Read `CONTEXT.md` first, then `habits\README.md`.
 
-A phone-first habit logging page, `habits.html`, went in on top of the
-existing habit engine (`habits.py`, `habits/definitions.json`). It asks
-the 11 self-report habits one per screen with a Yes/No tile, writes the
-row through a Cloudflare Worker (`cloudflare-worker/habits-worker.js`) so
-the phone never holds a GitHub token, and supports editing an
-already-logged day. Three habits moved off the nightly sentence and
-became derived: `water` (from the water dashboard, day total against the
-128 fl oz goal), `workout` (from the Workout Tracker, any set logged that
-day), and a new `calories_on_target` habit (from the meal dashboard,
-within 10% of the calorie goal, blank while the food log stays stale
-since 2026-07-25). `screentime` changed from a number to a yes/no tile.
-`habits.py` gained `prefill_water`, `prefill_workout_log`, and
-`prefill_calories`, each trying a raw GitHub URL first and a local
-checkout path second. Supporting pieces: `habits-core.js` (pure CSV/
-upsert/draft logic, shared with the page and its tests), `habits-config.js`,
-the webmanifest and icons for add-to-home-screen, `tools/dev_worker.py`
-for local browser testing, and test coverage in both `tests/habits-core.test.js`
-(10 tests) and `tests/test_habits.py` (80 tests, up from 55).
+## What we were doing
 
-## What Auckie still owes
+Standing up the phone habit page and wiring it into the existing habit
+record. Done and live:
 
-1. Deploy the Cloudflare Worker `habit-tracker-proxy` from
-   `cloudflare-worker/habits-worker.js`, with secret `GITHUB_PAT` and vars
-   `GITHUB_OWNER=auckiefenstermacher19-cmd`, `GITHUB_REPO=Health-Tracker`,
-   `ALLOWED_ORIGIN=https://auckiefenstermacher19-cmd.github.io`.
-2. Confirm the deployed Worker's URL matches what's in `habits-config.js`
-   (currently `https://habit-tracker-proxy.auckiefenstermacher19.workers.dev`)
-   — update it if Cloudflare assigns something different.
+- `https://auckiefenstermacher19-cmd.github.io/Health-Tracker/habits.html`
+  is on Auckie's iPhone home screen as "Habits". He logged 2026-09-11 from it
+  (commit `habits: phone log 2026-09-11`).
+- Cloudflare Worker `habit-tracker-proxy` is deployed via Wrangler from
+  `cloudflare-worker\` (Wrangler logged in on this PC); the GitHub token is
+  set as its `GITHUB_PAT` secret by Auckie.
+- 10 habits are automatic (WHOOP x5, food logged, calories on target, water,
+  workout, learning), filled at 07:00 the next morning by the WHOOP sync task.
+  Its script now commits stray dashboard ticks and pulls before writing, so
+  the phone's nightly commit and the morning fill do not collide.
+- Screentime is a yes/no defined by a 2-hour iOS App Limit on the apps that
+  count (Clock, Spotify, Workout Tracker excluded). Auckie sets the limit on
+  the phone himself; Apple's total cannot be exported.
 
-## Live page
+## What changed this session
 
-`https://auckiefenstermacher19-cmd.github.io/Health-Tracker/habits.html`
-Merged to `main` and live on 2026-09-11. Until the Worker is deployed the
-page loads but reports "Cannot reach the habit store".
+Health-Tracker: `habits.html`, `habits-core.js`, `habits-config.js`,
+`habits.webmanifest` + icons, `cloudflare-worker\` (worker + `wrangler.toml`),
+`tools\dev_worker.py`, `habits.py` (three new derivations), `habits\definitions.json`
+(phone flags, `auto_source`, `calories_on_target` column, screentime yes/no),
+`habits\README.md`, `CONTEXT.md`, tests (80 pytest, 10 node), design spec and
+plan under `docs\superpowers\`. whoop-data: `run-once.ps1` (commit ticks,
+pull first, abort on conflict, named failure reason).
 
-## Sibling change (pushed)
+## Open decisions waiting on Auckie
 
-`whoop-data/run-once.ps1` now commits any uncommitted dashboard ticks,
-pulls Health-Tracker (`git pull --rebase --autostash`) before writing
-yesterday's derived habits, aborts a failed rebase so the tree is never
-left with conflict markers, and names the failed stage in its run-end
-line. Commits a801f8e and 0150914, pushed to `whoop-data` main.
+- Set the 2-hour App Limit in iOS Screen Time (Settings, Screen Time, App
+  Limits). Nothing in the repo depends on it, but the screentime answer is a
+  guess until it exists.
 
-## Open decisions
+## Blockers
 
 None.
 
 ## Best next move
 
-Deploy the Worker, log one real night from the phone, then confirm the
-commit landed on GitHub (`habits: phone log <date>`, on `main`).
+Tomorrow after 07:00, confirm the automatic fill landed for 2026-09-11:
+`python habits.py show --last 2` should show WHOOP, water, workout and
+calories values on that row, and `..\whoop-data\state\local-run.log` should
+end with a `run end (exit 0)` line. If the row is blank, the failure-signal
+table in `habits\README.md` says which stage to look at.
