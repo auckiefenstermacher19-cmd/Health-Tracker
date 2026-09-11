@@ -27,6 +27,7 @@
     "sleep_efficiency_pct",
     "",
     "cycle_score_state",
+    "cycle_complete",
     "day_strain",
     "day_kilojoules",
     "day_avg_heart_rate",
@@ -72,6 +73,6 @@
     "eb_maintenance_target_kcal",
     "eb_fueling_status"
   ],
-  "saved_at": "2026-06-16T12:50:07.553959+00:00",
-  "col_count": 70
+  "saved_at": "2026-09-11T21:48:55.900612+00:00",
+  "col_count": 71
 }
