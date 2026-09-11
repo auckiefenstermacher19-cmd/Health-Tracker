@@ -93,10 +93,10 @@ def test_count_type_requires_a_whole_number():
         habits.normalise(fake, "2.5")
 
 
-def test_hours_keeps_fractions(defs):
-    screen = habits.habit_by_id(defs, "screentime")
-    assert habits.normalise(screen, "1.5") == "1.5"
-    assert habits.normalise(screen, "2") == "2"
+def test_hours_keeps_fractions():
+    hours_habit = {"id": "x", "type": "hours"}
+    assert habits.normalise(hours_habit, "1.5") == "1.5"
+    assert habits.normalise(hours_habit, "2") == "2"
 
 
 def test_empty_value_is_a_noop_not_a_no(defs):
@@ -382,6 +382,7 @@ def test_new_plan_habits_defined_and_workout_is_self(defs):
                 "bodyweight", "books_finished", "workout_whoop"]:
         assert hid in ids, hid
     assert habits.habit_by_id(defs, "workout")["source"] == "self"
+    assert habits.habit_by_id(defs, "workout")["auto_source"] == "workout_log"
     assert habits.habit_by_id(defs, "workout_whoop")["source"] == "whoop"
     assert "none" in habits.habit_by_id(defs, "warning_signs")["choices"]
 
@@ -575,3 +576,184 @@ def test_an_explicit_run_that_changes_nothing_still_stamps(sandbox, defs, monkey
     assert first != ""
     _log(monkeypatch, set=["made_bed=yes"])
     assert habits.read_rows(defs)["2026-08-26"]["logged_at"] != ""
+
+
+# -- phone flow definition ----------------------------------------------------
+
+PHONE_ORDER = ["made_bed", "morning_vitamins", "shower", "teeth", "night_vitamins",
+               "no_junk", "no_fap", "read_fiction", "read_nonfiction",
+               "devices_off_9pm", "screentime"]
+
+
+def test_phone_habits_are_eleven_binary_self_daily_in_order(defs):
+    phone = sorted((h for h in defs["habits"] if "phone_order" in h),
+                   key=lambda h: h["phone_order"])
+    assert [h["id"] for h in phone] == PHONE_ORDER
+    for h in phone:
+        assert h["type"] == "binary", h["id"]
+        assert h["source"] == "self", h["id"]
+        assert h.get("active", True) is True, h["id"]
+        assert h.get("cadence", "daily") != "weekly", h["id"]
+        assert h["question"].endswith("?"), h["id"]
+
+
+def test_screentime_is_binary_now(defs):
+    s = habits.habit_by_id(defs, "screentime")
+    assert s["type"] == "binary"
+    assert "target" not in s and "direction" not in s
+
+
+def test_water_and_workout_are_auto_filled_but_still_self_report(defs):
+    """The GTD Year tab renders any non-'self' habit read-only, so these stay
+    'self' and carry their automatic source in auto_source instead."""
+    water = habits.habit_by_id(defs, "water")
+    workout = habits.habit_by_id(defs, "workout")
+    assert water["source"] == "self"
+    assert water["auto_source"] == "water_dashboard"
+    assert workout["source"] == "self"
+    assert workout["auto_source"] == "workout_log"
+    assert habits.habit_by_id(defs, "workout_whoop")["source"] == "whoop"
+    assert "auto_source" not in habits.habit_by_id(defs, "made_bed")
+
+
+def test_whoop_run_fills_blank_water_and_keeps_hand_set_workout(sandbox, defs, monkeypatch):
+    """auto_source habits follow the same fill-blank rule as any derived one."""
+    _log(monkeypatch, set=["workout=yes"])
+
+    def _nothing(defs, day, known, notes):
+        return
+
+    def _water_no(defs, day, known, notes):
+        known["water"] = "no"
+
+    for name in ("prefill_whoop", "prefill_meal_log", "prefill_learning",
+                 "prefill_calories", "prefill_workout_log"):
+        monkeypatch.setattr(habits, name, _nothing)
+    monkeypatch.setattr(habits, "prefill_water", _water_no)
+
+    _log(monkeypatch, whoop=True)
+
+    row = habits.read_rows(defs)["2026-08-26"]
+    assert row["workout"] == "yes"      # hand-set value survives the sync
+    assert row["water"] == "no"         # blank took the automatic answer
+
+
+def test_calories_on_target_column_sits_before_logged_at(defs):
+    cols = habits.columns(defs)
+    assert cols.index("calories_on_target") == cols.index("books_finished") + 1
+    assert cols[-2:] == ["logged_at", "note"]
+    c = habits.habit_by_id(defs, "calories_on_target")
+    assert c["type"] == "binary" and c["source"] == "meal_dashboard"
+
+
+def test_new_source_lists_exist(defs):
+    cfg = defs["config"]
+    for key in ("water_dashboard_sources", "workout_log_sources", "meal_dashboard_sources"):
+        assert isinstance(cfg[key], list) and cfg[key], key
+        assert cfg[key][0].startswith("https://raw.githubusercontent.com/"), key
+    assert cfg["calorie_tolerance_pct"] == 10
+
+
+def test_definitions_have_no_duplicate_keys():
+    """A repeated key in one JSON object silently overwrites itself - guard it.
+
+    json.load's default object_pairs_hook keeps only the last value for a
+    repeated key, so a plain load() can't catch this; count key occurrences
+    per object instead.
+    """
+    import collections
+
+    def hook(pairs):
+        counts = collections.Counter(k for k, _ in pairs)
+        dups = [k for k, n in counts.items() if n > 1]
+        assert not dups, f"duplicate keys {dups} in object with keys {[k for k, _ in pairs]}"
+        return dict(pairs)
+
+    path = REPO / "habits" / "definitions.json"
+    json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=hook)
+
+
+# -- new derivations ----------------------------------------------------------
+
+def _use_local_source(monkeypatch, defs, key, text, tmp_path):
+    """Point one source list at a temp file holding `text`; kill network."""
+    p = tmp_path / (key + ".csv")
+    p.write_text(text, encoding="utf-8")
+    monkeypatch.setitem(defs["config"], key, [str(p)])
+    monkeypatch.setattr(habits, "_fetch_text", lambda url, timeout: (_ for _ in ()).throw(OSError("no net")))
+    return p
+
+
+def test_water_yes_when_total_meets_goal(defs, tmp_path, monkeypatch):
+    _use_local_source(monkeypatch, defs, "water_dashboard_sources",
+        "date,water_fl_oz,water_goal_fl_oz,water_pct_of_goal\n2026-09-11,130,128,101.6\n", tmp_path)
+    known, notes = {}, []
+    habits.prefill_water(defs, date(2026, 9, 11), known, notes)
+    assert known["water"] == "yes"
+
+
+def test_water_no_when_under_goal_and_blank_when_no_row(defs, tmp_path, monkeypatch):
+    _use_local_source(monkeypatch, defs, "water_dashboard_sources",
+        "date,water_fl_oz,water_goal_fl_oz\n2026-09-11,64,128\n", tmp_path)
+    known, notes = {}, []
+    habits.prefill_water(defs, date(2026, 9, 11), known, notes)
+    assert known["water"] == "no"
+    known = {}
+    habits.prefill_water(defs, date(2026, 9, 12), known, notes)
+    assert "water" not in known
+
+
+def test_workout_yes_from_any_logged_set_else_blank(defs, tmp_path, monkeypatch):
+    _use_local_source(monkeypatch, defs, "workout_log_sources",
+        "Date,Workout Day,Exercise,Set Number,Weight,Reps\n2026-09-11,Back,BB Row,1,255,5\n", tmp_path)
+    known, notes = {}, []
+    habits.prefill_workout_log(defs, date(2026, 9, 11), known, notes)
+    assert known["workout"] == "yes"
+    known = {}
+    habits.prefill_workout_log(defs, date(2026, 9, 12), known, notes)
+    assert "workout" not in known          # never "no"
+
+
+@pytest.mark.parametrize("actual,goal,expected", [
+    ("2600", "2600", "yes"), ("2350", "2600", "yes"), ("2860", "2600", "yes"),
+    ("2300", "2600", "no"), ("2900", "2600", "no"), ("2600", "", None), ("", "2600", None),
+])
+def test_calories_within_ten_percent(defs, tmp_path, monkeypatch, actual, goal, expected):
+    _use_local_source(monkeypatch, defs, "meal_dashboard_sources",
+        "date,,calories_actual,calories_goal\n2026-09-11,," + actual + "," + goal + "\n", tmp_path)
+    known, notes = {}, []
+    habits.prefill_calories(defs, date(2026, 9, 11), known, notes)
+    assert known.get("calories_on_target") == expected
+
+
+def test_url_source_is_tried_first_then_local(defs, tmp_path, monkeypatch):
+    p = tmp_path / "w.csv"
+    p.write_text("date,water_fl_oz,water_goal_fl_oz\n2026-09-11,10,128\n", encoding="utf-8")
+    monkeypatch.setitem(defs["config"], "water_dashboard_sources", ["https://example.invalid/x.csv", str(p)])
+    calls = []
+    def fake(url, timeout):
+        calls.append(url)
+        return "date,water_fl_oz,water_goal_fl_oz\n2026-09-11,200,128\n"
+    monkeypatch.setattr(habits, "_fetch_text", fake)
+    known, notes = {}, []
+    habits.prefill_water(defs, date(2026, 9, 11), known, notes)
+    assert calls == ["https://example.invalid/x.csv"]
+    assert known["water"] == "yes"            # URL answered, local not consulted
+
+
+def test_all_sources_failing_leaves_blank_with_note(defs, monkeypatch):
+    monkeypatch.setitem(defs["config"], "workout_log_sources", ["https://example.invalid/x.csv"])
+    monkeypatch.setattr(habits, "_fetch_text", lambda url, timeout: (_ for _ in ()).throw(OSError("down")))
+    known, notes = {}, []
+    habits.prefill_workout_log(defs, date(2026, 9, 11), known, notes)
+    assert known == {}
+    assert any("workout" in n and "blank" in n for n in notes)
+
+
+def test_prefill_calls_new_sources(defs, monkeypatch):
+    seen = []
+    for name in ("prefill_whoop", "prefill_meal_log", "prefill_learning",
+                 "prefill_water", "prefill_workout_log", "prefill_calories"):
+        monkeypatch.setattr(habits, name, lambda d, day, k, n, _n=name: seen.append(_n))
+    habits.prefill(defs, date(2026, 9, 11))
+    assert seen[-3:] == ["prefill_water", "prefill_workout_log", "prefill_calories"]

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0f1117">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Habits">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="habits.webmanifest">
+  <link rel="apple-touch-icon" href="habits-icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="habits-icon-192.png">
+  <title>Habits</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --border:    #2a2d3a;
+      --accent:    #a78bfa;
+      --accent-dim:#2e2452;
+      --text:      #e8eaf0;
+      --muted:     #7a7f94;
+      --error:     #f87171;
+      --radius:    10px;
+      --font:      -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.5;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    header { width: 100%; max-width: 420px; margin-bottom: 32px; }
+    header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    .lbl {
+      font-size: 12px; font-weight: 600; letter-spacing: 0.6px;
+      text-transform: uppercase; color: var(--muted);
+    }
+
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 16px;
+      padding: 12px 14px;
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus { border-color: var(--accent); }
+    input[type="date"] { min-height: 48px; }
+
+    .view { display: none; width: 100%; max-width: 420px; }
+    .view.active { display: flex; flex-direction: column; gap: 20px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+    .status { color: var(--muted); font-size: 14px; }
+    .btn { width: 100%; padding: 18px; border-radius: var(--radius); border: 2px solid var(--accent); background: var(--accent-dim); color: var(--text); font-size: 18px; font-weight: 700; cursor: pointer; }
+    .btn:active { transform: scale(0.97); }
+    .btn.secondary { border-color: var(--border); background: transparent; }
+    .progress { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+    .question { font-size: 28px; font-weight: 700; line-height: 1.2; min-height: 68px; }
+    .tiles { display: flex; flex-direction: column; gap: 14px; }
+    .tile { position: relative; min-height: 130px; border-radius: 14px; border: 2px solid; font-size: 30px; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; transition: transform .12s, background .2s; }
+    .tile:active { transform: scale(0.96); }
+    .tile.yes { border-color: #22c55e; background: #14331f; color: #22c55e; }
+    .tile.no  { border-color: #ef4444; background: #3a1717; color: #ef4444; }
+    .tile.chosen.yes { background: #22c55e; color: #052e16; }
+    .tile.chosen.no  { background: #ef4444; color: #450a0a; }
+    .tile .mark { position: absolute; font-size: 64px; transform: scale(0); transition: transform .25s cubic-bezier(.34,1.4,.64,1); }
+    .tile.chosen .mark { transform: scale(1); }
+    .tile.chosen .word { opacity: 0; }
+    .skip { align-self: center; color: var(--muted); font-size: 14px; background: none; border: 0; padding: 8px; cursor: pointer; font-family: var(--font); }
+    .slide-in { animation: slidein .2s ease-out; }
+    @keyframes slidein { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+    .done-check { font-size: 96px; text-align: center; color: #22c55e; }
+    .row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+    .pills { display: flex; gap: 6px; }
+    .pill { padding: 8px 12px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; font-family: var(--font); }
+    .pill.on.yes { background: #14331f; border-color: #22c55e; color: #22c55e; }
+    .pill.on.no  { background: #3a1717; border-color: #ef4444; color: #ef4444; }
+    .pill.on.blank { border-color: var(--accent); color: var(--text); }
+    .ro { color: var(--muted); font-size: 14px; }
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 80px); background: var(--surface); border: 1px solid var(--border); padding: 12px 18px; border-radius: var(--radius); transition: transform .25s; max-width: 90vw; font-size: 14px; z-index: 100; pointer-events: none; }
+    #toast.show { transform: translate(-50%, 0); }
+    #toast.error { border-color: var(--error); }
+    #toast.ok { border-color: #22c55e; }
+  </style>
+</head>
+<body>
+
+<header><h1>Habits</h1><p>One tap per habit. Skip leaves it blank.</p></header>
+
+<section class="view active" id="view-home"><div class="card">
+  <label class="lbl" for="date">Date</label>
+  <input type="date" id="date">
+  <div class="status" id="home-status">Loading…</div>
+  <button class="btn" id="home-btn" disabled>Log habits</button>
+  <a class="btn secondary" href="index.html" style="text-align:center;text-decoration:none">Health dashboard</a>
+</div></section>
+
+<section class="view" id="view-wizard"><div class="card" id="wizard-card">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <button class="skip" id="wiz-back" aria-label="Back">‹ Back</button>
+    <div class="progress" id="wiz-progress">1 of 11</div>
+  </div>
+  <div class="question" id="wiz-question"></div>
+  <div class="tiles">
+    <div class="tile yes" id="tile-yes" role="button" tabindex="0"><span class="word">Yes</span><span class="mark">✓</span></div>
+    <div class="tile no"  id="tile-no"  role="button" tabindex="0"><span class="word">No</span><span class="mark">✕</span></div>
+  </div>
+  <button class="skip" id="wiz-skip">skip</button>
+</div></section>
+
+<section class="view" id="view-done"><div class="card">
+  <div class="done-check">✓</div>
+  <div class="question" id="done-title" style="text-align:center">Habits tracked</div>
+  <div class="status" id="done-sub" style="text-align:center"></div>
+  <button class="btn" id="done-back">Back</button>
+  <button class="btn secondary" id="done-retry" hidden>Retry save</button>
+</div></section>
+
+<section class="view" id="view-edit"><div class="card">
+  <div class="progress" id="edit-title"></div>
+  <div id="edit-rows"></div>
+  <div class="progress" style="margin-top:8px">Automatic</div>
+  <div id="edit-derived"></div>
+  <button class="btn secondary" id="edit-back">Back</button>
+</div></section>
+
+<div id="toast"></div>
+
+<script src="habits-config.js"></script>
+<script src="habits-core.js"></script>
+<script>
+'use strict';
+const C = HabitsCore;
+const WORKER = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? location.origin : HABITS_CONFIG.workerUrl;
+const $ = id => document.getElementById(id);
+const DEFS_KEY = 'habits_defs';
+let defs = null, parsed = null, sha = null, offline = '';
+let date = C.todayLocal();
+let wiz = { i: 0, answers: {} };
+let queue = Promise.resolve();
+
+const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+             set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+             del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
+
+let toastTimer = 0;
+function toast(msg, kind) { const t = $('toast'); t.textContent = msg; t.className = 'show ' + (kind || ''); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.className = '', 3200); }
+function show(id) { document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id)); }
+
+async function apiGetHabits() {
+  const r = await fetch(WORKER + '/habits?t=' + Date.now(), { cache: 'no-store' });
+  if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error('read failed ' + r.status + ': ' + (j.message || j.error || '')); }
+  const j = await r.json();
+  parsed = C.parseCSV(j.content); sha = j.sha;
+}
+/* Definitions are cached so the wizard still runs with the store unreachable. */
+async function apiGetDefs() {
+  const r = await fetch(WORKER + '/raw/definitions?t=' + Date.now(), { cache: 'no-store' });
+  if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error('definitions failed ' + r.status + ': ' + (j.message || j.error || '')); }
+  const text = await r.text();
+  defs = JSON.parse(text);
+  ls.set(DEFS_KEY, text);
+}
+function cachedDefs() {
+  const text = ls.get(DEFS_KEY);
+  if (!text) return null;
+  try { return JSON.parse(text); } catch (e) { return null; }
+}
+async function apiPut(content, message) {
+  const r = await fetch(WORKER + '/habits', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content, sha, message }) });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 409) { const e = new Error('conflict'); e.conflict = true; throw e; }
+  if (!r.ok) throw new Error('save failed ' + r.status + ': ' + (j.message || j.error || ''));
+  sha = j.sha || sha;
+}
+/* Read-upsert-write for one date; on a sha clash refetch and try once more.
+   The date is a parameter, never the global, so a queued save writes the day
+   it was asked for even if the picker has moved on. */
+async function saveValues(d, values, message) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (attempt || !parsed) await apiGetHabits();
+    const out = C.upsertDay(parsed, d, values, C.localISO());
+    try { await apiPut(C.serializeCSV(out.header, out.rows), message); parsed = out; return; }
+    catch (e) { if (!e.conflict || attempt) throw e; }
+  }
+}
+function rowFor(d) { return parsed && parsed.rows.find(r => r.date === d); }
+
+function renderHome() {
+  $('date').value = date;
+  const row = rowFor(date), btn = $('home-btn');
+  if (!defs) { $('home-status').textContent = offline ? 'Cannot reach the habit store: ' + offline : 'Loading…'; btn.disabled = true; return; }
+  btn.disabled = false;
+  /* Definitions but no CSV: the wizard runs, the save will offer Retry. */
+  if (!parsed) { $('home-status').textContent = 'Cannot reach the habit store: ' + offline; btn.textContent = 'Log habits'; btn.onclick = openWizard; return; }
+  if (row && row.logged_at) { $('home-status').textContent = 'Logged at ' + C.formatLoggedAt(row.logged_at); btn.textContent = 'Edit habits'; btn.onclick = openEdit; }
+  else { $('home-status').textContent = ls.get(C.draftKey(date)) ? 'In progress — tap to continue' : 'Not logged yet'; btn.textContent = 'Log habits'; btn.onclick = openWizard; }
+}
+$('date').addEventListener('change', e => { date = e.target.value || C.todayLocal(); renderHome(); });
+
+function habitsToAsk() { return C.phoneHabits(defs); }
+function openWizard() {
+  const saved = ls.get(C.draftKey(date));
+  /* A corrupt draft must not brick the page: start the night over instead. */
+  wiz = { i: 0, answers: {} };
+  if (saved) {
+    try {
+      const d = JSON.parse(saved);
+      if (d && typeof d.i === 'number' && d.answers && typeof d.answers === 'object') wiz = d;
+      else ls.del(C.draftKey(date));
+    } catch (e) { ls.del(C.draftKey(date)); }
+  }
+  const list = habitsToAsk();
+  /* A finished draft means a save that failed: retry it, do not start over. */
+  if (wiz.i >= list.length) {
+    if (Object.keys(wiz.answers).length) { finishWizard(); return; }
+    wiz.i = 0;
+  }
+  show('view-wizard'); renderQuestion();
+}
+function renderQuestion() {
+  const list = habitsToAsk(), h = list[wiz.i];
+  $('wiz-progress').textContent = (wiz.i + 1) + ' of ' + list.length;
+  $('wiz-question').textContent = h.question || h.label + '?';
+  const prior = wiz.answers[h.id];
+  ['tile-yes', 'tile-no'].forEach(id => $(id).classList.remove('chosen'));
+  if (prior === 'yes' || prior === 'no') $(prior === 'yes' ? 'tile-yes' : 'tile-no').classList.add('chosen');
+  $('wiz-back').style.visibility = wiz.i ? 'visible' : 'hidden';
+  const card = $('wizard-card'); card.classList.remove('slide-in'); void card.offsetWidth; card.classList.add('slide-in');
+}
+let answering = false;
+function answer(value) {
+  if (answering) return; answering = true;
+  const list = habitsToAsk(), h = list[wiz.i];
+  if (value !== null) wiz.answers[h.id] = value; else delete wiz.answers[h.id];
+  /* Clear first: after Back repainted a prior answer, changing it must not leave both tiles marked. */
+  ['tile-yes', 'tile-no'].forEach(id => $(id).classList.remove('chosen'));
+  if (value !== null) $(value === 'yes' ? 'tile-yes' : 'tile-no').classList.add('chosen');
+  const next = () => {
+    answering = false;
+    wiz.i += 1;
+    if (wiz.i < list.length) { ls.set(C.draftKey(date), JSON.stringify(wiz)); renderQuestion(); }
+    else finishWizard();
+  };
+  setTimeout(next, value === null ? 0 : 320);
+}
+$('tile-yes').onclick = () => answer('yes');
+$('tile-no').onclick = () => answer('no');
+/* The tiles are divs with role="button", so Enter/Space have to be wired by
+   hand for a keyboard or a switch-control user. */
+[['tile-yes', 'yes'], ['tile-no', 'no']].forEach(([id, v]) => {
+  $(id).addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+    e.preventDefault();          /* Space would otherwise scroll the page */
+    answer(v);
+  });
+});
+$('wiz-skip').onclick = () => answer(null);
+$('wiz-back').onclick = () => { if (wiz.i > 0) { wiz.i -= 1; ls.set(C.draftKey(date), JSON.stringify(wiz)); renderQuestion(); } };
+
+/* One save at a time: a second tap on Retry while the first is still in flight
+   would race two PUTs against the same sha and lose one of them. */
+let saving = false;
+async function finishWizard() {
+  if (saving) return;
+  saving = true;
+  const d = date, answers = wiz.answers;   /* the day this wizard was for */
+  show('view-done');
+  $('done-title').textContent = 'Saving…'; $('done-sub').textContent = ''; $('done-retry').hidden = true; $('done-retry').disabled = true; $('done-back').disabled = true;
+  try {
+    await saveValues(d, answers, 'habits: phone log ' + d);
+    ls.del(C.draftKey(d));
+    $('done-title').textContent = 'Habits tracked for ' + C.formatDateLong(d);
+    const n = Object.keys(answers).length, total = habitsToAsk().length;
+    $('done-sub').textContent = n + ' of ' + total + ' answered' + (n < total ? ', the rest left blank' : '');
+  } catch (e) {
+    ls.set(C.draftKey(d), JSON.stringify(wiz));
+    $('done-title').textContent = 'Not saved'; $('done-sub').textContent = e.message; $('done-retry').hidden = false; $('done-retry').disabled = false;
+    toast(e.message, 'error');
+  }
+  $('done-back').disabled = false;
+  saving = false;
+}
+$('done-retry').onclick = finishWizard;
+$('done-back').onclick = () => { renderHome(); show('view-home'); };
+
+function openEdit() {
+  const row = rowFor(date) || {};
+  /* A row can exist with no logged_at (the 07:00 derived run writes one), so
+     say so rather than trailing a dangling "logged ". */
+  const stamp = C.formatLoggedAt(row.logged_at);
+  $('edit-title').textContent = C.formatDateLong(date) + ' · ' + (stamp ? 'logged ' + stamp : 'not logged');
+  const rows = $('edit-rows'); rows.innerHTML = '';
+  habitsToAsk().forEach(h => {
+    const div = document.createElement('div'); div.className = 'row';
+    div.innerHTML = '<div></div><div class="pills"></div>';
+    div.firstChild.textContent = h.label;
+    const pills = div.querySelector('.pills');
+    [['yes', 'Yes'], ['no', 'No'], ['', '—']].forEach(([v, txt]) => {
+      const b = document.createElement('button'); b.className = 'pill ' + (v || 'blank'); b.textContent = txt;
+      b.dataset.v = v; b.dataset.id = h.id;
+      if ((row[h.id] || '') === v) b.classList.add('on');
+      b.onclick = () => setValue(h.id, v, pills);
+      pills.appendChild(b);
+    });
+    rows.appendChild(div);
+  });
+  const der = $('edit-derived'); der.innerHTML = '';
+  C.derivedHabits(defs).forEach(h => {
+    const div = document.createElement('div'); div.className = 'row';
+    div.innerHTML = '<div class="ro"></div><div class="ro"></div>';
+    div.firstChild.textContent = h.label;
+    div.lastChild.textContent = row[h.id] || '—';
+    der.appendChild(div);
+  });
+  show('view-edit');
+}
+function setValue(id, v, pills) {
+  const d = date;   /* the day that was on screen when the pill was tapped */
+  pills.querySelectorAll('.pill').forEach(p => p.classList.toggle('on', p.dataset.v === v));
+  queue = queue.then(() => saveValues(d, { [id]: v }, 'habits: phone edit ' + d + ' ' + id + '=' + (v || 'blank')))
+    .then(() => toast('Saved', 'ok'))
+    .catch(e => { toast(e.message, 'error'); openEdit(); });
+}
+$('edit-back').onclick = () => { renderHome(); show('view-home'); };
+
+async function init() {
+  renderHome();
+  try { await apiGetDefs(); }
+  catch (e) { offline = e.message; defs = cachedDefs(); }   /* cached defs keep the wizard usable */
+  try { await apiGetHabits(); }
+  catch (e) { offline = offline || e.message; }
+  renderHome();
+  if (offline) toast(offline, 'error');
+}
+/* Queued so a refetch cannot replace parsed/sha while an edit PUT is in flight. */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden || (!parsed && !offline)) return;   /* offline: this is the recovery path */
+  queue = queue.then(() => offline ? apiGetDefs() : null).then(() => apiGetHabits())
+    .then(() => { offline = ''; if ($('view-home').classList.contains('active')) renderHome(); }).catch(() => {});
+});
+init();
+</script>
+</body>
+</html>

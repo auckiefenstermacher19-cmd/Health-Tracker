@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "note": "Column order mirrors the original 'Habit Tracker' tab in Auckie - 2B.xlsx.",
+  "note": "Column order mirrors the original 'Habit Tracker' tab in Auckie - 2B.xlsx, then habits in the order they were added. phone_order marks what the phone page asks.",
   "config": {
     "bed_on_time_before": "22:00",
     "_bed_on_time_before_note": "Local clock time, set from a 05:30 wake target. WHOOP sleep_start is when sleep actually began, so this is 'asleep by 10pm', not 'in bed by 10pm'. UTC is converted to machine-local time before comparison.",
@@ -19,7 +19,20 @@
     "consistent_wake_min_pct": 70,
     "item_status_sources": [
       "../ai-learning/pipeline/state/item-status.json"
-    ]
+    ],
+    "water_dashboard_sources": [
+      "https://raw.githubusercontent.com/auckiefenstermacher19-cmd/MyFitnessClone/main/Water_Data_Dashboard.csv",
+      "../MyFitnessClone/Water_Data_Dashboard.csv"
+    ],
+    "workout_log_sources": [
+      "https://raw.githubusercontent.com/auckiefenstermacher19-cmd/Workout-Tracker-v2/main/workout_tracker.csv"
+    ],
+    "meal_dashboard_sources": [
+      "https://raw.githubusercontent.com/auckiefenstermacher19-cmd/MyFitnessClone/main/Meal_Data_Dashboard.csv",
+      "../MyFitnessClone/Meal_Data_Dashboard.csv"
+    ],
+    "calorie_tolerance_pct": 10,
+    "source_fetch_timeout_s": 10
   },
   "habits": [
     {
@@ -31,13 +44,16 @@
         "made bed",
         "bed made",
         "made the bed"
-      ]
+      ],
+      "phone_order": 1,
+      "question": "Made your bed?"
     },
     {
       "id": "workout",
       "label": "Workout",
       "type": "binary",
       "source": "self",
+      "auto_source": "workout_log",
       "aliases": [
         "workout",
         "worked out",
@@ -47,7 +63,7 @@
         "run",
         "training"
       ],
-      "note": "Tick it yourself; WHOOP's view lands in workout_whoop."
+      "note": "Self-report; also filled automatically from workout_log when blank (auto_source). Since 2026-09-11: any set logged in Workout-Tracker-v2 that day -> yes; otherwise blank, never no. WHOOP's view lands in workout_whoop. A hand-set value is never overwritten, and the GTD Year tab can still tick it."
     },
     {
       "id": "morning_vitamins",
@@ -58,7 +74,9 @@
         "morning vitamins",
         "am vitamins",
         "morning supplements"
-      ]
+      ],
+      "phone_order": 2,
+      "question": "Morning vitamins?"
     },
     {
       "id": "shower_teeth",
@@ -79,12 +97,14 @@
       "label": "Water target",
       "type": "binary",
       "source": "self",
+      "auto_source": "water_dashboard",
       "aliases": [
         "water",
         "hydrated",
         "drank water",
         "water target"
-      ]
+      ],
+      "note": "Self-report; also filled automatically from water_dashboard when blank (auto_source). Since 2026-09-11: day total >= goal -> yes, a row under goal -> no, no row -> blank. Not asked on the phone page, but the GTD Year tab can still tick it."
     },
     {
       "id": "read_fiction",
@@ -95,7 +115,9 @@
         "read fiction",
         "fiction",
         "novel"
-      ]
+      ],
+      "phone_order": 8,
+      "question": "Read fiction?"
     },
     {
       "id": "read_nonfiction",
@@ -106,7 +128,9 @@
         "read nonfiction",
         "non-fiction",
         "nonfiction"
-      ]
+      ],
+      "phone_order": 9,
+      "question": "Read non-fiction?"
     },
     {
       "id": "bed_on_time",
@@ -128,7 +152,9 @@
         "night vitamins",
         "pm vitamins",
         "evening supplements"
-      ]
+      ],
+      "phone_order": 5,
+      "question": "Night vitamins?"
     },
     {
       "id": "no_junk",
@@ -141,7 +167,9 @@
         "junk food",
         "junk",
         "clean eating"
-      ]
+      ],
+      "phone_order": 6,
+      "question": "Stayed off junk food?"
     },
     {
       "id": "no_fap",
@@ -152,20 +180,23 @@
       "aliases": [
         "no fap",
         "nofap"
-      ]
+      ],
+      "phone_order": 7,
+      "question": "Stayed clean (no fap)?"
     },
     {
       "id": "screentime",
-      "label": "Screentime",
-      "type": "hours",
-      "target": 2,
-      "direction": "at_most",
+      "label": "Screentime under 2h",
+      "type": "binary",
       "source": "self",
       "aliases": [
         "screentime",
         "screen time",
         "phone time"
-      ]
+      ],
+      "phone_order": 11,
+      "question": "Screentime under 2 hours?",
+      "note": "Was type hours with zero entries ever; became yes/no on 2026-09-11 for the phone flow."
     },
     {
       "id": "clean_sink",
@@ -214,7 +245,9 @@
         "shower",
         "showered",
         "washed"
-      ]
+      ],
+      "phone_order": 3,
+      "question": "Showered?"
     },
     {
       "id": "teeth",
@@ -226,7 +259,9 @@
         "brushed",
         "brushed teeth",
         "flossed"
-      ]
+      ],
+      "phone_order": 4,
+      "question": "Brushed your teeth?"
     },
     {
       "id": "slept_7h",
@@ -291,7 +326,9 @@
         "screens off",
         "phone off",
         "9pm shutdown"
-      ]
+      ],
+      "phone_order": 10,
+      "question": "Devices off by 9pm?"
     },
     {
       "id": "reach_out",
@@ -414,6 +451,14 @@
         "books",
         "finished a book"
       ]
+    },
+    {
+      "id": "calories_on_target",
+      "label": "Calories on target",
+      "type": "binary",
+      "source": "meal_dashboard",
+      "aliases": ["calories", "hit calories", "calorie goal"],
+      "note": "Derived from the food log dashboard: calories_actual within calorie_tolerance_pct of calories_goal -> yes; a logged day outside -> no; no row -> blank. Added 2026-09-11."
     }
   ]
 }
