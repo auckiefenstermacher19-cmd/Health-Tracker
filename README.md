@@ -1,7 +1,7 @@
 # Health Tracker
 
-Joins WHOOP daily rows with meal-dashboard rows into one master table, and
-holds the nightly habit log. This folder does not collect WHOOP or log meals.
+Joins WHOOP daily rows, meal-dashboard rows, and water-dashboard rows into one
+master table, and holds the nightly habit log. This folder does not collect WHOOP or log meals.
 
 ---
 
@@ -51,10 +51,19 @@ Date-join on `date` (YYYY-MM-DD). One row per calendar date, newest first.
 Dates that exist in only one source still appear — the other side is blank.
 
 ```
-[ All WHOOP columns from daily_consolidated.csv, original order ]
-[ 1 blank spacer column                                         ]
-[ All meal columns from Meal_Data_Dashboard.csv, original order ]
+[ All WHOOP columns from daily_consolidated.csv, original order  ]
+[ 1 blank spacer column                                          ]
+[ All meal columns from Meal_Data_Dashboard.csv, original order  ]
+[ 1 blank spacer column          ← only when a water file exists ]
+[ All water columns from Water_Data_Dashboard.csv, original order ]
 ```
+
+Water is the third source and it is optional. When `raw\Water_Data_Dashboard.csv`
+is absent the water block is omitted entirely and the output is byte-identical
+to the long-standing two-block layout, so a water outage never blocks the
+WHOOP+meal merge. Each downstream block's own `date` column is renamed on the
+way out (`meal_date`, `water_date`), so every existing column index stays
+valid when water appears. Water is warn-only for freshness, like meals.
 
 Sources (siblings, not this folder):
 
@@ -67,6 +76,12 @@ Sources (siblings, not this folder):
   failed in `logs/audit_report.md`. `meal` is warn-only, so the workflow
   itself stays green. Treat a green run as saying nothing about meal
   freshness.
+- Water: `..\MyFitnessClone\` (`Water_Data_Dashboard.csv`) — one row per date
+  with `water_fl_oz` against a `water_goal_fl_oz` of 128 (one gallon), plus the
+  big/small bottle counts. Written by MyFitnessClone's water workflow from
+  `water_log.csv`; a missing file is a warning, not a failure. The dashboard's
+  Water tiles read these columns and fall back to the empty state when they are
+  blank or absent.
 
 Output on disk: **`Health_Tracker_Master.csv` at this repo root** (not
 `data\Health_Tracker_Master.csv` — there is no `data\` folder).
@@ -100,7 +115,8 @@ Health-Tracker\
 ├── .code-geeko\state.json        ← Code-Geeko's seen-findings state
 ├── schema\
 │   ├── daily_consolidated_schema.json
-│   └── Meal_Data_Dashboard_schema.json
+│   ├── Meal_Data_Dashboard_schema.json
+│   └── Water_Data_Dashboard_schema.json
 ├── logs\
 ├── tests\                        ← test_habits.py plus tests\codegeeko\
 ├── requirements.txt
@@ -150,7 +166,9 @@ or reorders columns.
 | Scenario | Behavior |
 |---|---|
 | WHOOP gains columns | New columns appear in the output before the spacer |
-| Meal data gains columns | New columns appear after the spacer |
+| Meal data gains columns | New columns appear after the first spacer |
+| Water data gains columns | New columns appear after the second spacer |
+| The water file is missing | Water block omitted; two-block output unchanged |
 | Either file reorders columns | Output keeps each source file's own order |
 | New dates in either file | Merged into the output |
 | Column removed | Detected and logged; output still valid |

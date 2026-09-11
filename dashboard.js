@@ -120,15 +120,20 @@ const COACH_ICONS={
 };
 
 /* ── MOTION ─────────────────────────────────────────────────── */
+let cuSeq=0;
 function countUp(el,to,dur,dec){
   if(!el) return;
+  // Each call claims the element; an in-flight animation from a previous day
+  // loses the claim and stops writing (otherwise it overwrites the new value).
+  const gen=String(++cuSeq); el.dataset.cu=gen;
+  const mine=()=>el.dataset.cu===gen;
   if(to==null){ el.textContent='—'; return; }
   const finalTxt=dec?to.toFixed(dec):Math.round(to).toLocaleString();
   if(reduceMotion){ el.textContent=finalTxt; return; }
   let s=null;
-  requestAnimationFrame(function step(ts){ if(!s)s=ts; const p=Math.min((ts-s)/dur,1),e=1-Math.pow(1-p,3),val=to*e;
+  requestAnimationFrame(function step(ts){ if(!mine())return; if(!s)s=ts; const p=Math.min((ts-s)/dur,1),e=1-Math.pow(1-p,3),val=to*e;
     el.textContent=dec?val.toFixed(dec):Math.round(val).toLocaleString(); if(p<1)requestAnimationFrame(step); });
-  setTimeout(()=>{ el.textContent=finalTxt; }, dur+150);
+  setTimeout(()=>{ if(mine()) el.textContent=finalTxt; }, dur+150);
 }
 function paintBars(sel){ requestAnimationFrame(()=>document.querySelectorAll(sel).forEach(i=>{ if(i.dataset.w!=null) i.style.width=i.dataset.w+'%'; })); }
 
@@ -182,11 +187,60 @@ function renderCharts(){
   $('meal-legend').innerHTML=mL.map((l,i)=>`<span><i class="ld" style="background:${mC[i]}"></i>${l} ${fmt(mV[i])}</span>`).join('');
   destroyChart('mealDonut'); charts.mealDonut=new Chart($('meal-donut'),{type:'doughnut',data:{labels:mL,datasets:[{data:mT>0?mV:[1,0,0,0],backgroundColor:mC,borderWidth:0,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>mT>0?` ${c.label}: ${fmt(c.raw)} kcal`:'No data'}}}}});
 
+  // Water 14d
+  const wCanvas=$('water-chart');
+  if(wCanvas&&hasWaterColumns(cur)){
+    const w14=allRows.slice(dateIndex,dateIndex+14).reverse(), wL=w14.map(r=>(r.date||'').slice(5));
+    const wV=w14.map(r=>n(r.water_fl_oz));
+    const gs=w14.map(waterGoal);            // each day carries its own goal
+    destroyChart('waterMini'); charts.waterMini=new Chart(wCanvas,{type:'bar',data:{labels:wL,datasets:[
+      {type:'bar',label:'fl oz',data:wV,backgroundColor:wV.map((v,i)=>(v!=null&&v>=gs[i])?'#00e69acc':'#4fa3ffcc'),borderWidth:0},
+      {type:'line',label:'Goal',data:gs,borderColor:'#4fa3ff88',backgroundColor:'transparent',borderWidth:1.5,borderDash:[4,4],pointRadius:0,pointHoverRadius:0,tension:0,fill:false}
+    ]},options:Object.assign({},noLeg,{scales:{x:{...bx,grid:{display:false}},y:{...by,beginAtZero:true}}})});
+  } else { destroyChart('waterMini'); }
+
   // Macro donut
   const macV=[n(cur.macro_total_fat_actual)||0,n(cur.macro_total_carbs_actual)||0,n(cur.macro_protein_actual)||0];
   const macL=['Fat','Carbs','Protein'],macC=['#ff7a3c','#4fa3ff','#00e69a'],macT=macV.reduce((a,b)=>a+b,0);
   $('macro-legend').innerHTML=macL.map((l,i)=>`<span><i class="ld" style="background:${macC[i]}"></i>${l} ${fmt(macV[i],0)}g</span>`).join('');
   destroyChart('macroDonut'); charts.macroDonut=new Chart($('macro-donut'),{type:'doughnut',data:{labels:macL,datasets:[{data:macT>0?macV:[1,1,1],backgroundColor:macC,borderWidth:0,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>macT>0?` ${c.label}: ${fmt(c.raw,1)}g`:'No data'}}}}});
+}
+
+/* ── WATER ──────────────────────────────────────────────────── */
+const WATER_DEFAULT_GOAL = 128;
+function waterGoal(row){ const g=row?n(row.water_goal_fl_oz):null; return (g!=null&&g>0)?g:WATER_DEFAULT_GOAL; }
+// A blank string means "no water that day" (render the empty state); `undefined`
+// means the master CSV has no water columns at all — the bot has not run a
+// three-source merge yet — so the whole feature stays out of the page.
+function hasWaterColumns(row){ return !!row && row.water_fl_oz!==undefined; }
+function renderWater(row){
+  const fillG=$('water-fill-g'), ring=$('water-ring'), num=$('waterNum'), cap=$('water-caption'), wrap=$('water-wrap');
+  const tileA=$('water-tile'), tileB=$('water-chart-tile');
+  const present=hasWaterColumns(row);
+  if(tileA) tileA.hidden=!present;
+  if(tileB) tileB.hidden=!present;
+  if(!present||!fillG||!ring||!num||!cap) return;
+  const oz=n(row.water_fl_oz), goal=waterGoal(row), has=oz!=null;
+  const raw=has?oz/goal:0, ratio=clamp(raw,0,1), hit=has&&oz>=goal;
+  const color=hit?'#00e69a':'#4fa3ff';
+  ring.style.stroke=color;
+  document.querySelectorAll('#water-fill,#water-wave').forEach(el=>{ el.style.fill=color; });
+  const y=160*(1-ratio), setY=()=>{ fillG.style.transform='translateY('+y+'px)'; };
+  if(reduceMotion) setY(); else requestAnimationFrame(setY);
+  if(!has){
+    countUp(num,null,1200); num.style.color='#8b95a8';
+    cap.textContent='No water logged'; cap.style.color='';
+  } else {
+    // The number stays var(--text): green-on-green is unreadable at goal.
+    num.style.color='#eef2f8'; countUp(num,oz,1200);
+    // Same ratio the fill and the goal test use, so the caption cannot disagree.
+    cap.textContent=hit?'Goal hit ✓':`of ${fmt(goal)} · ${Math.round(raw*100)}%`;
+    cap.style.color=hit?'#00e69a':'';
+  }
+  if(wrap){
+    const big=n(row.water_big_count), small=n(row.water_small_count);
+    wrap.title=has&&(big!=null||small!=null)?`${big||0} big · ${small||0} small bottle${(big||0)+(small||0)===1?'':'s'}`:'';
+  }
 }
 
 /* ── RENDER DAY ─────────────────────────────────────────────── */
@@ -315,6 +369,9 @@ function renderDay(row){
     ['Iron',n(row.micro_iron_mg_actual),n(row.micro_iron_mg_goal),'mg',false,1],
   ];
   $('micro-bars').innerHTML=micros.map(m=>fillBarHTML(m[0],m[1],m[2],m[3],m[4],m[5])).join('');
+
+  // Water
+  renderWater(row);
 
   // CV fitness
   const cv=row.cv_fitness_trajectory||'—';

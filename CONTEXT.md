@@ -18,12 +18,13 @@ This is a **room** (merge + habit log) with three scheduled machines writing int
 
 ## What this is
 
-Joins WHOOP days, meal days, and the habit log into one master table, and holds the nightly habit write.
+Joins WHOOP days, meal days, water days, and the habit log into one master table, and holds the nightly habit write.
 
 Upstream:
 
 - WHOOP CSVs: `..\whoop-data\` (read its `CONTEXT.md`)
 - Meals: `..\MyFitnessClone\` (read its `CONTEXT.md`) — frozen since 2026-07-25; the merge reports the meal source STALE on every run and stays green anyway
+- Water: `..\MyFitnessClone\` (`Water_Data_Dashboard.csv`, same repo as meals) — daily fl oz against a 128 fl oz goal; optional, so a missing water file warns and the WHOOP+meal merge still runs
 
 ## What runs without you
 

@@ -165,6 +165,20 @@
   .donut-box{position:relative;width:120px;height:120px;flex-shrink:0;}
   .leg.col{flex-direction:column;gap:9px;}
 
+  [hidden]{display:none!important;}
+
+  /* water gauge */
+  .water-wrap{position:relative;width:160px;height:160px;margin:14px auto 0;}
+  .water-wrap svg{display:block;}
+  .water-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+  .water-center .num{font-family:var(--mono);font-size:1.9rem;font-weight:600;line-height:1;letter-spacing:-0.02em;text-shadow:0 1px 6px #000a;}
+  .water-center .wu{font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:#b9c4d4;margin-top:6px;text-shadow:0 1px 6px #000a;}
+  #water-fill-g{transform:translateY(160px);transition:transform .9s cubic-bezier(.22,1,.36,1);}
+  #water-wave{animation:waterwave 3.6s linear infinite;}
+  @keyframes waterwave{from{transform:translateX(0);}to{transform:translateX(-80px);}}
+  #water-ring{transition:stroke .4s,stroke-opacity .4s;}
+  .water-cap{font-size:0.74rem;color:var(--text2);text-align:center;margin-top:12px;}
+
   /* traj */
   .traj{font-family:var(--mono);font-size:1.5rem;font-weight:600;}
 
@@ -382,6 +396,28 @@
       </div>
       <div class="tile span4"><div class="lbl">Energy Balance · 14 days</div><div class="chart-box sm" style="margin-top:12px"><canvas id="eb-chart"></canvas></div></div>
 
+      <div class="tile span4" id="water-tile" hidden>
+        <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--blue)"><path d="M12 2.7l5 6.1a6.5 6.5 0 11-10 0l5-6.1z"/></svg>Water</div>
+        <div class="water-wrap" id="water-wrap">
+          <svg width="160" height="160" viewBox="0 0 160 160" aria-hidden="true">
+            <defs><clipPath id="waterClip"><circle cx="80" cy="80" r="72"/></clipPath></defs>
+            <circle cx="80" cy="80" r="72" fill="#0a0e15"/>
+            <g clip-path="url(#waterClip)">
+              <g id="water-fill-g">
+                <path id="water-wave" fill="#4fa3ff" fill-opacity="0.58"
+                  d="M -80 7 q 20 -11 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 t 40 0 L 320 200 L -80 200 Z"/>
+                <rect id="water-fill" x="-80" y="7" width="400" height="200" fill="#4fa3ff" fill-opacity="0.58"/>
+              </g>
+            </g>
+            <circle id="water-ring" cx="80" cy="80" r="72" fill="none" stroke="#4fa3ff" stroke-opacity="0.3" stroke-width="6"/>
+          </svg>
+          <div class="water-center"><div class="num mono" id="waterNum">—</div><div class="wu">fl oz</div></div>
+        </div>
+        <div class="water-cap" id="water-caption">No water logged</div>
+      </div>
+
+      <div class="tile span4" id="water-chart-tile" hidden><div class="lbl">Water · 14 days</div><div class="chart-box sm" style="margin-top:12px"><canvas id="water-chart"></canvas></div></div>
+
       <div class="tile span12">
         <div class="lbl"><svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg>Micronutrients vs Goal</div>
         <div class="micro-grid" id="micro-bars"></div>
@@ -422,6 +458,6 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=v5b-20260714"></script>
+<script src="dashboard.js?v=v5c-20260911"></script>
 </body>
 </html>
