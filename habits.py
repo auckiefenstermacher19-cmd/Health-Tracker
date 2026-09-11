@@ -34,6 +34,7 @@ Exit codes
 
 import argparse
 import csv
+import io
 import json
 import os
 import sys
@@ -415,6 +416,102 @@ def prefill_learning(defs, day, known, notes):
                  + " -> learning_consumed=" + known["learning_consumed"])
 
 
+# -- Sibling-app sources (water page, workout tracker, food dashboard) ------
+
+def _fetch_text(url, timeout):
+    """The one network call. Tests replace this."""
+    import urllib.request
+    req = urllib.request.Request(url, headers={"User-Agent": "health-tracker-habits"})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return resp.read().decode("utf-8-sig", errors="replace")
+
+
+def read_source_rows(defs, config_key, notes):
+    """Rows from the first source in defs.config[config_key] that answers.
+
+    Entries starting with http are fetched; others are paths relative to
+    this repo. Every failure is noted and the next entry tried. Returns None
+    when nothing answered, so callers leave the habit blank.
+    """
+    timeout = defs["config"].get("source_fetch_timeout_s", 10)
+    for entry in defs["config"].get(config_key, []):
+        try:
+            if entry.startswith("http"):
+                text = _fetch_text(entry, timeout)
+            else:
+                p = (REPO_DIR / entry).resolve()
+                if not p.exists():
+                    continue
+                text = p.read_text(encoding="utf-8-sig", errors="replace")
+        except Exception as exc:          # network, permission, decode - all skip
+            notes.append(config_key + ": " + entry + " failed (" + str(exc)[:80] + ")")
+            continue
+        rows = list(csv.DictReader(io.StringIO(text)))
+        notes.append(config_key + ": read " + str(len(rows)) + " rows from " + entry)
+        return rows
+    return None
+
+
+def _row_for_day(rows, day, field="date"):
+    target = day.isoformat()
+    for r in rows:
+        if (r.get(field) or "").strip() == target:
+            return r
+    return None
+
+
+def prefill_water(defs, day, known, notes):
+    """water = day total on the water page >= its goal. No row -> blank."""
+    rows = read_source_rows(defs, "water_dashboard_sources", notes)
+    if rows is None:
+        notes.append("No water dashboard reachable - water left blank.")
+        return
+    row = _row_for_day(rows, day)
+    if row is None:
+        notes.append("Water dashboard has no row for " + day.isoformat() + " - water left blank.")
+        return
+    total, goal = _num(row, "water_fl_oz"), _num(row, "water_goal_fl_oz")
+    if total is None or goal is None:
+        notes.append("Water dashboard row missing numbers - water left blank.")
+        return
+    known["water"] = "yes" if total >= goal else "no"
+    notes.append("Water: %s of %s fl oz -> water=%s" % (total, goal, known["water"]))
+
+
+def prefill_workout_log(defs, day, known, notes):
+    """workout = any set logged in Workout-Tracker-v2 that day. Never 'no'."""
+    rows = read_source_rows(defs, "workout_log_sources", notes)
+    if rows is None:
+        notes.append("No workout log reachable - workout left blank.")
+        return
+    if _row_for_day(rows, day, field="Date") is None:
+        notes.append("Workout log has no sets for " + day.isoformat() + " - workout left blank.")
+        return
+    known["workout"] = "yes"
+    notes.append("Workout log: sets found for " + day.isoformat() + " -> workout=yes")
+
+
+def prefill_calories(defs, day, known, notes):
+    """calories_on_target = actual within calorie_tolerance_pct of goal."""
+    rows = read_source_rows(defs, "meal_dashboard_sources", notes)
+    if rows is None:
+        notes.append("No meal dashboard reachable - calories_on_target left blank.")
+        return
+    row = _row_for_day(rows, day)
+    if row is None:
+        notes.append("Meal dashboard has no row for " + day.isoformat() + " - calories_on_target left blank.")
+        return
+    actual, goal = _num(row, "calories_actual"), _num(row, "calories_goal")
+    if actual is None or goal is None or goal <= 0:
+        notes.append("Meal dashboard row missing calories - calories_on_target left blank.")
+        return
+    tol = float(defs["config"].get("calorie_tolerance_pct", 10)) / 100.0
+    ok = abs(actual - goal) <= goal * tol
+    known["calories_on_target"] = "yes" if ok else "no"
+    notes.append("Calories: %s vs goal %s (tol %d%%) -> calories_on_target=%s"
+                 % (actual, goal, tol * 100, known["calories_on_target"]))
+
+
 def prefill(defs, day):
     """Everything the machine already knows for `day`.
 
@@ -425,6 +522,9 @@ def prefill(defs, day):
     prefill_whoop(defs, day, known, notes)
     prefill_meal_log(defs, day, known, notes)
     prefill_learning(defs, day, known, notes)
+    prefill_water(defs, day, known, notes)
+    prefill_workout_log(defs, day, known, notes)
+    prefill_calories(defs, day, known, notes)
     return known, notes
 
 
