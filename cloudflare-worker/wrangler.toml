@@ -1,0 +1,11 @@
+# Deploy config for the Habit Tracker proxy. Run `npx wrangler deploy` in this
+# folder. The GitHub token is NOT here: set it once with
+#   npx wrangler secret put GITHUB_PAT --name habit-tracker-proxy
+name = "habit-tracker-proxy"
+main = "habits-worker.js"
+compatibility_date = "2026-09-11"
+
+[vars]
+GITHUB_OWNER = "auckiefenstermacher19-cmd"
+GITHUB_REPO = "Health-Tracker"
+ALLOWED_ORIGIN = "https://auckiefenstermacher19-cmd.github.io"
