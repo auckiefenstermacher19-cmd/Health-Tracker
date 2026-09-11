@@ -55,21 +55,25 @@ prefixed `habits:`.
 
 ## The habit set
 
-**Derived — 7, never asked:**
+**Derived — 10, never asked:**
 
 | Habit | Source | Rule |
 |---|---|---|
-| Workout (WHOOP) | WHOOP | `workout_count > 0`. A day with cycle data but no workout is a real "no"; no WHOOP row at all stays blank. Lands in `workout_whoop`; `workout` itself is self-reported. |
+| Workout (WHOOP) | WHOOP | `workout_count > 0`. A day with cycle data but no workout is a real "no"; no WHOOP row at all stays blank. Lands in `workout_whoop`; `workout` itself is derived from the Workout Tracker (see below). |
 | Bed on time | WHOOP | `sleep_start` (UTC → local) before `bed_on_time_before`. |
 | Slept 7+ hours | WHOOP | light + SWS + REM ≥ `sleep_hours_target`. All three stages required, since a missing one understates the total. |
 | Active day | WHOOP | `day_strain` ≥ `active_day_strain_min`. |
 | Consistent wake | WHOOP | `sleep_consistency_pct` ≥ `consistent_wake_min_pct`. |
 | Logged Food | MyFitnessClone | Any `meal_log.csv` row for the date. That file is the record, not a synced copy, so no rows is a real "did not log". |
 | Learning consumed | ai-learning | Any item with `viewed_at` on the date. A `viewed` flag with no stamp does not count. |
+| Water target | Water dashboard | Day total in `Water_Data_Dashboard.csv` ≥ `water_goal_fl_oz` → yes; a row under goal → no; no row → blank. |
+| Workout | Workout Tracker | Derived from the Workout Tracker, blank if nothing logged: any row in `workout_tracker.csv` for the date → yes, otherwise blank, never no — an unlogged day is not a missed workout. WHOOP's view lands separately in `workout_whoop`, so the two can disagree visibly. A hand-set value is never overwritten. |
+| Calories on target | MyFitnessClone | `calories_actual` within `calorie_tolerance_pct` of `calories_goal` → yes; outside → no; no row or blank goal → blank. The meal log has been stale since 2026-07-25, so this stays blank until food is logged again. |
 
-**Self-report — 11, the nightly sentence:** made bed, morning vitamins, night
-vitamins, shower, teeth, water target, no junk, no fap, read fiction, read
-non-fiction, screentime.
+**Self-report — 11, the nightly sentence:** made bed, morning vitamins,
+shower, teeth, night vitamins, no junk, no fap, read fiction, read
+non-fiction, devices off by 9pm, screentime. Screentime is a yes/no now
+("Screentime under 2 hours?"), not a number.
 
 **Weekly — asked separately, not nightly:** clean sink, reset house.
 
@@ -109,6 +113,22 @@ Set in `definitions.json`. All are judgement calls, not physics:
 | `sleep_hours_target` | 7.0 | **Stricter than current reality** — the median since June is 6.66h, so expect early "no"s. |
 | `active_day_strain_min` | 6.0 | Median day is 4.28, max 13.5. |
 | `consistent_wake_min_pct` | 70 | WHOOP's own consistency measure. |
+
+## Phone page
+
+`habits.html` (GitHub Pages) asks the 11 self-report habits one per screen
+and writes the row through the Cloudflare Worker `habit-tracker-proxy`
+(source in `cloudflare-worker/habits-worker.js`, token lives only in
+Cloudflare). It stamps `logged_at`, never touches `note` or the audit log:
+the commit message `habits: phone log <date>` is its audit trail. Skip
+leaves a blank, never a no. Already-logged days open an edit list.
+
+Local testing: `python tools/dev_worker.py` serves the page and a scratch
+copy of `habits.csv` at http://127.0.0.1:8765/habits.html.
+
+Concurrency: the phone commits to the remote; the 07:00 WHOOP step pulls
+Health-Tracker before writing derived habits, then commits and pushes.
+The GTD Year tab reads the local file, so it lags the phone until 07:00.
 
 ## Commands
 
@@ -153,6 +173,14 @@ python habits.py show --last 7
   once. Asking nightly and getting blanks trains you to ignore the prompt.
 - **Screentime cannot be automated.** Neither iOS Screen Time nor Android
   Wellbeing exports without manual work.
+- **Screentime became yes/no for the phone page.** Same reasoning as
+  water: a number you have to recall is the highest-friction question
+  there is, and the phone flow needed a binary tile either way.
+- **Water and workout became derived.** Both already have their own
+  trackers (the water page, the Workout Tracker) with a daily CSV; asking
+  again at night was asking Auckie to remember what a machine already
+  recorded. Workout stays blank rather than no when nothing is logged,
+  since an unlogged day is not proof a workout was missed.
 
 ## Agent notes for the nightly check-in
 
@@ -173,7 +201,12 @@ python habits.py show --last 7
 | `habits/definitions.json` | Habit set, order, types, sources, thresholds, aliases. |
 | `habits.py` | prefill / log / show. |
 | `logs/habits_audit.jsonl` | Every write, with before and after values. |
-| `tests/test_habits.py` | 55 tests, concentrated on midnight, blank-vs-no, the write lock, and each derived source's failure mode. |
+| `habits.html` | The phone page: home, wizard, done and edit views. GitHub Pages. |
+| `habits-core.js` | Pure functions shared by the page and its tests: CSV parse/serialize, row upsert, question selection, draft state. |
+| `habits-config.js` | The Worker URL. No secrets. |
+| `tools/dev_worker.py` | Local stand-in for the Worker: serves the page and a scratch copy of `habits.csv` for browser testing. Never touches the real file. |
+| `tests/habits-core.test.js` | `node --test` suite for `habits-core.js`. |
+| `tests/test_habits.py` | 79 tests, concentrated on midnight, blank-vs-no, the write lock, and each derived source's failure mode. |
 
 Writes go to a per-pid staging file, get validated, then atomically replace
 `habits.csv`, matching how `consolidate.py` handles the master CSV. The whole

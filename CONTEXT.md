@@ -14,6 +14,7 @@ This is a **room** (merge + habit log) with three scheduled machines writing int
 | Log meals / food library | `..\MyFitnessClone\` | `..\MyFitnessClone\CONTEXT.md` |
 | Merge sources into the master table | this folder | `README.md` |
 | Nightly habit sentence | `habits\` | `habits\README.md` |
+| Log habits from the phone | `habits.html` | `habits\README.md` |
 | Code-Geeko nightly repo scan | `codegeeko\` | `codegeeko\README.md` |
 
 ## What this is
