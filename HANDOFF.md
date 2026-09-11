@@ -34,14 +34,16 @@ for local browser testing, and test coverage in both `tests/habits-core.test.js`
 ## Live page
 
 `https://auckiefenstermacher19-cmd.github.io/Health-Tracker/habits.html`
-(works once this branch is merged to `main`, since Pages serves from there).
+Merged to `main` and live on 2026-09-11. Until the Worker is deployed the
+page loads but reports "Cannot reach the habit store".
 
-## Sibling change, not yet pushed
+## Sibling change (pushed)
 
-`whoop-data/run-once.ps1` now pulls Health-Tracker (`git pull --rebase
---autostash`) before writing yesterday's derived habits, so the 07:00
-sync doesn't stomp on what the phone wrote the night before. That commit
-is sitting in the `whoop-data` repo locally — it has not been pushed.
+`whoop-data/run-once.ps1` now commits any uncommitted dashboard ticks,
+pulls Health-Tracker (`git pull --rebase --autostash`) before writing
+yesterday's derived habits, aborts a failed rebase so the tree is never
+left with conflict markers, and names the failed stage in its run-end
+line. Commits a801f8e and 0150914, pushed to `whoop-data` main.
 
 ## Open decisions
 
