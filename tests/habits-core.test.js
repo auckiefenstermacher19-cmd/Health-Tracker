@@ -5,7 +5,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const core = require('../habits-core.js');
 
-const FIX = fs.readFileSync(path.join(__dirname, 'fixtures', 'habits-sample.csv'), 'utf8');
+// The fixture is pinned to LF in .gitattributes; strip CR anyway so a checkout
+// with autocrlf cannot break the byte-identical round-trip test.
+const FIX = fs.readFileSync(path.join(__dirname, 'fixtures', 'habits-sample.csv'), 'utf8').replace(/\r\n/g, '\n');
 const DEFS = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'habits', 'definitions.json'), 'utf8'));
 
 test('parse then serialize is byte-identical on the real file', () => {
