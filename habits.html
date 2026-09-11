@@ -245,6 +245,8 @@ function answer(value) {
   if (answering) return; answering = true;
   const list = habitsToAsk(), h = list[wiz.i];
   if (value !== null) wiz.answers[h.id] = value; else delete wiz.answers[h.id];
+  /* Clear first: after Back repainted a prior answer, changing it must not leave both tiles marked. */
+  ['tile-yes', 'tile-no'].forEach(id => $(id).classList.remove('chosen'));
   if (value !== null) $(value === 'yes' ? 'tile-yes' : 'tile-no').classList.add('chosen');
   const next = () => {
     answering = false;
@@ -327,8 +329,9 @@ async function init() {
 }
 /* Queued so a refetch cannot replace parsed/sha while an edit PUT is in flight. */
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden || !parsed) return;
-  queue = queue.then(() => apiGetHabits()).then(() => { if ($('view-home').classList.contains('active')) renderHome(); }).catch(() => {});
+  if (document.hidden || (!parsed && !offline)) return;   /* offline: this is the recovery path */
+  queue = queue.then(() => offline ? apiGetDefs() : null).then(() => apiGetHabits())
+    .then(() => { offline = ''; if ($('view-home').classList.contains('active')) renderHome(); }).catch(() => {});
 });
 init();
 </script>
