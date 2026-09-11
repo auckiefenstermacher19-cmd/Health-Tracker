@@ -145,7 +145,7 @@ Set in `definitions.json`. All are judgement calls, not physics:
 |---|---|---|
 | `bed_on_time_before` | 22:00 | From a 05:30 wake. WHOOP's `sleep_start` is when sleep began, so this is "asleep by 10", not "in bed by 10". |
 | `sleep_hours_target` | 7.0 | **Stricter than current reality** — the median since June is 6.66h, so expect early "no"s. |
-| `active_day_strain_min` | 6.0 | Median day is 4.28, max 13.5. |
+| `active_day_strain_min` | 6.0 | On complete days after the 2026-09-11 cycle backfill: all-time median 7.4, last-90-day median 5.1 with 39% of days at 6 or above. Six means "a better-than-typical recent day". (The old "median 4.28" was measured on morning snapshots, not full days.) |
 | `consistent_wake_min_pct` | 70 | WHOOP's own consistency measure. |
 
 ## Phone page
