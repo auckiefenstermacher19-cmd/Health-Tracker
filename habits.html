@@ -73,6 +73,8 @@
     .status { color: var(--muted); font-size: 14px; }
     .btn { width: 100%; padding: 18px; border-radius: var(--radius); border: 2px solid var(--accent); background: var(--accent-dim); color: var(--text); font-size: 18px; font-weight: 700; cursor: pointer; }
     .btn:active { transform: scale(0.97); }
+    /* Disabled while definitions are still loading or unreachable; without this it looks tappable. */
+    .btn:disabled { opacity: 0.45; cursor: default; transform: none; }
     .btn.secondary { border-color: var(--border); background: transparent; }
     .progress { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
     .question { font-size: 28px; font-weight: 700; line-height: 1.2; min-height: 68px; }
