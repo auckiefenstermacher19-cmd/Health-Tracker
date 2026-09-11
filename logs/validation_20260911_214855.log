@@ -1,0 +1,21 @@
+2026-09-11 21:48:55  INFO      ============================================================
+2026-09-11 21:48:55  INFO        Health Tracker — Source Validation
+2026-09-11 21:48:55  INFO      ============================================================
+2026-09-11 21:48:55  WARNING   ⚠  SCHEMA CHANGE DETECTED  ⚠
+2026-09-11 21:48:55  WARNING   [WHOOP daily_consolidated] Schema change: 1 column(s) added
+2026-09-11 21:48:55  WARNING     Added columns   : ['cycle_complete']
+2026-09-11 21:48:55  WARNING     The consolidation script is schema-resilient and will adapt automatically.  Schema snapshot will be updated.
+2026-09-11 21:48:55  INFO      Schema snapshot updated → schema/daily_consolidated_schema.json  (71 columns)
+2026-09-11 21:48:55  INFO      [WHOOP daily_consolidated] ✓  71 columns, 279 data rows.  Date column 'date' present.
+2026-09-11 21:48:55  INFO      [Meal_Data_Dashboard] Schema unchanged (131 columns).
+2026-09-11 21:48:55  INFO      [Meal_Data_Dashboard] ✓  131 columns, 24 data rows.  Date column 'date' present.
+2026-09-11 21:48:55  INFO      [Water_Data_Dashboard] Schema unchanged (7 columns).
+2026-09-11 21:48:55  INFO      [Water_Data_Dashboard] ✓  7 columns, 1 data rows.  Date column 'date' present.
+2026-09-11 21:48:55  INFO      ------------------------------------------------------------
+2026-09-11 21:48:55  INFO      VALIDATION SUMMARY
+2026-09-11 21:48:55  INFO      ------------------------------------------------------------
+2026-09-11 21:48:55  INFO        [WHOOP daily_consolidated]  ⚠ WARN  |  71 cols, 279 rows
+2026-09-11 21:48:55  INFO        [Meal_Data_Dashboard]  ✓ PASS  |  131 cols, 24 rows
+2026-09-11 21:48:55  INFO        [Water_Data_Dashboard]  ✓ PASS  |  7 cols, 1 rows
+2026-09-11 21:48:55  WARNING   Schema changes detected.  Consolidation will proceed using dynamic column detection.  No manual code changes required.
+2026-09-11 21:48:55  INFO      Validation log: logs/validation_20260911_214855.log
