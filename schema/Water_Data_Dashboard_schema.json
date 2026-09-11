@@ -1,0 +1,14 @@
+{
+  "source": "Water_Data_Dashboard",
+  "columns": [
+    "date",
+    "water_fl_oz",
+    "water_goal_fl_oz",
+    "water_pct_of_goal",
+    "water_entries",
+    "water_big_count",
+    "water_small_count"
+  ],
+  "saved_at": "2026-09-11T14:31:20.564408+00:00",
+  "col_count": 7
+}
