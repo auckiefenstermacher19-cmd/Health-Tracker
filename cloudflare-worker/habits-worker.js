@@ -16,19 +16,26 @@
  *   GITHUB_REPO    - the repo name (plain variable, not secret)
  *   ALLOWED_ORIGIN - your GitHub Pages URL, e.g.
  *                    https://auckiefenstermacher19-cmd.github.io
- *                    (used for CORS; restricts who can call this Worker)
+ *                    (used for CORS; restricts which pages browsers let call
+ *                    this Worker). Required: with it unset the Worker refuses
+ *                    every request rather than falling back to '*'.
  *
  * ── Endpoints exposed to the app ──
  *   GET  /habits             -> returns { content, sha } for habits.csv
  *   PUT  /habits              body: { content, sha, message } -> writes habits.csv
- *   GET  /raw/definitions     -> returns raw JSON text (habits/definitions.json), unauthenticated passthrough
+ *   GET  /raw/definitions     -> returns habits/definitions.json as raw JSON text,
+ *                                read through the same authenticated Contents
+ *                                endpoint as /habits (so a private repo works)
  */
 
 const GITHUB_API_BASE = 'https://api.github.com';
 
 function corsHeaders(env) {
+  // Fail closed: no ALLOWED_ORIGIN means no CORS header at all. fetch() rejects
+  // the request before routing, so this branch should never be reached; '*'
+  // would quietly let any page on the internet write habits.csv.
   return {
-    'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN || '*',
+    'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN,
     'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
@@ -158,6 +165,16 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
     const method = request.method;
+
+    // Fail closed. An unset ALLOWED_ORIGIN used to fall back to '*', which turns
+    // a misconfigured deploy into a world-writable habits.csv. Refuse instead,
+    // and send no CORS header, so the browser surfaces it as a CORS failure.
+    if (!env.ALLOWED_ORIGIN) {
+      return new Response(JSON.stringify({ error: 'ALLOWED_ORIGIN not configured' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     // CORS preflight
     if (method === 'OPTIONS') {
