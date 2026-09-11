@@ -441,6 +441,7 @@ def read_source_rows(defs, config_key, notes):
             else:
                 p = (REPO_DIR / entry).resolve()
                 if not p.exists():
+                    notes.append(config_key + ": " + entry + " not found - skipped")
                     continue
                 text = p.read_text(encoding="utf-8-sig", errors="replace")
         except Exception as exc:          # network, permission, decode - all skip
@@ -461,7 +462,12 @@ def _row_for_day(rows, day, field="date"):
 
 
 def prefill_water(defs, day, known, notes):
-    """water = day total on the water page >= its goal. No row -> blank."""
+    """water = day total on the water page >= its goal. No row -> blank.
+
+    `water` is still a self-report habit (source 'self', auto_source
+    'water_dashboard') so the GTD Year tab can hand-set it. This only fills a
+    blank: under --whoop a stored value always wins.
+    """
     rows = read_source_rows(defs, "water_dashboard_sources", notes)
     if rows is None:
         notes.append("No water dashboard reachable - water left blank.")
@@ -479,7 +485,12 @@ def prefill_water(defs, day, known, notes):
 
 
 def prefill_workout_log(defs, day, known, notes):
-    """workout = any set logged in Workout-Tracker-v2 that day. Never 'no'."""
+    """workout = any set logged in Workout-Tracker-v2 that day. Never 'no'.
+
+    `workout` is still a self-report habit (source 'self', auto_source
+    'workout_log') so the GTD Year tab can hand-set it. This only fills a
+    blank: under --whoop a stored value always wins.
+    """
     rows = read_source_rows(defs, "workout_log_sources", notes)
     if rows is None:
         notes.append("No workout log reachable - workout left blank.")

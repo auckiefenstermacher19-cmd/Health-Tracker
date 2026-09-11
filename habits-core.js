@@ -25,6 +25,8 @@
     const header = rows.shift() || [];
     return {
       header,
+      // Drop blank lines (a single empty field), keeping genuinely empty
+      // columns in a real row — matches csv.reader, which yields [] for those.
       rows: rows.filter(r => r.length > 1 || r[0] !== '').map(r => {
         const o = {};
         header.forEach((h, k) => { o[h] = r[k] === undefined ? '' : r[k]; });
@@ -33,6 +35,9 @@
     };
   }
 
+  /* Quote only when the field needs it, the same set Python's csv writer uses
+     under QUOTE_MINIMAL: quote, comma, \n — and \r, which Python also quotes so
+     a stray carriage return cannot be read back as a record break. */
   function quote(v) {
     v = v == null ? '' : String(v);
     return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
@@ -67,12 +72,21 @@
     return { header, rows };
   }
 
+  /* The phone asks only what nothing else can answer. A habit carrying
+     auto_source is self-report on the GTD Year tab but auto-filled here, so it
+     is excluded even though its source is 'self' (none carry phone_order today;
+     the rule is explicit so adding one does not silently add a question). */
   function phoneHabits(defs) {
     return defs.habits
-      .filter(h => typeof h.phone_order === 'number' && h.active !== false && h.source === 'self' && h.cadence !== 'weekly')
+      .filter(h => typeof h.phone_order === 'number' && h.active !== false
+                   && h.source === 'self' && !h.auto_source && h.cadence !== 'weekly')
       .sort((a, b) => a.phone_order - b.phone_order);
   }
-  function derivedHabits(defs) { return defs.habits.filter(h => h.source !== 'self' && h.active !== false); }
+  /* Shown read-only under "Automatic": anything a source fills, whether that is
+     its only source or an auto_source layered over a hand-settable habit. */
+  function derivedHabits(defs) {
+    return defs.habits.filter(h => (h.source !== 'self' || h.auto_source) && h.active !== false);
+  }
 
   const pad = n => String(n).padStart(2, '0');
   function todayLocal(now) { now = now || new Date(); return now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()); }

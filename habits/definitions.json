@@ -52,7 +52,8 @@
       "id": "workout",
       "label": "Workout",
       "type": "binary",
-      "source": "workout_log",
+      "source": "self",
+      "auto_source": "workout_log",
       "aliases": [
         "workout",
         "worked out",
@@ -62,7 +63,7 @@
         "run",
         "training"
       ],
-      "note": "Derived from Workout-Tracker-v2 since 2026-09-11: any set logged that day -> yes; otherwise blank, never no. WHOOP's view lands in workout_whoop. A hand-set value is never overwritten."
+      "note": "Self-report; also filled automatically from workout_log when blank (auto_source). Since 2026-09-11: any set logged in Workout-Tracker-v2 that day -> yes; otherwise blank, never no. WHOOP's view lands in workout_whoop. A hand-set value is never overwritten, and the GTD Year tab can still tick it."
     },
     {
       "id": "morning_vitamins",
@@ -95,14 +96,15 @@
       "id": "water",
       "label": "Water target",
       "type": "binary",
-      "source": "water_dashboard",
+      "source": "self",
+      "auto_source": "water_dashboard",
       "aliases": [
         "water",
         "hydrated",
         "drank water",
         "water target"
       ],
-      "note": "Derived from the water page since 2026-09-11: day total >= goal. Never asked."
+      "note": "Self-report; also filled automatically from water_dashboard when blank (auto_source). Since 2026-09-11: day total >= goal -> yes, a row under goal -> no, no row -> blank. Not asked on the phone page, but the GTD Year tab can still tick it."
     },
     {
       "id": "read_fiction",

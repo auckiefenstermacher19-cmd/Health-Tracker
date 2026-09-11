@@ -19,7 +19,7 @@ checkout path second. Supporting pieces: `habits-core.js` (pure CSV/
 upsert/draft logic, shared with the page and its tests), `habits-config.js`,
 the webmanifest and icons for add-to-home-screen, `tools/dev_worker.py`
 for local browser testing, and test coverage in both `tests/habits-core.test.js`
-(8 tests) and `tests/test_habits.py` (79 tests, up from 55).
+(10 tests) and `tests/test_habits.py` (80 tests, up from 55).
 
 ## What Auckie still owes
 

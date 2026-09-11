@@ -19,6 +19,14 @@ test('parse handles quoted commas and doubled quotes', () => {
   assert.equal(core.serializeCSV(p.header, p.rows), 'a,b\n"x, y","say ""hi"""\n');
 });
 
+test('a field with an embedded newline round-trips byte-identically', () => {
+  const csv = 'date,note\n2026-09-11,"line one\nline two"\n';
+  const p = core.parseCSV(csv);
+  assert.equal(p.rows[0].note, 'line one\nline two');
+  assert.equal(p.rows.length, 1, 'the newline inside quotes is not a record break');
+  assert.equal(core.serializeCSV(p.header, p.rows), csv);
+});
+
 test('serialize uses LF, trailing newline, no quoting when not needed', () => {
   assert.equal(core.serializeCSV(['a', 'b'], [{ a: '1', b: '' }]), 'a,b\n1,\n');
 });
@@ -49,6 +57,23 @@ test('phoneHabits are the eleven in order, derivedHabits exclude self and retire
   const d = core.derivedHabits(DEFS).map(h => h.id);
   assert.ok(d.includes('slept_7h') && d.includes('water') && d.includes('workout') && d.includes('calories_on_target'));
   assert.ok(!d.includes('shower_teeth') && !d.includes('made_bed'));
+  // water and workout are source 'self' so the GTD Year tab can tick them;
+  // auto_source is what puts them on the automatic list here.
+  assert.equal(DEFS.habits.find(h => h.id === 'water').source, 'self');
+  assert.equal(DEFS.habits.find(h => h.id === 'workout').source, 'self');
+  assert.ok(!ids.includes('water') && !ids.includes('workout'));
+});
+
+test('phoneHabits skips a weekly habit even when it carries a phone_order', () => {
+  const synthetic = {
+    habits: [
+      { id: 'made_bed', source: 'self', phone_order: 1 },
+      { id: 'clean_sink', source: 'self', phone_order: 2, cadence: 'weekly' },
+      { id: 'water', source: 'self', auto_source: 'water_dashboard', phone_order: 3 },
+    ],
+  };
+  assert.deepEqual(core.phoneHabits(synthetic).map(h => h.id), ['made_bed']);
+  assert.deepEqual(core.derivedHabits(synthetic).map(h => h.id), ['water']);
 });
 
 test('date helpers are device-local and formatted for humans', () => {

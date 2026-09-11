@@ -381,7 +381,8 @@ def test_new_plan_habits_defined_and_workout_is_self(defs):
                 "posts", "warning_signs", "sunday_review", "dj_hour", "mrr",
                 "bodyweight", "books_finished", "workout_whoop"]:
         assert hid in ids, hid
-    assert habits.habit_by_id(defs, "workout")["source"] == "workout_log"
+    assert habits.habit_by_id(defs, "workout")["source"] == "self"
+    assert habits.habit_by_id(defs, "workout")["auto_source"] == "workout_log"
     assert habits.habit_by_id(defs, "workout_whoop")["source"] == "whoop"
     assert "none" in habits.habit_by_id(defs, "warning_signs")["choices"]
 
@@ -602,10 +603,39 @@ def test_screentime_is_binary_now(defs):
     assert "target" not in s and "direction" not in s
 
 
-def test_water_and_workout_are_derived_now(defs):
-    assert habits.habit_by_id(defs, "water")["source"] == "water_dashboard"
-    assert habits.habit_by_id(defs, "workout")["source"] == "workout_log"
+def test_water_and_workout_are_auto_filled_but_still_self_report(defs):
+    """The GTD Year tab renders any non-'self' habit read-only, so these stay
+    'self' and carry their automatic source in auto_source instead."""
+    water = habits.habit_by_id(defs, "water")
+    workout = habits.habit_by_id(defs, "workout")
+    assert water["source"] == "self"
+    assert water["auto_source"] == "water_dashboard"
+    assert workout["source"] == "self"
+    assert workout["auto_source"] == "workout_log"
     assert habits.habit_by_id(defs, "workout_whoop")["source"] == "whoop"
+    assert "auto_source" not in habits.habit_by_id(defs, "made_bed")
+
+
+def test_whoop_run_fills_blank_water_and_keeps_hand_set_workout(sandbox, defs, monkeypatch):
+    """auto_source habits follow the same fill-blank rule as any derived one."""
+    _log(monkeypatch, set=["workout=yes"])
+
+    def _nothing(defs, day, known, notes):
+        return
+
+    def _water_no(defs, day, known, notes):
+        known["water"] = "no"
+
+    for name in ("prefill_whoop", "prefill_meal_log", "prefill_learning",
+                 "prefill_calories", "prefill_workout_log"):
+        monkeypatch.setattr(habits, name, _nothing)
+    monkeypatch.setattr(habits, "prefill_water", _water_no)
+
+    _log(monkeypatch, whoop=True)
+
+    row = habits.read_rows(defs)["2026-08-26"]
+    assert row["workout"] == "yes"      # hand-set value survives the sync
+    assert row["water"] == "no"         # blank took the automatic answer
 
 
 def test_calories_on_target_column_sits_before_logged_at(defs):

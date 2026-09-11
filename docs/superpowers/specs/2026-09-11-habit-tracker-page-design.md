@@ -57,15 +57,21 @@ Derived, never asked:
 - Existing: bed_on_time, slept_7h, active_day, consistent_wake,
   workout_whoop (WHOOP); logged_food (meal log); learning_consumed
   (ai-learning item status).
-- New `water`: source becomes `water_dashboard`. Rule: the row for the
-  date in `MyFitnessClone/Water_Data_Dashboard.csv` has
+- New `water`: `source` stays `self`, and a new `auto_source` field carries
+  `water_dashboard`. Rule: the row for the date in
+  `MyFitnessClone/Water_Data_Dashboard.csv` has
   `water_fl_oz >= water_goal_fl_oz` -> yes; a row under goal -> no; no
   row -> blank.
-- New `workout`: source becomes `workout_log`. Rule: any row in
-  `Workout-Tracker-v2/workout_tracker.csv` whose `Date` equals the date
-  -> yes. Otherwise blank (never no: an unlogged run is not a missed
-  workout; `workout_whoop` still records WHOOP's view). A stored value is
-  never overwritten, so a hand-set `workout=yes` survives.
+- New `workout`: `source` stays `self`, `auto_source` is `workout_log`.
+  Rule: any row in `Workout-Tracker-v2/workout_tracker.csv` whose `Date`
+  equals the date -> yes. Otherwise blank (never no: an unlogged run is
+  not a missed workout; `workout_whoop` still records WHOOP's view). A
+  stored value is never overwritten, so a hand-set `workout=yes` survives.
+
+  Why `auto_source` rather than moving `source`: the GTD dashboard's Year
+  tab renders every habit whose `source` is not `self` as a read-only
+  "· WHOOP" row, so flipping these two would have taken away the tick box
+  Auckie uses to correct them.
 - New `calories_on_target` (new column, appended after `books_finished`
   and before `logged_at`): source `meal_dashboard`. Rule: row for the
   date in `MyFitnessClone/Meal_Data_Dashboard.csv` with
