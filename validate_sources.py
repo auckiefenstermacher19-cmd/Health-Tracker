@@ -1,7 +1,9 @@
 """
 validate_sources.py
 -------------------
-Validates both source CSV files before consolidation.  Performs:
+Validates the source CSV files before consolidation.  WHOOP and meals are
+required; water is optional and is validated only when its raw file exists — a
+water problem warns, it never halts the workflow.  Performs:
 
   1. File existence checks
   2. Encoding validation (UTF-8)
@@ -38,9 +40,11 @@ LOG_DIR    = Path("logs")
 
 WHOOP_CSV  = RAW_DIR / "daily_consolidated.csv"
 MEAL_CSV   = RAW_DIR / "Meal_Data_Dashboard.csv"
+WATER_CSV  = RAW_DIR / "Water_Data_Dashboard.csv"
 
 WHOOP_SCHEMA_FILE = SCHEMA_DIR / "daily_consolidated_schema.json"
 MEAL_SCHEMA_FILE  = SCHEMA_DIR / "Meal_Data_Dashboard_schema.json"
+WATER_SCHEMA_FILE = SCHEMA_DIR / "Water_Data_Dashboard_schema.json"
 
 SCHEMA_DIR.mkdir(parents=True, exist_ok=True)
 LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -138,12 +142,18 @@ def validate_csv(
     schema_file: Path,
     label: str,
     date_col: str = "date",
+    required: bool = True,
 ) -> dict:
     """
     Run all validation checks for a single CSV file.
 
+    `required` travels with the result so the reporter never has to recognise a source by
+    its label: an optional source's errors are advisory, and a fourth source added later
+    inherits that behaviour by passing required=False, not by being named somewhere.
+
     Returns a result dict with:
       ok           : bool — False means a hard failure; True means continue
+      required     : bool — False means failures are advisory, not fatal
       schema_changed: bool
       errors       : list[str]
       warnings     : list[str]
@@ -152,6 +162,7 @@ def validate_csv(
     """
     result = {
         "ok":             True,
+        "required":       required,
         "schema_changed": False,
         "errors":         [],
         "warnings":       [],
@@ -256,22 +267,38 @@ def validate_csv(
 
 # ── Summary Reporter ──────────────────────────────────────────────────────────
 
-def print_summary(whoop_result: dict, meal_result: dict) -> None:
+def print_summary(
+    whoop_result: dict,
+    meal_result:  dict,
+    water_result: dict | None = None,
+) -> None:
     log.info("-" * 60)
     log.info("VALIDATION SUMMARY")
     log.info("-" * 60)
 
-    for label, r in [("WHOOP daily_consolidated", whoop_result),
-                      ("Meal_Data_Dashboard",      meal_result)]:
+    entries = [("WHOOP daily_consolidated", whoop_result),
+               ("Meal_Data_Dashboard",      meal_result)]
+    if water_result is not None:
+        entries.append(("Water_Data_Dashboard", water_result))
+
+    for label, r in entries:
         status = "✓ PASS" if r["ok"] and not r["schema_changed"] else \
                  "⚠ WARN" if r["ok"] and r["schema_changed"] else \
                  "✗ FAIL"
         log.info("  [%s]  %s  |  %d cols, %d rows",
                  label, status, len(r["columns"]), r["row_count"])
         for err in r["errors"]:
-            log.error("    ERROR: %s", err)
+            # An optional source's errors are advisory: a bad water file must not take
+            # the rest of the merge down with it.
+            if r.get("required", True):
+                log.error("    ERROR: %s", err)
+            else:
+                log.warning("    WARN:  %s", err)
         for warn in r["warnings"]:
             log.warning("    WARN:  %s", warn)
+
+    if water_result is None:
+        log.info("  [Water_Data_Dashboard]  — SKIPPED  |  raw file not present (optional)")
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -295,12 +322,32 @@ def main() -> None:
         date_col    = "date",
     )
 
-    print_summary(whoop_result, meal_result)
+    # Water is optional: validated only when the fetch actually produced a file.
+    water_result = None
+    if WATER_CSV.exists():
+        water_result = validate_csv(
+            csv_path    = WATER_CSV,
+            schema_file = WATER_SCHEMA_FILE,
+            label       = "Water_Data_Dashboard",
+            date_col    = "date",
+            required    = False,
+        )
+    else:
+        log.warning("Water source file not present (%s) — skipping water validation. "
+                    "The merge will run without a water block.", WATER_CSV)
 
-    # Hard failures — halt the workflow
+    print_summary(whoop_result, meal_result, water_result)
+
+    if water_result is not None and not water_result["ok"]:
+        log.warning("Water validation reported problems. Water is optional, so the "
+                    "workflow continues and the merge will simply carry blank or "
+                    "missing water columns.")
+        print("::warning title=Water source invalid::%s" % "; ".join(water_result["errors"]))
+
+    # Hard failures — halt the workflow (required sources only)
     hard_failures = [
-        r for r in [whoop_result, meal_result]
-        if not r["ok"]
+        r for r in [whoop_result, meal_result, water_result]
+        if r is not None and not r["ok"] and r.get("required", True)
     ]
     if hard_failures:
         log.error("Validation FAILED with hard errors. Consolidation aborted.")
@@ -309,8 +356,8 @@ def main() -> None:
 
     # Schema changes — continue but use exit code 2 so the workflow can log it
     schema_changes = [
-        r for r in [whoop_result, meal_result]
-        if r["schema_changed"]
+        r for r in [whoop_result, meal_result, water_result]
+        if r is not None and r["schema_changed"]
     ]
     if schema_changes:
         log.warning(

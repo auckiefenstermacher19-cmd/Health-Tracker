@@ -21,11 +21,12 @@ on:
   # Upstream repos fire these events after successfully updating their CSVs.
   # Configure each upstream repo's workflow to call:
   #   POST /repos/{owner}/health-tracker/dispatches
-  # with event_type: "whoop_updated" or "meal_updated"
+  # with event_type: "whoop_updated", "meal_updated" or "water_updated"
   repository_dispatch:
     types:
       - whoop_updated
       - meal_updated
+      - water_updated
 
   # ── 2. Scheduled safety net (fallback) ─────────────────────────────────────
   # Runs daily at 13:30 UTC even if dispatch events were never received.
@@ -77,6 +78,7 @@ jobs:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           WHOOP_REPO:  ${{ vars.WHOOP_REPO }}
           MEAL_REPO:   ${{ vars.MEAL_REPO }}
+          WATER_REPO:  ${{ vars.WATER_REPO }}
         run: python fetch_sources.py
 
       # ── Step 5: Validate Sources ───────────────────────────────────────────

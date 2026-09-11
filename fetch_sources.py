@@ -1,10 +1,11 @@
 """
 fetch_sources.py
 ----------------
-Downloads the two source CSV files from their upstream GitHub repositories:
+Downloads the source CSV files from their upstream GitHub repositories:
 
-  1. daily_consolidated.csv  ← whoop-data repo
-  2. Meal_Data_Dashboard.csv ← MyFitnessClone repo
+  1. daily_consolidated.csv    ← whoop-data repo        (required)
+  2. Meal_Data_Dashboard.csv   ← MyFitnessClone repo    (required)
+  3. Water_Data_Dashboard.csv  ← MyFitnessClone repo    (OPTIONAL)
 
 Uses the GitHub raw-content API (authenticated with GH_PAT) so that both
 private repositories are accessible.  Falls back to unauthenticated requests
@@ -14,11 +15,16 @@ Outputs
 -------
   data/raw/daily_consolidated.csv
   data/raw/Meal_Data_Dashboard.csv
+  data/raw/Water_Data_Dashboard.csv   (only when the optional fetch succeeds)
 
 Exit codes
 ----------
-  0 — both files fetched successfully
-  1 — one or more files could not be fetched (workflow should halt)
+  0 — every REQUIRED file fetched successfully
+  1 — one or more required files could not be fetched (workflow should halt)
+
+A failed optional fetch logs a warning and leaves the exit code at 0. The merge
+falls back to its two-block layout when the water file is not on disk, so a
+water outage must never stop WHOOP and meal data from landing.
 """
 
 import os
@@ -48,6 +54,10 @@ WHOOP_PATH    = os.environ.get("WHOOP_PATH",   "data/daily_consolidated.csv")
 MEAL_REPO     = os.environ.get("MEAL_REPO",    "MyFitnessClone")
 MEAL_BRANCH   = os.environ.get("MEAL_BRANCH",  "main")
 MEAL_PATH     = os.environ.get("MEAL_PATH",    "Meal_Data_Dashboard.csv")
+
+WATER_REPO    = os.environ.get("WATER_REPO",   "MyFitnessClone")
+WATER_BRANCH  = os.environ.get("WATER_BRANCH", "main")
+WATER_PATH    = os.environ.get("WATER_PATH",   "Water_Data_Dashboard.csv")
 
 RAW_DIR       = Path("raw")
 RAW_DIR.mkdir(parents=True, exist_ok=True)
@@ -196,6 +206,7 @@ def main() -> None:
             "branch":      WHOOP_BRANCH,
             "remote_path": WHOOP_PATH,
             "local_path":  RAW_DIR / "daily_consolidated.csv",
+            "required":    True,
         },
         {
             "label":       "Meal_Data_Dashboard",
@@ -204,10 +215,21 @@ def main() -> None:
             "branch":      MEAL_BRANCH,
             "remote_path": MEAL_PATH,
             "local_path":  RAW_DIR / "Meal_Data_Dashboard.csv",
+            "required":    True,
+        },
+        {
+            "label":       "Water_Data_Dashboard",
+            "owner":       GH_USERNAME,
+            "repo":        WATER_REPO,
+            "branch":      WATER_BRANCH,
+            "remote_path": WATER_PATH,
+            "local_path":  RAW_DIR / "Water_Data_Dashboard.csv",
+            "required":    False,
         },
     ]
 
     failures = []
+    skipped  = []
     for src in sources:
         ok = fetch_file(
             owner       = src["owner"],
@@ -217,8 +239,25 @@ def main() -> None:
             local_path  = src["local_path"],
             label       = src["label"],
         )
-        if not ok:
+        if ok:
+            continue
+        if src.get("required", True):
             failures.append(src["label"])
+        else:
+            # An optional source that will not come down is a warning, not an outage.
+            # Leaving a stale local copy behind would be worse than having none: the
+            # merge would quietly publish yesterday's numbers as today's.
+            skipped.append(src["label"])
+            try:
+                src["local_path"].unlink(missing_ok=True)
+            except OSError as exc:
+                log.warning("[%s] Could not remove stale local copy: %s", src["label"], exc)
+            log.warning(
+                "[%s] Optional source could not be fetched — continuing without it. "
+                "The merge will omit this block and the freshness report will show it "
+                "as NO DATA.",
+                src["label"],
+            )
 
     log.info("-" * 60)
     if failures:
@@ -226,9 +265,15 @@ def main() -> None:
         log.error("Consolidation cannot proceed. Fix the issues above and re-run.")
         sys.exit(1)
 
-    log.info("All source files fetched successfully.")
-    log.info("  %s", RAW_DIR / "daily_consolidated.csv")
-    log.info("  %s", RAW_DIR / "Meal_Data_Dashboard.csv")
+    if skipped:
+        log.warning("Optional source(s) not fetched: %s", ", ".join(skipped))
+        print("::warning title=Optional source missing::%s could not be fetched; "
+              "the merge continues without it" % ", ".join(skipped))
+
+    log.info("All required source files fetched successfully.")
+    for src in sources:
+        if src["local_path"].exists():
+            log.info("  %s", src["local_path"])
 
 
 if __name__ == "__main__":

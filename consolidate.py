@@ -3,13 +3,19 @@ consolidate.py
 --------------
 Core Health Tracker consolidation engine.
 
-Merges daily_consolidated.csv (WHOOP) and Meal_Data_Dashboard.csv (nutrition)
-into a single master CSV:  data/Health_Tracker_Master.csv
+Merges daily_consolidated.csv (WHOOP), Meal_Data_Dashboard.csv (nutrition) and
+Water_Data_Dashboard.csv (hydration) into a single master CSV:
+data/Health_Tracker_Master.csv
 
-Layout (always):
+Layout:
   [All daily_consolidated columns — in their original order]
   [1 blank spacer column]
   [All Meal_Data_Dashboard columns — in their original order]
+  [1 blank spacer column]        ← only when a water source is present
+  [All Water_Data_Dashboard columns — in their original order]
+
+Water is optional. With no water file the output is byte-identical to the
+two-block layout the dashboard has always parsed.
 
 Design principles
 -----------------
@@ -35,6 +41,7 @@ import json
 import logging
 import os
 import sys
+from collections.abc import Iterable
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -45,6 +52,7 @@ LOG_DIR        = Path("logs")
 
 WHOOP_CSV      = RAW_DIR / "daily_consolidated.csv"
 MEAL_CSV       = RAW_DIR / "Meal_Data_Dashboard.csv"
+WATER_CSV      = RAW_DIR / "Water_Data_Dashboard.csv"
 OUTPUT_PATH    = OUTPUT_DIR / "Health_Tracker_Master.csv"
 STAGING_PATH   = OUTPUT_DIR / "Health_Tracker_Master.staging.csv"
 AUDIT_LOG      = LOG_DIR / "consolidation_audit.jsonl"
@@ -124,22 +132,35 @@ def rows_to_date_dict(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def build_output_header(
-    whoop_header: list[str],
-    meal_header:  list[str],
+    whoop_header:  list[str],
+    meal_header:   list[str],
+    water_header:  list[str] | None = None,
 ) -> list[str]:
     """
     Construct the output CSV header:
-      [whoop columns] + [spacer column ""] + [meal columns]
+      [whoop columns] + [spacer ""] + [meal columns]
+      (+ [spacer ""] + [water columns], when a water source is present)
 
     The spacer column is stored internally as SPACER_SENTINEL so we can
     write "" to the CSV header without confusing it with genuinely blank
     section-spacers that exist inside each source file.
+
+    With water_header=None the result is EXACTLY the long-standing two-block
+    header — no trailing spacer, nothing. The dashboard parses that header by
+    name, and a missing optional source must not change it.
     """
-    # Rename the meal block's own `date` column to `meal_date` so the output has
-    # exactly ONE column named `date` (column 0). Two columns named `date` collide
-    # when the dashboard parses with PapaParse header:true (ambiguous which wins).
+    # Rename each downstream block's own `date` column (to `meal_date` / `water_date`)
+    # so the output has exactly ONE column named `date` (column 0). Two columns named
+    # `date` collide when the dashboard parses with PapaParse header:true (ambiguous
+    # which wins).
     meal_header_out = ["meal_date" if col == "date" else col for col in meal_header]
-    return whoop_header + [SPACER_SENTINEL] + meal_header_out
+    header = whoop_header + [SPACER_SENTINEL] + meal_header_out
+
+    if water_header is None:
+        return header
+
+    water_header_out = ["water_date" if col == "date" else col for col in water_header]
+    return header + [SPACER_SENTINEL] + water_header_out
 
 
 def header_for_output(header: list[str]) -> list[str]:
@@ -157,13 +178,16 @@ def build_output_row(
     whoop_by_date: dict[str, list[str]],
     meal_header:   list[str],
     meal_by_date:  dict[str, list[str]],
+    water_header:  list[str] | None = None,
+    water_by_date: dict[str, list[str]] | None = None,
 ) -> list[str]:
     """
     Build a single output row for a given date.
 
-    WHOOP side: use the matching row or blank list.
-    Meal side:  use the matching row or blank list.
-    Spacer:     always a single blank cell.
+    WHOOP side:  use the matching row or blank list.
+    Meal side:   use the matching row or blank list.
+    Water side:  same, and omitted entirely when there is no water source.
+    Spacer:      always a single blank cell before each downstream block.
     """
     whoop_row = whoop_by_date.get(date, [""] * len(whoop_header))
     meal_row  = meal_by_date.get(date, [""] * len(meal_header))
@@ -177,7 +201,16 @@ def build_output_row(
     # which keys off column 0, filters those days out and recent food never shows.
     whoop_row[whoop_header.index("date")] = date
 
-    return whoop_row + [""] + meal_row   # spacer = ""
+    row = whoop_row + [""] + meal_row   # spacer = ""
+
+    if water_header is None:
+        return row
+
+    water_by_date = water_by_date or {}
+    water_row = water_by_date.get(date, [""] * len(water_header))
+    water_row = (water_row + [""] * len(water_header))[: len(water_header)]
+
+    return row + [""] + water_row       # second spacer = ""
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -191,6 +224,7 @@ def validate_output(
     whoop_dates:    set[str],
     meal_dates:     set[str],
     whoop_col_count:int,
+    water_dates:    Iterable[str] = (),
 ) -> bool:
     """
     Read the written output file and confirm it meets expectations.
@@ -198,10 +232,14 @@ def validate_output(
     Checks:
       - File exists and is non-empty
       - Column count matches expectation
-      - Row count == union of all WHOOP + meal dates
+      - Row count == union of all WHOOP + meal + water dates
       - Every WHOOP date is present
       - Every meal date is present
+      - Every water date is present (when a water source was merged)
     """
+    # Normalise once: callers may hand in any iterable, and it is consumed twice below.
+    water_dates = set(water_dates)
+
     if not path.exists() or path.stat().st_size == 0:
         log.error("Post-write validation: output file missing or empty.")
         return False
@@ -232,21 +270,34 @@ def validate_output(
     #   - column 0                              → the WHOOP date (blank if this date is meal-only)
     #   - column (whoop_col_count + 1)           → the meal date  (blank if this date is WHOOP-only)
     #     (whoop_col_count WHOOP columns, then exactly 1 spacer column, then meal columns start)
-    # A date only fails validation if it's missing from BOTH columns across all rows.
+    #   - the `water_date` column                → the water date (blank if no water that day)
+    # A date only fails validation if it's missing from EVERY one of those columns.
+    # The water column is located by NAME rather than by arithmetic: water sits behind two
+    # variable-width blocks, and a positional guess there would be a silent data-dropper.
     whoop_date_idx = 0
     meal_date_idx  = whoop_col_count + 1
+    water_date_idx = None
+    if water_dates:
+        try:
+            water_date_idx = header.index("water_date")
+        except ValueError:
+            log.error("Post-write validation: water dates given but no 'water_date' column "
+                      "in the output header.")
+            return False
 
     output_dates = set()
     for row in rows:
         if not row:
             continue
-        if len(row) > whoop_date_idx and row[whoop_date_idx]:
-            output_dates.add(row[whoop_date_idx])
-        if len(row) > meal_date_idx and row[meal_date_idx]:
-            output_dates.add(row[meal_date_idx])
+        for idx in (whoop_date_idx, meal_date_idx, water_date_idx):
+            if idx is None:
+                continue
+            if len(row) > idx and row[idx]:
+                output_dates.add(row[idx])
 
     missing_whoop = whoop_dates - output_dates
     missing_meal  = meal_dates  - output_dates
+    missing_water = water_dates - output_dates
     if missing_whoop:
         log.error("Post-write validation: WHOOP dates missing from output: %s",
                   sorted(missing_whoop)[:10])
@@ -254,6 +305,10 @@ def validate_output(
     if missing_meal:
         log.error("Post-write validation: Meal dates missing from output: %s",
                   sorted(missing_meal)[:10])
+        return False
+    if missing_water:
+        log.error("Post-write validation: Water dates missing from output: %s",
+                  sorted(missing_water)[:10])
         return False
 
     log.info(
@@ -320,6 +375,35 @@ def staleness_report(sources, max_age_days, today=None, warn_only=()):
     }
 
 
+def load_optional_water(path: Path) -> tuple[list[str] | None, dict[str, list[str]]]:
+    """Load and index the optional water source, surviving anything wrong with it.
+
+    "Warn-only" has to mean warn-only for every failure mode, not just the tidy one where
+    the file is absent. A water file that is zero bytes (StopIteration from the reader), has
+    no `date` column (ValueError from rows_to_date_dict), or is unparseable CSV would
+    otherwise take WHOOP and meals down with it — the merge would publish nothing on the day
+    a hydration export went wrong. Any of those degrade to the two-block layout instead.
+
+    Returns (None, {}) whenever water cannot be used.
+    """
+    if not path.exists():
+        log.warning("Water source file not found: %s — merging WHOOP + meals only.", path)
+        return None, {}
+
+    try:
+        header, rows = load_csv_raw(path)
+        by_date = rows_to_date_dict(header, rows, date_col="date")
+    except (ValueError, StopIteration, csv.Error, OSError, UnicodeDecodeError) as exc:
+        log.warning("Water source file is unusable (%s): %s", path, exc)
+        log.warning("Continuing without a water block. Water is warn-only: a bad hydration "
+                    "export must never stop WHOOP and meal data from landing.")
+        print("::warning title=Water source unusable::%s could not be read (%s); "
+              "the merge continues without it" % (path, exc))
+        return None, {}
+
+    return header, by_date
+
+
 def append_audit_log(record: dict) -> None:
     """Append a JSON audit record to the rolling audit log (JSONL format)."""
     with open(AUDIT_LOG, "a", encoding="utf-8") as f:
@@ -351,14 +435,20 @@ def build_consolidated() -> None:
     whoop_header, whoop_rows = load_csv_raw(WHOOP_CSV)
     meal_header,  meal_rows  = load_csv_raw(MEAL_CSV)
 
+    # Water is optional. Its absence — or its being broken — is a survivable state, and in
+    # that state the output must stay exactly the two-block file the dashboard has always
+    # read. Loading and indexing happen together so a bad file degrades as one unit.
+    water_header, water_by_date = load_optional_water(WATER_CSV)
+
     # ── 2. Index rows by date ─────────────────────────────────────────────────
     whoop_by_date = rows_to_date_dict(whoop_header, whoop_rows, date_col="date")
     meal_by_date  = rows_to_date_dict(meal_header,  meal_rows,  date_col="date")
 
     whoop_dates = set(whoop_by_date.keys())
     meal_dates  = set(meal_by_date.keys())
+    water_dates = set(water_by_date.keys())
 
-    all_dates = sorted(whoop_dates | meal_dates, reverse=True)  # newest first
+    all_dates = sorted(whoop_dates | meal_dates | water_dates, reverse=True)  # newest first
 
     log.info("")
     log.info("Date coverage:")
@@ -370,13 +460,17 @@ def build_consolidated() -> None:
              len(meal_dates),
              min(meal_dates) if meal_dates else "N/A",
              max(meal_dates) if meal_dates else "N/A")
+    log.info("  Water dates   : %d  (%s → %s)",
+             len(water_dates),
+             min(water_dates) if water_dates else "N/A",
+             max(water_dates) if water_dates else "N/A")
     log.info("  Overlap       : %d dates", len(whoop_dates & meal_dates))
     log.info("  WHOOP-only    : %d dates", len(whoop_dates - meal_dates))
     log.info("  Meal-only     : %d dates", len(meal_dates - whoop_dates))
     log.info("  Union (output): %d dates", len(all_dates))
 
     # ── 3. Build output header ────────────────────────────────────────────────
-    output_header_internal = build_output_header(whoop_header, meal_header)
+    output_header_internal = build_output_header(whoop_header, meal_header, water_header)
     output_header_csv      = header_for_output(output_header_internal)
     expected_col_count     = len(output_header_csv)
 
@@ -385,6 +479,9 @@ def build_consolidated() -> None:
     log.info("  WHOOP columns : %d", len(whoop_header))
     log.info("  Spacer        : 1")
     log.info("  Meal columns  : %d", len(meal_header))
+    if water_header is not None:
+        log.info("  Spacer        : 1")
+        log.info("  Water columns : %d", len(water_header))
     log.info("  Total columns : %d", expected_col_count)
 
     # ── 4. Write staging file (never touch the real output until validated) ───
@@ -402,6 +499,8 @@ def build_consolidated() -> None:
                     whoop_by_date = whoop_by_date,
                     meal_header   = meal_header,
                     meal_by_date  = meal_by_date,
+                    water_header  = water_header,
+                    water_by_date = water_by_date,
                 )
                 writer.writerow(row)
     except OSError as exc:
@@ -417,6 +516,7 @@ def build_consolidated() -> None:
         whoop_dates    = whoop_dates,
         meal_dates     = meal_dates,
         whoop_col_count= len(whoop_header),
+        water_dates    = water_dates,
     )
 
     if not valid:
@@ -438,8 +538,10 @@ def build_consolidated() -> None:
         "total_cols":        expected_col_count,
         "whoop_cols":        len(whoop_header),
         "meal_cols":         len(meal_header),
+        "water_cols":        len(water_header) if water_header is not None else 0,
         "whoop_date_range":  [min(whoop_dates), max(whoop_dates)] if whoop_dates else [],
         "meal_date_range":   [min(meal_dates),  max(meal_dates)]  if meal_dates  else [],
+        "water_date_range":  [min(water_dates), max(water_dates)] if water_dates else [],
         "overlap_dates":     len(whoop_dates & meal_dates),
         "whoop_only_dates":  len(whoop_dates - meal_dates),
         "meal_only_dates":   len(meal_dates  - whoop_dates),
@@ -450,9 +552,16 @@ def build_consolidated() -> None:
     # and a stale one is named. The job is failed AFTER the commit step (see the workflow)
     # so fresh data still lands even when another source has gone quiet.
     max_age = int(os.environ.get("SOURCE_MAX_AGE_DAYS", "2"))
-    warn_only = {s.strip() for s in os.environ.get("WARN_ONLY_SOURCES", "meal").split(",") if s.strip()}
+    warn_only = {s.strip() for s in os.environ.get("WARN_ONLY_SOURCES", "meal,water").split(",") if s.strip()}
+    # Water is reported once its file is on disk — as NO DATA while it is still empty, which
+    # is the honest reading of a source that exists but has not moved. It is NOT reported
+    # before then: a source that has not been wired up yet would otherwise paint every run
+    # yellow forever, and a warning that is always on is a warning nobody reads.
+    freshness_sources = {"whoop": whoop_dates, "meal": meal_dates}
+    if WATER_CSV.exists():
+        freshness_sources["water"] = water_dates
     freshness = staleness_report(
-        {"whoop": whoop_dates, "meal": meal_dates}, max_age_days=max_age, warn_only=warn_only
+        freshness_sources, max_age_days=max_age, warn_only=warn_only,
     )
     audit_record["source_ages_days"] = freshness["ages"]
     audit_record["stale_sources"]    = freshness["stale_sources"]
