@@ -93,10 +93,10 @@ def test_count_type_requires_a_whole_number():
         habits.normalise(fake, "2.5")
 
 
-def test_hours_keeps_fractions(defs):
-    screen = habits.habit_by_id(defs, "screentime")
-    assert habits.normalise(screen, "1.5") == "1.5"
-    assert habits.normalise(screen, "2") == "2"
+def test_hours_keeps_fractions():
+    hours_habit = {"id": "x", "type": "hours"}
+    assert habits.normalise(hours_habit, "1.5") == "1.5"
+    assert habits.normalise(hours_habit, "2") == "2"
 
 
 def test_empty_value_is_a_noop_not_a_no(defs):
@@ -381,7 +381,7 @@ def test_new_plan_habits_defined_and_workout_is_self(defs):
                 "posts", "warning_signs", "sunday_review", "dj_hour", "mrr",
                 "bodyweight", "books_finished", "workout_whoop"]:
         assert hid in ids, hid
-    assert habits.habit_by_id(defs, "workout")["source"] == "self"
+    assert habits.habit_by_id(defs, "workout")["source"] == "workout_log"
     assert habits.habit_by_id(defs, "workout_whoop")["source"] == "whoop"
     assert "none" in habits.habit_by_id(defs, "warning_signs")["choices"]
 
@@ -575,3 +575,50 @@ def test_an_explicit_run_that_changes_nothing_still_stamps(sandbox, defs, monkey
     assert first != ""
     _log(monkeypatch, set=["made_bed=yes"])
     assert habits.read_rows(defs)["2026-08-26"]["logged_at"] != ""
+
+
+# -- phone flow definition ----------------------------------------------------
+
+PHONE_ORDER = ["made_bed", "morning_vitamins", "shower", "teeth", "night_vitamins",
+               "no_junk", "no_fap", "read_fiction", "read_nonfiction",
+               "devices_off_9pm", "screentime"]
+
+
+def test_phone_habits_are_eleven_binary_self_daily_in_order(defs):
+    phone = sorted((h for h in defs["habits"] if "phone_order" in h),
+                   key=lambda h: h["phone_order"])
+    assert [h["id"] for h in phone] == PHONE_ORDER
+    for h in phone:
+        assert h["type"] == "binary", h["id"]
+        assert h["source"] == "self", h["id"]
+        assert h.get("active", True) is True, h["id"]
+        assert h.get("cadence", "daily") != "weekly", h["id"]
+        assert h["question"].endswith("?"), h["id"]
+
+
+def test_screentime_is_binary_now(defs):
+    s = habits.habit_by_id(defs, "screentime")
+    assert s["type"] == "binary"
+    assert "target" not in s and "direction" not in s
+
+
+def test_water_and_workout_are_derived_now(defs):
+    assert habits.habit_by_id(defs, "water")["source"] == "water_dashboard"
+    assert habits.habit_by_id(defs, "workout")["source"] == "workout_log"
+    assert habits.habit_by_id(defs, "workout_whoop")["source"] == "whoop"
+
+
+def test_calories_on_target_column_sits_before_logged_at(defs):
+    cols = habits.columns(defs)
+    assert cols.index("calories_on_target") == cols.index("books_finished") + 1
+    assert cols[-2:] == ["logged_at", "note"]
+    c = habits.habit_by_id(defs, "calories_on_target")
+    assert c["type"] == "binary" and c["source"] == "meal_dashboard"
+
+
+def test_new_source_lists_exist(defs):
+    cfg = defs["config"]
+    for key in ("water_dashboard_sources", "workout_log_sources", "meal_dashboard_sources"):
+        assert isinstance(cfg[key], list) and cfg[key], key
+        assert cfg[key][0].startswith("https://raw.githubusercontent.com/"), key
+    assert cfg["calorie_tolerance_pct"] == 10
