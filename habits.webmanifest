@@ -1,0 +1,14 @@
+{
+  "name": "Habits",
+  "short_name": "Habits",
+  "start_url": "./habits.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1117",
+  "theme_color": "#0f1117",
+  "icons": [
+    { "src": "habits-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "habits-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
