@@ -23,6 +23,36 @@ broken streak, why blanks never overwrite a recorded value, and why every
 derived source below leaves its habit blank when its data is missing rather
 than defaulting to a failure.
 
+## What writes here without you
+
+The Windows scheduled task **"WHOOP Daily Sync"** (07:00 local) writes
+yesterday's derived habits into this repo. Nothing in this folder starts it.
+
+- Entry point: `..\whoop-data\run-once.ps1`, launched hidden by
+  `..\whoop-data\run-hidden.vbs`. The habits step is the last section of that
+  script, after the WHOOP sync itself.
+- Interpreter: `..\whoop-data\.venv\Scripts\python.exe` — the *sibling's*
+  venv, not anything in this repo. It runs
+  `habits.py log --date <yesterday> --whoop --tz America/New_York`, with
+  yesterday computed in Eastern.
+- Then it commits and pushes this repo, scoped to `habits.csv` and
+  `logs/habits_audit.jsonl` only, as `habits: log through <date>`, rebasing
+  with `--autostash` first because other clerks share this tree.
+- Because it passes only `--whoop`, it fills blanks and never overwrites a
+  stored value, never stamps `logged_at`, and does not rewrite `habits.csv` at
+  all when there is nothing to change.
+
+Failure signal: `..\whoop-data\state\local-run.log`. Habits lines are
+prefixed `habits:`.
+
+- `habits: derived-habit step FAILED` — nothing was written and nothing is
+  stranded; the WHOOP sync itself still succeeded.
+- `run end (exit 2) - WHOOP synced; habits log push FAILED` — yesterday's
+  habits exist **only on this disk**. The commit or the push did not land, so
+  the log and the remote disagree until someone pushes.
+- No `run end` line for the day at all — the task did not run, and yesterday
+  has no derived habits.
+
 ## The habit set
 
 **Derived — 7, never asked:**
@@ -143,7 +173,7 @@ python habits.py show --last 7
 | `habits/definitions.json` | Habit set, order, types, sources, thresholds, aliases. |
 | `habits.py` | prefill / log / show. |
 | `logs/habits_audit.jsonl` | Every write, with before and after values. |
-| `tests/test_habits.py` | 51 tests, concentrated on midnight, blank-vs-no, the write lock, and each derived source's failure mode. |
+| `tests/test_habits.py` | 55 tests, concentrated on midnight, blank-vs-no, the write lock, and each derived source's failure mode. |
 
 Writes go to a per-pid staging file, get validated, then atomically replace
 `habits.csv`, matching how `consolidate.py` handles the master CSV. The whole

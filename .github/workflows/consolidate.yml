@@ -13,7 +13,7 @@ name: Health Tracker Consolidation
 # we use repository_dispatch (triggered by the upstream repos calling the
 # GitHub API) plus a scheduled fallback as a reliability safety net.
 #
-# See docs/cross_repo_trigger_setup.md for instructions on configuring the
+# See cross_repo_trigger_setup.md at the repo root for instructions on configuring the
 # upstream repositories to fire repository_dispatch events.
 
 on:
