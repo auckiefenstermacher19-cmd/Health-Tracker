@@ -153,7 +153,8 @@
 const C = HabitsCore;
 const WORKER = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? location.origin : HABITS_CONFIG.workerUrl;
 const $ = id => document.getElementById(id);
-let defs = null, parsed = null, sha = null;
+const DEFS_KEY = 'habits_defs';
+let defs = null, parsed = null, sha = null, offline = '';
 let date = C.todayLocal();
 let wiz = { i: 0, answers: {} };
 let queue = Promise.resolve();
@@ -162,19 +163,28 @@ const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return
              set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
              del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
 
-function toast(msg, kind) { const t = $('toast'); t.textContent = msg; t.className = 'show ' + (kind || ''); setTimeout(() => t.className = '', 3200); }
+let toastTimer = 0;
+function toast(msg, kind) { const t = $('toast'); t.textContent = msg; t.className = 'show ' + (kind || ''); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.className = '', 3200); }
 function show(id) { document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id)); }
 
 async function apiGetHabits() {
   const r = await fetch(WORKER + '/habits?t=' + Date.now(), { cache: 'no-store' });
+  if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error('read failed ' + r.status + ': ' + (j.message || j.error || '')); }
   const j = await r.json();
-  if (!r.ok) throw new Error('read failed ' + r.status + ': ' + (j.message || j.error || ''));
   parsed = C.parseCSV(j.content); sha = j.sha;
 }
+/* Definitions are cached so the wizard still runs with the store unreachable. */
 async function apiGetDefs() {
   const r = await fetch(WORKER + '/raw/definitions?t=' + Date.now(), { cache: 'no-store' });
-  if (!r.ok) throw new Error('definitions failed ' + r.status);
-  defs = JSON.parse(await r.text());
+  if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error('definitions failed ' + r.status + ': ' + (j.message || j.error || '')); }
+  const text = await r.text();
+  defs = JSON.parse(text);
+  ls.set(DEFS_KEY, text);
+}
+function cachedDefs() {
+  const text = ls.get(DEFS_KEY);
+  if (!text) return null;
+  try { return JSON.parse(text); } catch (e) { return null; }
 }
 async function apiPut(content, message) {
   const r = await fetch(WORKER + '/habits', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content, sha, message }) });
@@ -183,11 +193,13 @@ async function apiPut(content, message) {
   if (!r.ok) throw new Error('save failed ' + r.status + ': ' + (j.message || j.error || ''));
   sha = j.sha || sha;
 }
-/* Read-upsert-write; on a sha clash refetch and try once more. */
-async function saveValues(values, message) {
+/* Read-upsert-write for one date; on a sha clash refetch and try once more.
+   The date is a parameter, never the global, so a queued save writes the day
+   it was asked for even if the picker has moved on. */
+async function saveValues(d, values, message) {
   for (let attempt = 0; attempt < 2; attempt++) {
-    if (attempt) await apiGetHabits();
-    const out = C.upsertDay(parsed, date, values, C.localISO());
+    if (attempt || !parsed) await apiGetHabits();
+    const out = C.upsertDay(parsed, d, values, C.localISO());
     try { await apiPut(C.serializeCSV(out.header, out.rows), message); parsed = out; return; }
     catch (e) { if (!e.conflict || attempt) throw e; }
   }
@@ -197,8 +209,10 @@ function rowFor(d) { return parsed && parsed.rows.find(r => r.date === d); }
 function renderHome() {
   $('date').value = date;
   const row = rowFor(date), btn = $('home-btn');
-  if (!parsed) { $('home-status').textContent = 'Loading…'; btn.disabled = true; return; }
+  if (!defs) { $('home-status').textContent = offline ? 'Cannot reach the habit store: ' + offline : 'Loading…'; btn.disabled = true; return; }
   btn.disabled = false;
+  /* Definitions but no CSV: the wizard runs, the save will offer Retry. */
+  if (!parsed) { $('home-status').textContent = 'Cannot reach the habit store: ' + offline; btn.textContent = 'Log habits'; btn.onclick = openWizard; return; }
   if (row && row.logged_at) { $('home-status').textContent = 'Logged at ' + C.formatLoggedAt(row.logged_at); btn.textContent = 'Edit habits'; btn.onclick = openEdit; }
   else { $('home-status').textContent = ls.get(C.draftKey(date)) ? 'In progress — tap to continue' : 'Not logged yet'; btn.textContent = 'Log habits'; btn.onclick = openWizard; }
 }
@@ -208,14 +222,21 @@ function habitsToAsk() { return C.phoneHabits(defs); }
 function openWizard() {
   const saved = ls.get(C.draftKey(date));
   wiz = saved ? JSON.parse(saved) : { i: 0, answers: {} };
-  if (wiz.i >= habitsToAsk().length) wiz.i = 0;
+  const list = habitsToAsk();
+  /* A finished draft means a save that failed: retry it, do not start over. */
+  if (wiz.i >= list.length) {
+    if (Object.keys(wiz.answers).length) { finishWizard(); return; }
+    wiz.i = 0;
+  }
   show('view-wizard'); renderQuestion();
 }
 function renderQuestion() {
   const list = habitsToAsk(), h = list[wiz.i];
   $('wiz-progress').textContent = (wiz.i + 1) + ' of ' + list.length;
   $('wiz-question').textContent = h.question || h.label + '?';
+  const prior = wiz.answers[h.id];
   ['tile-yes', 'tile-no'].forEach(id => $(id).classList.remove('chosen'));
+  if (prior === 'yes' || prior === 'no') $(prior === 'yes' ? 'tile-yes' : 'tile-no').classList.add('chosen');
   $('wiz-back').style.visibility = wiz.i ? 'visible' : 'hidden';
   const card = $('wizard-card'); card.classList.remove('slide-in'); void card.offsetWidth; card.classList.add('slide-in');
 }
@@ -236,19 +257,20 @@ function answer(value) {
 $('tile-yes').onclick = () => answer('yes');
 $('tile-no').onclick = () => answer('no');
 $('wiz-skip').onclick = () => answer(null);
-$('wiz-back').onclick = () => { if (wiz.i > 0) { wiz.i -= 1; renderQuestion(); } };
+$('wiz-back').onclick = () => { if (wiz.i > 0) { wiz.i -= 1; ls.set(C.draftKey(date), JSON.stringify(wiz)); renderQuestion(); } };
 
 async function finishWizard() {
+  const d = date, answers = wiz.answers;   /* the day this wizard was for */
   show('view-done');
   $('done-title').textContent = 'Saving…'; $('done-sub').textContent = ''; $('done-retry').hidden = true; $('done-back').disabled = true;
   try {
-    await saveValues(wiz.answers, 'habits: phone log ' + date);
-    ls.del(C.draftKey(date));
-    $('done-title').textContent = 'Habits tracked for ' + C.formatDateLong(date);
-    const n = Object.keys(wiz.answers).length, total = habitsToAsk().length;
+    await saveValues(d, answers, 'habits: phone log ' + d);
+    ls.del(C.draftKey(d));
+    $('done-title').textContent = 'Habits tracked for ' + C.formatDateLong(d);
+    const n = Object.keys(answers).length, total = habitsToAsk().length;
     $('done-sub').textContent = n + ' of ' + total + ' answered' + (n < total ? ', the rest left blank' : '');
   } catch (e) {
-    ls.set(C.draftKey(date), JSON.stringify(wiz));
+    ls.set(C.draftKey(d), JSON.stringify(wiz));
     $('done-title').textContent = 'Not saved'; $('done-sub').textContent = e.message; $('done-retry').hidden = false;
     toast(e.message, 'error');
   }
@@ -286,8 +308,9 @@ function openEdit() {
   show('view-edit');
 }
 function setValue(id, v, pills) {
+  const d = date;   /* the day that was on screen when the pill was tapped */
   pills.querySelectorAll('.pill').forEach(p => p.classList.toggle('on', p.dataset.v === v));
-  queue = queue.then(() => saveValues({ [id]: v }, 'habits: phone edit ' + date + ' ' + id + '=' + (v || 'blank')))
+  queue = queue.then(() => saveValues(d, { [id]: v }, 'habits: phone edit ' + d + ' ' + id + '=' + (v || 'blank')))
     .then(() => toast('Saved', 'ok'))
     .catch(e => { toast(e.message, 'error'); openEdit(); });
 }
@@ -295,11 +318,18 @@ $('edit-back').onclick = () => { renderHome(); show('view-home'); };
 
 async function init() {
   renderHome();
-  try { await apiGetDefs(); await apiGetHabits(); }
-  catch (e) { $('home-status').textContent = 'Cannot reach the habit store: ' + e.message; toast(e.message, 'error'); return; }
+  try { await apiGetDefs(); }
+  catch (e) { offline = e.message; defs = cachedDefs(); }   /* cached defs keep the wizard usable */
+  try { await apiGetHabits(); }
+  catch (e) { offline = offline || e.message; }
   renderHome();
+  if (offline) toast(offline, 'error');
 }
-document.addEventListener('visibilitychange', () => { if (!document.hidden && parsed) apiGetHabits().then(() => { if ($('view-home').classList.contains('active')) renderHome(); }).catch(() => {}); });
+/* Queued so a refetch cannot replace parsed/sha while an edit PUT is in flight. */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden || !parsed) return;
+  queue = queue.then(() => apiGetHabits()).then(() => { if ($('view-home').classList.contains('active')) renderHome(); }).catch(() => {});
+});
 init();
 </script>
 </body>
