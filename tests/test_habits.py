@@ -622,3 +622,22 @@ def test_new_source_lists_exist(defs):
         assert isinstance(cfg[key], list) and cfg[key], key
         assert cfg[key][0].startswith("https://raw.githubusercontent.com/"), key
     assert cfg["calorie_tolerance_pct"] == 10
+
+
+def test_definitions_have_no_duplicate_keys():
+    """A repeated key in one JSON object silently overwrites itself - guard it.
+
+    json.load's default object_pairs_hook keeps only the last value for a
+    repeated key, so a plain load() can't catch this; count key occurrences
+    per object instead.
+    """
+    import collections
+
+    def hook(pairs):
+        counts = collections.Counter(k for k, _ in pairs)
+        dups = [k for k, n in counts.items() if n > 1]
+        assert not dups, f"duplicate keys {dups} in object with keys {[k for k, _ in pairs]}"
+        return dict(pairs)
+
+    path = REPO / "habits" / "definitions.json"
+    json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=hook)

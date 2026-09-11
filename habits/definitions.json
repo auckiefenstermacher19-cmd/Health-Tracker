@@ -52,7 +52,7 @@
       "id": "workout",
       "label": "Workout",
       "type": "binary",
-      "source": "self",
+      "source": "workout_log",
       "aliases": [
         "workout",
         "worked out",
@@ -62,7 +62,6 @@
         "run",
         "training"
       ],
-      "source": "workout_log",
       "note": "Derived from Workout-Tracker-v2 since 2026-09-11: any set logged that day -> yes; otherwise blank, never no. WHOOP's view lands in workout_whoop. A hand-set value is never overwritten."
     },
     {
