@@ -84,9 +84,11 @@ dashboard's Year tab, or logged by an agent: devices off by 9pm, reach-out
 (text: names), outbound / buyer conversations / public posts (counts),
 warning signs (text from a fixed list, `none` to clear). Weekly, typed in the
 Sunday review: Sunday review, DJ hour (optional), MRR, body weight, books
-finished (running total). `workout` is now self-reported; `workout_whoop`
-records what WHOOP saw so the two can disagree visibly. The dashboard never
-passes `--whoop`; the 7:00 WHOOP sync step does, and it only fills blanks.
+finished (running total). `workout` is derived from the Workout Tracker (any
+set logged that day); `workout_whoop` records what WHOOP saw so the two can
+disagree visibly, and a hand-set `workout` value is never overwritten. The
+dashboard never passes `--whoop`; the 7:00 WHOOP sync step does, and it only
+fills blanks.
 
 ## What `logged_at` means
 
@@ -150,7 +152,7 @@ python habits.py log --date today --whoop --set made_bed=yes --set water=yes --s
 
 `--whoop` fills blanks only: a derived habit that already has a stored value
 keeps it, and anything you pass on the command line wins outright. So a
-self-reported `workout=yes` survives the 7:00 sync even when WHOOP saw no
+hand-set `workout=yes` survives the 7:00 sync even when WHOOP saw no
 workout - WHOOP's answer lands in `workout_whoop` and the two disagree in
 public. Re-running merges into the existing row, so corrections and second
 passes are safe.
@@ -205,7 +207,7 @@ python habits.py show --last 7
 | `habits-core.js` | Pure functions shared by the page and its tests: CSV parse/serialize, row upsert, question selection, draft state. |
 | `habits-config.js` | The Worker URL. No secrets. |
 | `tools/dev_worker.py` | Local stand-in for the Worker: serves the page and a scratch copy of `habits.csv` for browser testing. Never touches the real file. |
-| `tests/habits-core.test.js` | `node --test` suite for `habits-core.js`. |
+| `tests/habits-core.test.js` | `node --test` suite for `habits-core.js`, 8 tests. |
 | `tests/test_habits.py` | 79 tests, concentrated on midnight, blank-vs-no, the write lock, and each derived source's failure mode. |
 
 Writes go to a per-pid staging file, get validated, then atomically replace
