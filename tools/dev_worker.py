@@ -6,11 +6,12 @@ SCRATCH COPY of habits.csv. It never writes the real file.
     python tools/dev_worker.py            # http://127.0.0.1:8765/habits.html
     python tools/dev_worker.py --csv some/copy.csv --port 9000
 """
-import argparse, hashlib, json, shutil, sys, tempfile
+import argparse, hashlib, json, sys, tempfile, threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+WRITE_LOCK = threading.Lock()
 
 
 def sha_of(text):
@@ -59,10 +60,11 @@ def make_handler(csv_path):
                 return self._json({"error": "Not found"}, 404)
             n = int(self.headers.get("Content-Length", "0"))
             body = json.loads(self.rfile.read(n).decode("utf-8"))
-            current = csv_path.read_text(encoding="utf-8")
-            if body.get("sha") != sha_of(current):
-                return self._json({"error": "GitHub write failed", "status": 409, "message": "sha mismatch"}, 409)
-            csv_path.write_bytes(body["content"].encode("utf-8"))   # bytes: keeps LF exactly
+            with WRITE_LOCK:
+                current = csv_path.read_text(encoding="utf-8")
+                if body.get("sha") != sha_of(current):
+                    return self._json({"error": "GitHub write failed", "status": 409, "message": "sha mismatch"}, 409)
+                csv_path.write_bytes(body["content"].encode("utf-8"))   # bytes: keeps LF exactly
             print("PUT habits.csv:", body.get("message"), file=sys.stderr)
             return self._json({"success": True, "sha": sha_of(body["content"])})
 

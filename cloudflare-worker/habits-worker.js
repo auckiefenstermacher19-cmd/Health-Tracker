@@ -54,6 +54,17 @@ function textResponse(text, status, env) {
   });
 }
 
+// The PUT side encodes with btoa(unescape(encodeURIComponent(content))), which
+// packs each UTF-8 byte into its own char code. Plain atob() only undoes the
+// base64 step and leaves those byte-per-char-code strings as mangled text, so
+// any non-ASCII byte (accents, emoji, etc.) comes back corrupted. This helper
+// undoes both steps: base64-decode to raw bytes, then UTF-8-decode those bytes.
+function decodeBase64Utf8(b64) {
+  const bin = atob(b64.replace(/\n/g, ''));
+  const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+  return new TextDecoder('utf-8').decode(bytes);
+}
+
 async function githubFetch(env, path, options) {
   options = options || {};
   const url = GITHUB_API_BASE + path;
@@ -83,7 +94,7 @@ async function handleGetFile(env, filePath) {
 
   const json = await res.json();
   // Decode base64 content here on the server so the app gets plain text directly
-  const decoded = atob(json.content.replace(/\n/g, ''));
+  const decoded = decodeBase64Utf8(json.content);
 
   return jsonResponse({ content: decoded, sha: json.sha }, 200, env);
 }
@@ -137,7 +148,7 @@ async function handleRawFile(env, filePath) {
   }
 
   const json = await res.json();
-  const decoded = atob(json.content.replace(/\n/g, ''));
+  const decoded = decodeBase64Utf8(json.content);
 
   return textResponse(decoded, 200, env);
 }
