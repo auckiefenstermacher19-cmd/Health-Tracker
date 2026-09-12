@@ -5,6 +5,85 @@
     "semgrep": "ok"
   },
   "findings": {
+    "repowise:cloudflare-worker/habits-worker.js:None:dry_violation": {
+      "file": "cloudflare-worker/habits-worker.js",
+      "finding_id": "None:dry_violation",
+      "message": "13% of file duplicated; worst clone shares 13 lines with cloudflare-worker/habits-worker.js",
+      "raw": {
+        "biomarker_type": "dry_violation",
+        "details": {
+          "clone_pair_count": 1,
+          "duplication_pct": 13.25,
+          "worst_clone_co_change": 0,
+          "worst_clone_lines": 13,
+          "worst_clone_partner": "cloudflare-worker/habits-worker.js"
+        },
+        "file_path": "cloudflare-worker/habits-worker.js",
+        "function_name": null,
+        "health_impact": 0.15,
+        "reason": "13% of file duplicated; worst clone shares 13 lines with cloudflare-worker/habits-worker.js",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:cloudflare-worker/habits-worker.js:None:prior_defect": {
+      "file": "cloudflare-worker/habits-worker.js",
+      "finding_id": "None:prior_defect",
+      "message": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 1,
+          "window_days": 180
+        },
+        "file_path": "cloudflare-worker/habits-worker.js",
+        "function_name": null,
+        "health_impact": 0.3,
+        "reason": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:cloudflare-worker/habits-worker.js:fetch:complex_method": {
+      "file": "cloudflare-worker/habits-worker.js",
+      "finding_id": "fetch:complex_method",
+      "message": "fetch has cyclomatic complexity 10",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 10,
+          "cognitive": 14,
+          "nloc": 22
+        },
+        "file_path": "cloudflare-worker/habits-worker.js",
+        "function_name": "fetch",
+        "health_impact": 0.847,
+        "reason": "fetch has cyclomatic complexity 10",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:cloudflare-worker/habits-worker.js:metric": {
+      "file": "cloudflare-worker/habits-worker.js",
+      "finding_id": "metric",
+      "message": "overall file health score 8.7/10 (max CCN 10, max nesting 2)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": 13.25,
+        "file_path": "cloudflare-worker/habits-worker.js",
+        "has_test_file": false,
+        "line_coverage_pct": null,
+        "max_ccn": 10,
+        "max_nesting": 2,
+        "nloc": 120,
+        "score": 8.7
+      },
+      "risk_score": 1.3,
+      "source": "repowise"
+    },
     "repowise:codegeeko/collectors/ci_log_collector.py:None:prior_defect": {
       "file": "codegeeko/collectors/ci_log_collector.py",
       "finding_id": "None:prior_defect",
@@ -503,8 +582,8 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.1503,
-          "change_entropy_pct": 0.839,
+          "change_entropy": 2.1386,
+          "change_entropy_pct": 0.842,
           "commit_count_90d": 6
         },
         "file_path": "codegeeko/run.py",
@@ -699,8 +778,8 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.1806,
-          "change_entropy_pct": 0.871,
+          "change_entropy": 2.1687,
+          "change_entropy_pct": 0.868,
           "commit_count_90d": 8
         },
         "file_path": "codegeeko/triage.py",
@@ -831,44 +910,44 @@
     "repowise:consolidate.py:None:change_entropy": {
       "file": "consolidate.py",
       "finding_id": "None:change_entropy",
-      "message": "changes are scattered across noisy commits (top 19% change entropy); a strong history-based fault predictor",
+      "message": "changes are scattered across noisy commits (top 8% change entropy); a strong history-based fault predictor",
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.52,
-          "change_entropy_pct": 0.806,
-          "commit_count_90d": 5
+          "change_entropy": 2.4996,
+          "change_entropy_pct": 0.921,
+          "commit_count_90d": 7
         },
         "file_path": "consolidate.py",
         "function_name": null,
-        "health_impact": 0.856,
-        "reason": "changes are scattered across noisy commits (top 19% change entropy); a strong history-based fault predictor",
-        "severity": "medium"
+        "health_impact": 0.898,
+        "reason": "changes are scattered across noisy commits (top 8% change entropy); a strong history-based fault predictor",
+        "severity": "high"
       },
-      "risk_score": 5.0,
+      "risk_score": 7.5,
       "source": "repowise"
     },
     "repowise:consolidate.py:None:churn_risk": {
       "file": "consolidate.py",
       "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 1.5x the file's size (539 lines over 367 NLOC, top 13% of repo churn)",
+      "message": "90-day churn rewrote 1.5x the file's size (739 lines over 479 NLOC, top 11% of repo churn)",
       "raw": {
         "biomarker_type": "churn_risk",
         "details": {
-          "churn_percentile": 0.871,
-          "commit_count_90d": 5,
-          "lines_added_90d": 517,
-          "lines_deleted_90d": 22,
-          "nloc": 367,
-          "relative_churn": 1.47
+          "churn_percentile": 0.895,
+          "commit_count_90d": 7,
+          "lines_added_90d": 693,
+          "lines_deleted_90d": 46,
+          "nloc": 479,
+          "relative_churn": 1.54
         },
         "file_path": "consolidate.py",
         "function_name": null,
-        "health_impact": 0.292,
-        "reason": "90-day churn rewrote 1.5x the file's size (539 lines over 367 NLOC, top 13% of repo churn)",
-        "severity": "low"
+        "health_impact": 0.416,
+        "reason": "90-day churn rewrote 1.5x the file's size (739 lines over 479 NLOC, top 11% of repo churn)",
+        "severity": "medium"
       },
-      "risk_score": 2.5,
+      "risk_score": 5.0,
       "source": "repowise"
     },
     "repowise:consolidate.py:None:prior_defect": {
@@ -883,7 +962,7 @@
         },
         "file_path": "consolidate.py",
         "function_name": null,
-        "health_impact": 0.567,
+        "health_impact": 0.347,
         "reason": "2 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
         "severity": "medium"
       },
@@ -911,42 +990,42 @@
     "repowise:consolidate.py:build_consolidated:complex_method": {
       "file": "consolidate.py",
       "finding_id": "build_consolidated:complex_method",
-      "message": "build_consolidated has cyclomatic complexity 17",
+      "message": "build_consolidated has cyclomatic complexity 25",
       "raw": {
         "biomarker_type": "complex_method",
         "details": {
-          "ccn": 17,
-          "cognitive": 20,
-          "nloc": 128
+          "ccn": 25,
+          "cognitive": 28,
+          "nloc": 153
         },
         "file_path": "consolidate.py",
         "function_name": "build_consolidated",
-        "health_impact": 0.531,
-        "reason": "build_consolidated has cyclomatic complexity 17",
-        "severity": "high"
+        "health_impact": 0.563,
+        "reason": "build_consolidated has cyclomatic complexity 25",
+        "severity": "critical"
       },
-      "risk_score": 7.5,
+      "risk_score": 10.0,
       "source": "repowise"
     },
     "repowise:consolidate.py:build_consolidated:function_hotspot": {
       "file": "consolidate.py",
       "finding_id": "build_consolidated:function_hotspot",
-      "message": "build_consolidated has been modified across 4 commits (repo p80=2) and carries CCN=17 / nesting=2",
+      "message": "build_consolidated has been modified across 6 commits (repo p80=2) and carries CCN=25 / nesting=2",
       "raw": {
         "biomarker_type": "function_hotspot",
         "details": {
-          "ccn": 17,
+          "ccn": 25,
           "max_nesting": 2,
-          "modification_count": 4,
+          "modification_count": 6,
           "repo_p80": 2
         },
         "file_path": "consolidate.py",
         "function_name": "build_consolidated",
-        "health_impact": 1.128,
-        "reason": "build_consolidated has been modified across 4 commits (repo p80=2) and carries CCN=17 / nesting=2",
-        "severity": "high"
+        "health_impact": 1.149,
+        "reason": "build_consolidated has been modified across 6 commits (repo p80=2) and carries CCN=25 / nesting=2",
+        "severity": "critical"
       },
-      "risk_score": 7.5,
+      "risk_score": 10.0,
       "source": "repowise"
     },
     "repowise:consolidate.py:build_consolidated:hot_path_sync_io": {
@@ -970,17 +1049,17 @@
     "repowise:consolidate.py:build_consolidated:large_method": {
       "file": "consolidate.py",
       "finding_id": "build_consolidated:large_method",
-      "message": "build_consolidated is 128 lines long",
+      "message": "build_consolidated is 153 lines long",
       "raw": {
         "biomarker_type": "large_method",
         "details": {
-          "ccn": 17,
-          "nloc": 128
+          "ccn": 25,
+          "nloc": 153
         },
         "file_path": "consolidate.py",
         "function_name": "build_consolidated",
-        "health_impact": 0.549,
-        "reason": "build_consolidated is 128 lines long",
+        "health_impact": 0.349,
+        "reason": "build_consolidated is 153 lines long",
         "severity": "high"
       },
       "risk_score": 7.5,
@@ -989,19 +1068,19 @@
     "repowise:consolidate.py:build_output_row:primitive_obsession": {
       "file": "consolidate.py",
       "finding_id": "build_output_row:primitive_obsession",
-      "message": "build_output_row takes 5 parameters",
+      "message": "build_output_row takes 7 parameters",
       "raw": {
         "biomarker_type": "primitive_obsession",
         "details": {
-          "param_count": 5
+          "param_count": 7
         },
         "file_path": "consolidate.py",
         "function_name": "build_output_row",
-        "health_impact": 0.055,
-        "reason": "build_output_row takes 5 parameters",
-        "severity": "low"
+        "health_impact": 0.081,
+        "reason": "build_output_row takes 7 parameters",
+        "severity": "medium"
       },
-      "risk_score": 2.5,
+      "risk_score": 5.0,
       "source": "repowise"
     },
     "repowise:consolidate.py:load_csv_raw:hot_path_sync_io": {
@@ -1025,60 +1104,78 @@
     "repowise:consolidate.py:metric": {
       "file": "consolidate.py",
       "finding_id": "metric",
-      "message": "overall file health score 5.0/10 (max CCN 17, max nesting 3)",
+      "message": "overall file health score 5.0/10 (max CCN 25, max nesting 3)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": null,
         "file_path": "consolidate.py",
         "has_test_file": false,
         "line_coverage_pct": null,
-        "max_ccn": 17,
+        "max_ccn": 25,
         "max_nesting": 3,
-        "nloc": 367,
+        "nloc": 479,
         "score": 5.0
       },
       "risk_score": 5.0,
       "source": "repowise"
     },
+    "repowise:consolidate.py:previous_output_has_water:hot_path_sync_io": {
+      "file": "consolidate.py",
+      "finding_id": "previous_output_has_water:hot_path_sync_io",
+      "message": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+      "raw": {
+        "biomarker_type": "hot_path_sync_io",
+        "details": {
+          "boundary_kind": "filesystem"
+        },
+        "file_path": "consolidate.py",
+        "function_name": "previous_output_has_water",
+        "health_impact": 0.0,
+        "reason": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
     "repowise:consolidate.py:validate_output:complex_method": {
       "file": "consolidate.py",
       "finding_id": "validate_output:complex_method",
-      "message": "validate_output has cyclomatic complexity 13",
+      "message": "validate_output has cyclomatic complexity 16",
       "raw": {
         "biomarker_type": "complex_method",
         "details": {
-          "ccn": 13,
-          "cognitive": 15,
-          "nloc": 46
+          "ccn": 16,
+          "cognitive": 25,
+          "nloc": 61
         },
         "file_path": "consolidate.py",
         "function_name": "validate_output",
-        "health_impact": 0.31,
-        "reason": "validate_output has cyclomatic complexity 13",
-        "severity": "medium"
+        "health_impact": 0.338,
+        "reason": "validate_output has cyclomatic complexity 16",
+        "severity": "high"
       },
-      "risk_score": 5.0,
+      "risk_score": 7.5,
       "source": "repowise"
     },
     "repowise:consolidate.py:validate_output:function_hotspot": {
       "file": "consolidate.py",
       "finding_id": "validate_output:function_hotspot",
-      "message": "validate_output has been modified across 2 commits (repo p80=2) and carries CCN=13 / nesting=2",
+      "message": "validate_output has been modified across 3 commits (repo p80=2) and carries CCN=16 / nesting=3",
       "raw": {
         "biomarker_type": "function_hotspot",
         "details": {
-          "ccn": 13,
-          "max_nesting": 2,
-          "modification_count": 2,
+          "ccn": 16,
+          "max_nesting": 3,
+          "modification_count": 3,
           "repo_p80": 2
         },
         "file_path": "consolidate.py",
         "function_name": "validate_output",
-        "health_impact": 0.658,
-        "reason": "validate_output has been modified across 2 commits (repo p80=2) and carries CCN=13 / nesting=2",
-        "severity": "medium"
+        "health_impact": 0.69,
+        "reason": "validate_output has been modified across 3 commits (repo p80=2) and carries CCN=16 / nesting=3",
+        "severity": "high"
       },
-      "risk_score": 5.0,
+      "risk_score": 7.5,
       "source": "repowise"
     },
     "repowise:consolidate.py:validate_output:hot_path_sync_io": {
@@ -1099,42 +1196,81 @@
       "risk_score": 2.5,
       "source": "repowise"
     },
-    "repowise:consolidate.py:validate_output:primitive_obsession": {
+    "repowise:consolidate.py:validate_output:large_method": {
       "file": "consolidate.py",
-      "finding_id": "validate_output:primitive_obsession",
-      "message": "validate_output takes 6 parameters",
+      "finding_id": "validate_output:large_method",
+      "message": "validate_output is 61 lines long",
       "raw": {
-        "biomarker_type": "primitive_obsession",
+        "biomarker_type": "large_method",
         "details": {
-          "param_count": 6
+          "ccn": 16,
+          "nloc": 61
         },
         "file_path": "consolidate.py",
         "function_name": "validate_output",
-        "health_impact": 0.055,
-        "reason": "validate_output takes 6 parameters",
+        "health_impact": 0.087,
+        "reason": "validate_output is 61 lines long",
         "severity": "low"
       },
       "risk_score": 2.5,
       "source": "repowise"
     },
-    "repowise:dashboard.js:None:churn_risk": {
-      "file": "dashboard.js",
-      "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 11.7x the file's size (3923 lines over 335 NLOC, top 3% of repo churn)",
+    "repowise:consolidate.py:validate_output:primitive_obsession": {
+      "file": "consolidate.py",
+      "finding_id": "validate_output:primitive_obsession",
+      "message": "validate_output takes 7 parameters",
       "raw": {
-        "biomarker_type": "churn_risk",
+        "biomarker_type": "primitive_obsession",
         "details": {
-          "churn_percentile": 0.968,
-          "commit_count_90d": 11,
-          "lines_added_90d": 2162,
-          "lines_deleted_90d": 1761,
-          "nloc": 335,
-          "relative_churn": 11.71
+          "param_count": 7
+        },
+        "file_path": "consolidate.py",
+        "function_name": "validate_output",
+        "health_impact": 0.081,
+        "reason": "validate_output takes 7 parameters",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:None:change_entropy": {
+      "file": "dashboard.js",
+      "finding_id": "None:change_entropy",
+      "message": "changes are scattered across noisy commits (top 18% change entropy); a strong history-based fault predictor",
+      "raw": {
+        "biomarker_type": "change_entropy",
+        "details": {
+          "change_entropy": 1.8769,
+          "change_entropy_pct": 0.816,
+          "commit_count_90d": 12
         },
         "file_path": "dashboard.js",
         "function_name": null,
-        "health_impact": 0.849,
-        "reason": "90-day churn rewrote 11.7x the file's size (3923 lines over 335 NLOC, top 3% of repo churn)",
+        "health_impact": 0.311,
+        "reason": "changes are scattered across noisy commits (top 18% change entropy); a strong history-based fault predictor",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:None:churn_risk": {
+      "file": "dashboard.js",
+      "finding_id": "None:churn_risk",
+      "message": "90-day churn rewrote 10.5x the file's size (3984 lines over 379 NLOC, top 3% of repo churn)",
+      "raw": {
+        "biomarker_type": "churn_risk",
+        "details": {
+          "churn_percentile": 0.974,
+          "commit_count_90d": 12,
+          "lines_added_90d": 2221,
+          "lines_deleted_90d": 1763,
+          "nloc": 379,
+          "relative_churn": 10.51
+        },
+        "file_path": "dashboard.js",
+        "function_name": null,
+        "health_impact": 0.707,
+        "reason": "90-day churn rewrote 10.5x the file's size (3984 lines over 379 NLOC, top 3% of repo churn)",
         "severity": "critical"
       },
       "risk_score": 10.0,
@@ -1152,7 +1288,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": null,
-        "health_impact": 0.106,
+        "health_impact": 0.088,
         "reason": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
         "severity": "low"
       },
@@ -1191,7 +1327,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "buildCoaching",
-        "health_impact": 0.354,
+        "health_impact": 0.287,
         "reason": "buildCoaching has cyclomatic complexity 35",
         "severity": "critical"
       },
@@ -1212,7 +1348,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "buildCoaching",
-        "health_impact": 0.493,
+        "health_impact": 0.41,
         "reason": "buildCoaching has been modified across 4 commits (repo p80=2) and carries CCN=35 / nesting=2",
         "severity": "high"
       },
@@ -1230,7 +1366,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "fillBarHTML",
-        "health_impact": 0.022,
+        "health_impact": 0.018,
         "reason": "fillBarHTML takes 6 parameters",
         "severity": "low"
       },
@@ -1250,7 +1386,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "keyMetricDesc",
-        "health_impact": 0.213,
+        "health_impact": 0.172,
         "reason": "keyMetricDesc has cyclomatic complexity 22",
         "severity": "high"
       },
@@ -1271,7 +1407,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "keyMetricDesc",
-        "health_impact": 0.493,
+        "health_impact": 0.41,
         "reason": "keyMetricDesc has been modified across 2 commits (repo p80=2) and carries CCN=22 / nesting=3",
         "severity": "high"
       },
@@ -1281,19 +1417,19 @@
     "repowise:dashboard.js:metric": {
       "file": "dashboard.js",
       "finding_id": "metric",
-      "message": "overall file health score 3.6/10 (max CCN 139, max nesting 3)",
+      "message": "overall file health score 2.67/10 (max CCN 139, max nesting 3)",
       "raw": {
         "branch_coverage_pct": null,
-        "duplication_pct": 4.67,
+        "duplication_pct": 4.07,
         "file_path": "dashboard.js",
         "has_test_file": false,
         "line_coverage_pct": null,
         "max_ccn": 139,
         "max_nesting": 3,
-        "nloc": 335,
-        "score": 3.6
+        "nloc": 379,
+        "score": 2.67
       },
-      "risk_score": 6.4,
+      "risk_score": 7.33,
       "source": "repowise"
     },
     "repowise:dashboard.js:renderCalendar:complex_method": {
@@ -1309,7 +1445,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "renderCalendar",
-        "health_impact": 0.124,
+        "health_impact": 0.1,
         "reason": "renderCalendar has cyclomatic complexity 10",
         "severity": "medium"
       },
@@ -1330,7 +1466,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "renderCalendar",
-        "health_impact": 0.287,
+        "health_impact": 0.239,
         "reason": "renderCalendar has been modified across 3 commits (repo p80=2) and carries CCN=10 / nesting=3",
         "severity": "medium"
       },
@@ -1356,39 +1492,39 @@
     "repowise:dashboard.js:renderCharts:complex_method": {
       "file": "dashboard.js",
       "finding_id": "renderCharts:complex_method",
-      "message": "renderCharts has cyclomatic complexity 20",
+      "message": "renderCharts has cyclomatic complexity 25",
       "raw": {
         "biomarker_type": "complex_method",
         "details": {
-          "ccn": 20,
-          "cognitive": 20,
-          "nloc": 34
+          "ccn": 25,
+          "cognitive": 26,
+          "nloc": 44
         },
         "file_path": "dashboard.js",
         "function_name": "renderCharts",
-        "health_impact": 0.213,
-        "reason": "renderCharts has cyclomatic complexity 20",
-        "severity": "high"
+        "health_impact": 0.287,
+        "reason": "renderCharts has cyclomatic complexity 25",
+        "severity": "critical"
       },
-      "risk_score": 7.5,
+      "risk_score": 10.0,
       "source": "repowise"
     },
     "repowise:dashboard.js:renderCharts:function_hotspot": {
       "file": "dashboard.js",
       "finding_id": "renderCharts:function_hotspot",
-      "message": "renderCharts has been modified across 2 commits (repo p80=2) and carries CCN=20 / nesting=2",
+      "message": "renderCharts has been modified across 3 commits (repo p80=2) and carries CCN=25 / nesting=2",
       "raw": {
         "biomarker_type": "function_hotspot",
         "details": {
-          "ccn": 20,
+          "ccn": 25,
           "max_nesting": 2,
-          "modification_count": 2,
+          "modification_count": 3,
           "repo_p80": 2
         },
         "file_path": "dashboard.js",
         "function_name": "renderCharts",
-        "health_impact": 0.493,
-        "reason": "renderCharts has been modified across 2 commits (repo p80=2) and carries CCN=20 / nesting=2",
+        "health_impact": 0.41,
+        "reason": "renderCharts has been modified across 3 commits (repo p80=2) and carries CCN=25 / nesting=2",
         "severity": "high"
       },
       "risk_score": 7.5,
@@ -1423,11 +1559,11 @@
         "details": {
           "ccn": 139,
           "cognitive": 182,
-          "nloc": 122
+          "nloc": 123
         },
         "file_path": "dashboard.js",
         "function_name": "renderDay",
-        "health_impact": 0.354,
+        "health_impact": 0.287,
         "reason": "renderDay has cyclomatic complexity 139",
         "severity": "critical"
       },
@@ -1437,38 +1573,77 @@
     "repowise:dashboard.js:renderDay:function_hotspot": {
       "file": "dashboard.js",
       "finding_id": "renderDay:function_hotspot",
-      "message": "renderDay has been modified across 5 commits (repo p80=2) and carries CCN=139 / nesting=3",
+      "message": "renderDay has been modified across 6 commits (repo p80=2) and carries CCN=139 / nesting=3",
       "raw": {
         "biomarker_type": "function_hotspot",
         "details": {
           "ccn": 139,
           "max_nesting": 3,
-          "modification_count": 5,
+          "modification_count": 6,
           "repo_p80": 2
         },
         "file_path": "dashboard.js",
         "function_name": "renderDay",
-        "health_impact": 0.493,
-        "reason": "renderDay has been modified across 5 commits (repo p80=2) and carries CCN=139 / nesting=3",
-        "severity": "high"
+        "health_impact": 0.684,
+        "reason": "renderDay has been modified across 6 commits (repo p80=2) and carries CCN=139 / nesting=3",
+        "severity": "critical"
       },
-      "risk_score": 7.5,
+      "risk_score": 10.0,
       "source": "repowise"
     },
     "repowise:dashboard.js:renderDay:large_method": {
       "file": "dashboard.js",
       "finding_id": "renderDay:large_method",
-      "message": "renderDay is 122 lines long",
+      "message": "renderDay is 123 lines long",
       "raw": {
         "biomarker_type": "large_method",
         "details": {
           "ccn": 139,
-          "nloc": 122
+          "nloc": 123
         },
         "file_path": "dashboard.js",
         "function_name": "renderDay",
-        "health_impact": 0.22,
-        "reason": "renderDay is 122 lines long",
+        "health_impact": 0.178,
+        "reason": "renderDay is 123 lines long",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:renderWater:complex_conditional": {
+      "file": "dashboard.js",
+      "finding_id": "renderWater:complex_conditional",
+      "message": "if condition combines 4 boolean operators",
+      "raw": {
+        "biomarker_type": "complex_conditional",
+        "details": {
+          "enclosing_construct": "if",
+          "operator_count": 4
+        },
+        "file_path": "dashboard.js",
+        "function_name": "renderWater",
+        "health_impact": 0.931,
+        "reason": "if condition combines 4 boolean operators",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:dashboard.js:renderWater:complex_method": {
+      "file": "dashboard.js",
+      "finding_id": "renderWater:complex_method",
+      "message": "renderWater has cyclomatic complexity 24",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 24,
+          "cognitive": 28,
+          "nloc": 27
+        },
+        "file_path": "dashboard.js",
+        "function_name": "renderWater",
+        "health_impact": 0.172,
+        "reason": "renderWater has cyclomatic complexity 24",
         "severity": "high"
       },
       "risk_score": 7.5,
@@ -1488,7 +1663,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "updateFreshness",
-        "health_impact": 0.287,
+        "health_impact": 0.239,
         "reason": "updateFreshness has been modified across 2 commits (repo p80=2) and carries CCN=8 / nesting=3",
         "severity": "medium"
       },
@@ -1508,7 +1683,7 @@
         },
         "file_path": "fetch_sources.py",
         "function_name": "fetch_file",
-        "health_impact": 0.847,
+        "health_impact": 0.573,
         "reason": "fetch_file has cyclomatic complexity 10",
         "severity": "medium"
       },
@@ -1565,29 +1740,88 @@
         },
         "file_path": "fetch_sources.py",
         "function_name": "fetch_file",
-        "health_impact": 0.15,
+        "health_impact": 0.101,
         "reason": "fetch_file takes 6 parameters",
         "severity": "low"
       },
       "risk_score": 2.5,
       "source": "repowise"
     },
+    "repowise:fetch_sources.py:main:complex_method": {
+      "file": "fetch_sources.py",
+      "finding_id": "main:complex_method",
+      "message": "main has cyclomatic complexity 11",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 11,
+          "cognitive": 19,
+          "nloc": 84
+        },
+        "file_path": "fetch_sources.py",
+        "function_name": "main",
+        "health_impact": 0.573,
+        "reason": "main has cyclomatic complexity 11",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:fetch_sources.py:main:large_method": {
+      "file": "fetch_sources.py",
+      "finding_id": "main:large_method",
+      "message": "main is 84 lines long",
+      "raw": {
+        "biomarker_type": "large_method",
+        "details": {
+          "ccn": 11,
+          "nloc": 84
+        },
+        "file_path": "fetch_sources.py",
+        "function_name": "main",
+        "health_impact": 0.253,
+        "reason": "main is 84 lines long",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:fetch_sources.py:main:nested_complexity": {
+      "file": "fetch_sources.py",
+      "finding_id": "main:nested_complexity",
+      "message": "main nests 4 levels deep",
+      "raw": {
+        "biomarker_type": "nested_complexity",
+        "details": {
+          "ccn": 11,
+          "cognitive": 19,
+          "max_nesting": 4
+        },
+        "file_path": "fetch_sources.py",
+        "function_name": "main",
+        "health_impact": 0.938,
+        "reason": "main nests 4 levels deep",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
     "repowise:fetch_sources.py:metric": {
       "file": "fetch_sources.py",
       "finding_id": "metric",
-      "message": "overall file health score 8.06/10 (max CCN 10, max nesting 4)",
+      "message": "overall file health score 6.62/10 (max CCN 11, max nesting 4)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": null,
         "file_path": "fetch_sources.py",
         "has_test_file": false,
         "line_coverage_pct": null,
-        "max_ccn": 10,
+        "max_ccn": 11,
         "max_nesting": 4,
-        "nloc": 186,
-        "score": 8.06
+        "nloc": 225,
+        "score": 6.62
       },
-      "risk_score": 1.94,
+      "risk_score": 3.38,
       "source": "repowise"
     },
     "repowise:generate_audit_report.py:load_audit_records:nested_complexity": {
@@ -1628,21 +1862,37 @@
       "risk_score": 0.94,
       "source": "repowise"
     },
+    "repowise:habits-core.js:parseCSV:string_concat_in_loop": {
+      "file": "habits-core.js",
+      "finding_id": "parseCSV:string_concat_in_loop",
+      "message": "string built by += in a loop; use a buffer / join for linear cost",
+      "raw": {
+        "biomarker_type": "string_concat_in_loop",
+        "details": {},
+        "file_path": "habits-core.js",
+        "function_name": "parseCSV",
+        "health_impact": 0.0,
+        "reason": "string built by += in a loop; use a buffer / join for linear cost",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
     "repowise:habits.py:None:change_entropy": {
       "file": "habits.py",
       "finding_id": "None:change_entropy",
-      "message": "changes are scattered across noisy commits (top 6% change entropy); a strong history-based fault predictor",
+      "message": "changes are scattered across noisy commits (top 5% change entropy); a strong history-based fault predictor",
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.8359,
-          "change_entropy_pct": 0.935,
-          "commit_count_90d": 6
+          "change_entropy": 3.6917,
+          "change_entropy_pct": 0.947,
+          "commit_count_90d": 8
         },
         "file_path": "habits.py",
         "function_name": null,
-        "health_impact": 0.806,
-        "reason": "changes are scattered across noisy commits (top 6% change entropy); a strong history-based fault predictor",
+        "health_impact": 0.773,
+        "reason": "changes are scattered across noisy commits (top 5% change entropy); a strong history-based fault predictor",
         "severity": "high"
       },
       "risk_score": 7.5,
@@ -1651,24 +1901,42 @@
     "repowise:habits.py:None:churn_risk": {
       "file": "habits.py",
       "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 1.5x the file's size (855 lines over 565 NLOC, top 6% of repo churn)",
+      "message": "90-day churn rewrote 1.5x the file's size (970 lines over 659 NLOC, top 8% of repo churn)",
       "raw": {
         "biomarker_type": "churn_risk",
         "details": {
-          "churn_percentile": 0.935,
-          "commit_count_90d": 6,
-          "lines_added_90d": 789,
-          "lines_deleted_90d": 66,
-          "nloc": 565,
-          "relative_churn": 1.51
+          "churn_percentile": 0.921,
+          "commit_count_90d": 8,
+          "lines_added_90d": 902,
+          "lines_deleted_90d": 68,
+          "nloc": 659,
+          "relative_churn": 1.47
         },
         "file_path": "habits.py",
         "function_name": null,
-        "health_impact": 0.373,
-        "reason": "90-day churn rewrote 1.5x the file's size (855 lines over 565 NLOC, top 6% of repo churn)",
-        "severity": "medium"
+        "health_impact": 0.154,
+        "reason": "90-day churn rewrote 1.5x the file's size (970 lines over 659 NLOC, top 8% of repo churn)",
+        "severity": "low"
       },
-      "risk_score": 5.0,
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:habits.py:None:error_handling": {
+      "file": "habits.py",
+      "finding_id": "None:error_handling",
+      "message": "broad `except Exception` catches unrelated errors and can hide bugs",
+      "raw": {
+        "biomarker_type": "error_handling",
+        "details": {
+          "kind": "broad_except"
+        },
+        "file_path": "habits.py",
+        "function_name": null,
+        "health_impact": 0.15,
+        "reason": "broad `except Exception` catches unrelated errors and can hide bugs",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
       "source": "repowise"
     },
     "repowise:habits.py:_acquire_lock:nested_complexity": {
@@ -1684,7 +1952,7 @@
         },
         "file_path": "habits.py",
         "function_name": "_acquire_lock",
-        "health_impact": 0.799,
+        "health_impact": 0.673,
         "reason": "_acquire_lock nests 5 levels deep",
         "severity": "high"
       },
@@ -1704,7 +1972,7 @@
         },
         "file_path": "habits.py",
         "function_name": "_replace_with_retry",
-        "health_impact": 0.466,
+        "health_impact": 0.393,
         "reason": "_replace_with_retry nests 4 levels deep",
         "severity": "medium"
       },
@@ -1724,7 +1992,7 @@
         },
         "file_path": "habits.py",
         "function_name": "cmd_log",
-        "health_impact": 0.298,
+        "health_impact": 0.251,
         "reason": "cmd_log has 5 nested blocks at the same level (bumpy road)",
         "severity": "high"
       },
@@ -1765,7 +2033,7 @@
         },
         "file_path": "habits.py",
         "function_name": "cmd_log",
-        "health_impact": 0.619,
+        "health_impact": 0.594,
         "reason": "cmd_log has been modified across 5 commits (repo p80=2) and carries CCN=33 / nesting=4",
         "severity": "high"
       },
@@ -1804,7 +2072,7 @@
         },
         "file_path": "habits.py",
         "function_name": "cmd_log",
-        "health_impact": 0.466,
+        "health_impact": 0.393,
         "reason": "cmd_log nests 4 levels deep",
         "severity": "medium"
       },
@@ -1845,7 +2113,7 @@
         },
         "file_path": "habits.py",
         "function_name": "cmd_show",
-        "health_impact": 0.361,
+        "health_impact": 0.346,
         "reason": "cmd_show has been modified across 2 commits (repo p80=2) and carries CCN=13 / nesting=2",
         "severity": "medium"
       },
@@ -1855,7 +2123,7 @@
     "repowise:habits.py:metric": {
       "file": "habits.py",
       "finding_id": "metric",
-      "message": "overall file health score 2.5/10 (max CCN 33, max nesting 5)",
+      "message": "overall file health score 2.35/10 (max CCN 33, max nesting 5)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": null,
@@ -1864,10 +2132,10 @@
         "line_coverage_pct": null,
         "max_ccn": 33,
         "max_nesting": 5,
-        "nloc": 565,
-        "score": 2.5
+        "nloc": 659,
+        "score": 2.35
       },
-      "risk_score": 7.5,
+      "risk_score": 7.65,
       "source": "repowise"
     },
     "repowise:habits.py:normalise:bumpy_road": {
@@ -1883,7 +2151,7 @@
         },
         "file_path": "habits.py",
         "function_name": "normalise",
-        "health_impact": 0.174,
+        "health_impact": 0.147,
         "reason": "normalise has 4 nested blocks at the same level (bumpy road)",
         "severity": "medium"
       },
@@ -1924,7 +2192,7 @@
         },
         "file_path": "habits.py",
         "function_name": "normalise",
-        "health_impact": 0.361,
+        "health_impact": 0.346,
         "reason": "normalise has been modified across 2 commits (repo p80=2) and carries CCN=14 / nesting=3",
         "severity": "medium"
       },
@@ -1964,7 +2232,7 @@
         },
         "file_path": "habits.py",
         "function_name": "prefill_whoop",
-        "health_impact": 0.298,
+        "health_impact": 0.251,
         "reason": "prefill_whoop has 7 nested blocks at the same level (bumpy road)",
         "severity": "high"
       },
@@ -2005,7 +2273,7 @@
         },
         "file_path": "habits.py",
         "function_name": "prefill_whoop",
-        "health_impact": 0.619,
+        "health_impact": 0.594,
         "reason": "prefill_whoop has been modified across 4 commits (repo p80=2) and carries CCN=20 / nesting=3",
         "severity": "high"
       },
@@ -2031,6 +2299,70 @@
       "risk_score": 2.5,
       "source": "repowise"
     },
+    "repowise:habits.py:read_source_rows:function_hotspot": {
+      "file": "habits.py",
+      "finding_id": "read_source_rows:function_hotspot",
+      "message": "read_source_rows has been modified across 2 commits (repo p80=2) and carries CCN=5 / nesting=4",
+      "raw": {
+        "biomarker_type": "function_hotspot",
+        "details": {
+          "ccn": 5,
+          "max_nesting": 4,
+          "modification_count": 2,
+          "repo_p80": 2
+        },
+        "file_path": "habits.py",
+        "function_name": "read_source_rows",
+        "health_impact": 0.346,
+        "reason": "read_source_rows has been modified across 2 commits (repo p80=2) and carries CCN=5 / nesting=4",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:habits.py:read_source_rows:io_in_loop": {
+      "file": "habits.py",
+      "finding_id": "read_source_rows:io_in_loop",
+      "message": "a network call is reached once per loop iteration through read_source_rows -> _fetch_text (cross-function N+1)",
+      "raw": {
+        "biomarker_type": "io_in_loop",
+        "details": {
+          "boundary_kind": "network",
+          "cross_function": true,
+          "path": [
+            "habits.py::read_source_rows",
+            "habits.py::_fetch_text"
+          ]
+        },
+        "file_path": "habits.py",
+        "function_name": "read_source_rows",
+        "health_impact": 0.0,
+        "reason": "a network call is reached once per loop iteration through read_source_rows -> _fetch_text (cross-function N+1)",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:habits.py:read_source_rows:nested_complexity": {
+      "file": "habits.py",
+      "finding_id": "read_source_rows:nested_complexity",
+      "message": "read_source_rows nests 4 levels deep",
+      "raw": {
+        "biomarker_type": "nested_complexity",
+        "details": {
+          "ccn": 5,
+          "cognitive": 13,
+          "max_nesting": 4
+        },
+        "file_path": "habits.py",
+        "function_name": "read_source_rows",
+        "health_impact": 0.393,
+        "reason": "read_source_rows nests 4 levels deep",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
     "repowise:habits.py:write_rows:function_hotspot": {
       "file": "habits.py",
       "finding_id": "write_rows:function_hotspot",
@@ -2045,7 +2377,7 @@
         },
         "file_path": "habits.py",
         "function_name": "write_rows",
-        "health_impact": 0.361,
+        "health_impact": 0.346,
         "reason": "write_rows has been modified across 2 commits (repo p80=2) and carries CCN=6 / nesting=3",
         "severity": "medium"
       },
@@ -2489,31 +2821,31 @@
     "repowise:tests/codegeeko/test_triage.py:None:change_entropy": {
       "file": "tests/codegeeko/test_triage.py",
       "finding_id": "None:change_entropy",
-      "message": "changes are scattered across noisy commits (top 10% change entropy); a strong history-based fault predictor",
+      "message": "changes are scattered across noisy commits (top 11% change entropy); a strong history-based fault predictor",
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.1806,
-          "change_entropy_pct": 0.903,
+          "change_entropy": 2.1687,
+          "change_entropy_pct": 0.895,
           "commit_count_90d": 7
         },
         "file_path": "tests/codegeeko/test_triage.py",
         "function_name": null,
-        "health_impact": 1.363,
-        "reason": "changes are scattered across noisy commits (top 10% change entropy); a strong history-based fault predictor",
-        "severity": "high"
+        "health_impact": 0.949,
+        "reason": "changes are scattered across noisy commits (top 11% change entropy); a strong history-based fault predictor",
+        "severity": "medium"
       },
-      "risk_score": 7.5,
+      "risk_score": 5.0,
       "source": "repowise"
     },
     "repowise:tests/codegeeko/test_triage.py:None:churn_risk": {
       "file": "tests/codegeeko/test_triage.py",
       "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 23% of repo churn)",
+      "message": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 24% of repo churn)",
       "raw": {
         "biomarker_type": "churn_risk",
         "details": {
-          "churn_percentile": 0.774,
+          "churn_percentile": 0.763,
           "commit_count_90d": 7,
           "lines_added_90d": 306,
           "lines_deleted_90d": 37,
@@ -2522,8 +2854,8 @@
         },
         "file_path": "tests/codegeeko/test_triage.py",
         "function_name": null,
-        "health_impact": 0.632,
-        "reason": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 23% of repo churn)",
+        "health_impact": 0.754,
+        "reason": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 24% of repo churn)",
         "severity": "medium"
       },
       "risk_score": 5.0,
@@ -2585,7 +2917,7 @@
         },
         "file_path": "tests/codegeeko/test_triage.py",
         "function_name": null,
-        "health_impact": 1.505,
+        "health_impact": 1.796,
         "reason": "5 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
         "severity": "critical"
       },
@@ -2610,6 +2942,68 @@
       "risk_score": 4.35,
       "source": "repowise"
     },
+    "repowise:tests/test_consolidate_water.py:None:dry_violation": {
+      "file": "tests/test_consolidate_water.py",
+      "finding_id": "None:dry_violation",
+      "message": "38% of file duplicated; worst clone shares 15 lines with tests/test_consolidate_water.py",
+      "raw": {
+        "biomarker_type": "dry_violation",
+        "details": {
+          "clone_pair_count": 20,
+          "duplication_pct": 37.72,
+          "worst_clone_co_change": 0,
+          "worst_clone_lines": 15,
+          "worst_clone_partner": "tests/test_consolidate_water.py"
+        },
+        "file_path": "tests/test_consolidate_water.py",
+        "function_name": null,
+        "health_impact": 0.35,
+        "reason": "38% of file duplicated; worst clone shares 15 lines with tests/test_consolidate_water.py",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/test_consolidate_water.py:None:duplicated_assertion_block": {
+      "file": "tests/test_consolidate_water.py",
+      "finding_id": "None:duplicated_assertion_block",
+      "message": "assertion block at lines 253-254 is duplicated in tests/test_consolidate_water.py (occurs 4 times)",
+      "raw": {
+        "biomarker_type": "duplicated_assertion_block",
+        "details": {
+          "assertion_lines": [
+            253,
+            254
+          ],
+          "partner_file": "tests/test_consolidate_water.py"
+        },
+        "file_path": "tests/test_consolidate_water.py",
+        "function_name": null,
+        "health_impact": 0.125,
+        "reason": "assertion block at lines 253-254 is duplicated in tests/test_consolidate_water.py",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/test_consolidate_water.py:metric": {
+      "file": "tests/test_consolidate_water.py",
+      "finding_id": "metric",
+      "message": "overall file health score 9.15/10 (max CCN 2, max nesting 1)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": 37.72,
+        "file_path": "tests/test_consolidate_water.py",
+        "has_test_file": true,
+        "line_coverage_pct": null,
+        "max_ccn": 2,
+        "max_nesting": 1,
+        "nloc": 380,
+        "score": 9.15
+      },
+      "risk_score": 0.85,
+      "source": "repowise"
+    },
     "repowise:tests/test_habits.py:None:change_entropy": {
       "file": "tests/test_habits.py",
       "finding_id": "None:change_entropy",
@@ -2617,13 +3011,13 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.8359,
-          "change_entropy_pct": 0.968,
-          "commit_count_90d": 6
+          "change_entropy": 4.7155,
+          "change_entropy_pct": 0.974,
+          "commit_count_90d": 10
         },
         "file_path": "tests/test_habits.py",
         "function_name": null,
-        "health_impact": 2.738,
+        "health_impact": 2.541,
         "reason": "changes are scattered across noisy commits (top 3% change entropy); a strong history-based fault predictor",
         "severity": "critical"
       },
@@ -2633,24 +3027,43 @@
     "repowise:tests/test_habits.py:None:churn_risk": {
       "file": "tests/test_habits.py",
       "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 1.6x the file's size (627 lines over 404 NLOC, top 10% of repo churn)",
+      "message": "90-day churn rewrote 1.5x the file's size (827 lines over 542 NLOC, top 5% of repo churn)",
       "raw": {
         "biomarker_type": "churn_risk",
         "details": {
-          "churn_percentile": 0.903,
-          "commit_count_90d": 6,
-          "lines_added_90d": 602,
-          "lines_deleted_90d": 25,
-          "nloc": 404,
-          "relative_churn": 1.55
+          "churn_percentile": 0.947,
+          "commit_count_90d": 10,
+          "lines_added_90d": 793,
+          "lines_deleted_90d": 34,
+          "nloc": 542,
+          "relative_churn": 1.53
         },
         "file_path": "tests/test_habits.py",
         "function_name": null,
-        "health_impact": 0.762,
-        "reason": "90-day churn rewrote 1.6x the file's size (627 lines over 404 NLOC, top 10% of repo churn)",
+        "health_impact": 0.707,
+        "reason": "90-day churn rewrote 1.5x the file's size (827 lines over 542 NLOC, top 5% of repo churn)",
         "severity": "medium"
       },
       "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:tests/test_habits.py:None:prior_defect": {
+      "file": "tests/test_habits.py",
+      "finding_id": "None:prior_defect",
+      "message": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 1,
+          "window_days": 180
+        },
+        "file_path": "tests/test_habits.py",
+        "function_name": null,
+        "health_impact": 0.252,
+        "reason": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
       "source": "repowise"
     },
     "repowise:tests/test_habits.py:_run_learning:primitive_obsession": {
@@ -2671,22 +3084,58 @@
       "risk_score": 2.5,
       "source": "repowise"
     },
+    "repowise:tests/test_habits.py:_use_local_source:primitive_obsession": {
+      "file": "tests/test_habits.py",
+      "finding_id": "_use_local_source:primitive_obsession",
+      "message": "_use_local_source takes 5 parameters",
+      "raw": {
+        "biomarker_type": "primitive_obsession",
+        "details": {
+          "param_count": 5
+        },
+        "file_path": "tests/test_habits.py",
+        "function_name": "_use_local_source",
+        "health_impact": 0.15,
+        "reason": "_use_local_source takes 5 parameters",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
     "repowise:tests/test_habits.py:metric": {
       "file": "tests/test_habits.py",
       "finding_id": "metric",
-      "message": "overall file health score 6.35/10 (max CCN 3, max nesting 1)",
+      "message": "overall file health score 6.05/10 (max CCN 3, max nesting 1)",
       "raw": {
         "branch_coverage_pct": null,
-        "duplication_pct": null,
+        "duplication_pct": 2.13,
         "file_path": "tests/test_habits.py",
         "has_test_file": true,
         "line_coverage_pct": null,
         "max_ccn": 3,
         "max_nesting": 1,
-        "nloc": 404,
-        "score": 6.35
+        "nloc": 542,
+        "score": 6.05
       },
-      "risk_score": 3.65,
+      "risk_score": 3.95,
+      "source": "repowise"
+    },
+    "repowise:tests/test_habits.py:test_calories_within_ten_percent:primitive_obsession": {
+      "file": "tests/test_habits.py",
+      "finding_id": "test_calories_within_ten_percent:primitive_obsession",
+      "message": "test_calories_within_ten_percent takes 6 parameters",
+      "raw": {
+        "biomarker_type": "primitive_obsession",
+        "details": {
+          "param_count": 6
+        },
+        "file_path": "tests/test_habits.py",
+        "function_name": "test_calories_within_ten_percent",
+        "health_impact": 0.15,
+        "reason": "test_calories_within_ten_percent takes 6 parameters",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
       "source": "repowise"
     },
     "repowise:tests/test_staleness.py:None:prior_defect": {
@@ -2726,6 +3175,43 @@
       "risk_score": 0.7,
       "source": "repowise"
     },
+    "repowise:tools/dev_worker.py:None:prior_defect": {
+      "file": "tools/dev_worker.py",
+      "finding_id": "None:prior_defect",
+      "message": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+      "raw": {
+        "biomarker_type": "prior_defect",
+        "details": {
+          "prior_defect_count": 1,
+          "window_days": 180
+        },
+        "file_path": "tools/dev_worker.py",
+        "function_name": null,
+        "health_impact": 0.3,
+        "reason": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "repowise:tools/dev_worker.py:metric": {
+      "file": "tools/dev_worker.py",
+      "finding_id": "metric",
+      "message": "overall file health score 9.7/10 (max CCN 2, max nesting 1)",
+      "raw": {
+        "branch_coverage_pct": null,
+        "duplication_pct": null,
+        "file_path": "tools/dev_worker.py",
+        "has_test_file": false,
+        "line_coverage_pct": null,
+        "max_ccn": 2,
+        "max_nesting": 1,
+        "nloc": 74,
+        "score": 9.7
+      },
+      "risk_score": 0.3,
+      "source": "repowise"
+    },
     "repowise:validate_sources.py:compare_schemas:complex_method": {
       "file": "validate_sources.py",
       "finding_id": "compare_schemas:complex_method",
@@ -2739,8 +3225,28 @@
         },
         "file_path": "validate_sources.py",
         "function_name": "compare_schemas",
-        "health_impact": 0.475,
+        "health_impact": 0.281,
         "reason": "compare_schemas has cyclomatic complexity 10",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:validate_sources.py:main:complex_method": {
+      "file": "validate_sources.py",
+      "finding_id": "main:complex_method",
+      "message": "main has cyclomatic complexity 11",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 11,
+          "cognitive": 10,
+          "nloc": 55
+        },
+        "file_path": "validate_sources.py",
+        "function_name": "main",
+        "health_impact": 0.281,
+        "reason": "main has cyclomatic complexity 11",
         "severity": "medium"
       },
       "risk_score": 5.0,
@@ -2758,10 +3264,30 @@
         "line_coverage_pct": null,
         "max_ccn": 18,
         "max_nesting": 3,
-        "nloc": 263,
+        "nloc": 302,
         "score": 8.15
       },
       "risk_score": 1.85,
+      "source": "repowise"
+    },
+    "repowise:validate_sources.py:print_summary:complex_method": {
+      "file": "validate_sources.py",
+      "finding_id": "print_summary:complex_method",
+      "message": "print_summary has cyclomatic complexity 11",
+      "raw": {
+        "biomarker_type": "complex_method",
+        "details": {
+          "ccn": 11,
+          "cognitive": 17,
+          "nloc": 22
+        },
+        "file_path": "validate_sources.py",
+        "function_name": "print_summary",
+        "health_impact": 0.281,
+        "reason": "print_summary has cyclomatic complexity 11",
+        "severity": "medium"
+      },
+      "risk_score": 5.0,
       "source": "repowise"
     },
     "repowise:validate_sources.py:validate_csv:bumpy_road": {
@@ -2793,11 +3319,11 @@
         "details": {
           "ccn": 18,
           "cognitive": 30,
-          "nloc": 85
+          "nloc": 86
         },
         "file_path": "validate_sources.py",
         "function_name": "validate_csv",
-        "health_impact": 0.815,
+        "health_impact": 0.482,
         "reason": "validate_csv has cyclomatic complexity 18",
         "severity": "high"
       },
@@ -2807,32 +3333,50 @@
     "repowise:validate_sources.py:validate_csv:large_method": {
       "file": "validate_sources.py",
       "finding_id": "validate_csv:large_method",
-      "message": "validate_csv is 85 lines long",
+      "message": "validate_csv is 86 lines long",
       "raw": {
         "biomarker_type": "large_method",
         "details": {
           "ccn": 18,
-          "nloc": 85
+          "nloc": 86
         },
         "file_path": "validate_sources.py",
         "function_name": "validate_csv",
-        "health_impact": 0.21,
-        "reason": "validate_csv is 85 lines long",
+        "health_impact": 0.125,
+        "reason": "validate_csv is 86 lines long",
         "severity": "low"
       },
       "risk_score": 2.5,
       "source": "repowise"
     },
-    "semgrep:.github/workflows/consolidate.yml:yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:59": {
+    "repowise:validate_sources.py:validate_csv:primitive_obsession": {
+      "file": "validate_sources.py",
+      "finding_id": "validate_csv:primitive_obsession",
+      "message": "validate_csv takes 5 parameters",
+      "raw": {
+        "biomarker_type": "primitive_obsession",
+        "details": {
+          "param_count": 5
+        },
+        "file_path": "validate_sources.py",
+        "function_name": "validate_csv",
+        "health_impact": 0.05,
+        "reason": "validate_csv takes 5 parameters",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
+    "semgrep:.github/workflows/consolidate.yml:yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:66": {
       "file": ".github/workflows/consolidate.yml",
-      "finding_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:59",
+      "finding_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:66",
       "message": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag: GitHub Actions step uses a mutable tag or branch reference. Tags and branch names can be silently repointed by the action owner, enabling supply-chain attacks \u2014 as seen in the trivy-action and kics-github-action compromises. Pin the reference to a full 40-character commit SHA instead, e.g. `uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608`.",
       "raw": {
         "check_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag",
         "end": {
           "col": 34,
-          "line": 59,
-          "offset": 2700
+          "line": 66,
+          "offset": 2958
         },
         "extra": {
           "engine_kind": "OSS",
@@ -2875,23 +3419,23 @@
         "path": ".github/workflows/consolidate.yml",
         "start": {
           "col": 9,
-          "line": 59,
-          "offset": 2675
+          "line": 66,
+          "offset": 2933
         }
       },
       "risk_score": 6.0,
       "source": "semgrep"
     },
-    "semgrep:.github/workflows/consolidate.yml:yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:65": {
+    "semgrep:.github/workflows/consolidate.yml:yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:72": {
       "file": ".github/workflows/consolidate.yml",
-      "finding_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:65",
+      "finding_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag:72",
       "message": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag: GitHub Actions step uses a mutable tag or branch reference. Tags and branch names can be silently repointed by the action owner, enabling supply-chain attacks \u2014 as seen in the trivy-action and kics-github-action compromises. Pin the reference to a full 40-character commit SHA instead, e.g. `uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608`.",
       "raw": {
         "check_id": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag",
         "end": {
           "col": 38,
-          "line": 65,
-          "offset": 2989
+          "line": 72,
+          "offset": 3247
         },
         "extra": {
           "engine_kind": "OSS",
@@ -2934,8 +3478,8 @@
         "path": ".github/workflows/consolidate.yml",
         "start": {
           "col": 9,
-          "line": 65,
-          "offset": 2960
+          "line": 72,
+          "offset": 3218
         }
       },
       "risk_score": 6.0,
@@ -3194,6 +3738,138 @@
           "col": 14,
           "line": 29,
           "offset": 1398
+        }
+      },
+      "risk_score": 6.0,
+      "source": "semgrep"
+    },
+    "semgrep:habits.py:python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected:425": {
+      "file": "habits.py",
+      "finding_id": "python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected:425",
+      "message": "python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected: Detected a dynamic value being used with urllib. urllib supports 'file://' schemes, so a dynamic value controlled by a malicious actor may allow them to read arbitrary files. Audit uses of urllib calls to ensure user data cannot control the URLs, or consider using the 'requests' library instead.",
+      "raw": {
+        "check_id": "python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected",
+        "end": {
+          "col": 54,
+          "line": 425,
+          "offset": 14833
+        },
+        "extra": {
+          "engine_kind": "OSS",
+          "fingerprint": "requires login",
+          "lines": "requires login",
+          "message": "Detected a dynamic value being used with urllib. urllib supports 'file://' schemes, so a dynamic value controlled by a malicious actor may allow them to read arbitrary files. Audit uses of urllib calls to ensure user data cannot control the URLs, or consider using the 'requests' library instead.",
+          "metadata": {
+            "asvs": {
+              "control_id": "5.2.4 Dynamic Code Execution Features",
+              "control_url": "https://github.com/OWASP/ASVS/blob/master/4.0/en/0x13-V5-Validation-Sanitization-Encoding.md#v52-sanitization-and-sandboxing-requirements",
+              "section": "V5: Validation, Sanitization and Encoding Verification Requirements",
+              "version": "4"
+            },
+            "bandit-code": "B310",
+            "category": "security",
+            "confidence": "LOW",
+            "cwe": [
+              "CWE-939: Improper Authorization in Handler for Custom URL Scheme"
+            ],
+            "impact": "LOW",
+            "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+            "likelihood": "LOW",
+            "owasp": "A01:2017 - Injection",
+            "references": [
+              "https://cwe.mitre.org/data/definitions/939.html"
+            ],
+            "shortlink": "https://sg.run/dKZZ",
+            "source": "https://semgrep.dev/r/python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected",
+            "source-rule-url": "https://github.com/PyCQA/bandit/blob/b1411bfb43795d3ffd268bef17a839dee954c2b1/bandit/blacklists/calls.py#L163",
+            "subcategory": [
+              "audit"
+            ],
+            "technology": [
+              "python"
+            ],
+            "vulnerability_class": [
+              "Improper Authorization"
+            ]
+          },
+          "severity": "WARNING",
+          "validation_state": "NO_VALIDATOR"
+        },
+        "path": "habits.py",
+        "start": {
+          "col": 10,
+          "line": 425,
+          "offset": 14789
+        }
+      },
+      "risk_score": 6.0,
+      "source": "semgrep"
+    },
+    "semgrep:tools/dev_worker.py:python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1:18": {
+      "file": "tools/dev_worker.py",
+      "finding_id": "python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1:18",
+      "message": "python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1: Detected SHA1 hash algorithm which is considered insecure. SHA1 is not collision resistant and is therefore not suitable as a cryptographic signature. Use SHA256 or SHA3 instead.",
+      "raw": {
+        "check_id": "python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1",
+        "end": {
+          "col": 46,
+          "line": 18,
+          "offset": 653
+        },
+        "extra": {
+          "engine_kind": "OSS",
+          "fingerprint": "requires login",
+          "fix": "hashlib.sha256(text.encode(\"utf-8\"))",
+          "lines": "requires login",
+          "message": "Detected SHA1 hash algorithm which is considered insecure. SHA1 is not collision resistant and is therefore not suitable as a cryptographic signature. Use SHA256 or SHA3 instead.",
+          "metadata": {
+            "asvs": {
+              "control_id": "6.2.2 Insecure Custom Algorithm",
+              "control_url": "https://github.com/OWASP/ASVS/blob/master/4.0/en/0x14-V6-Cryptography.md#v62-algorithms",
+              "section": "V6 Stored Cryptography Verification Requirements",
+              "version": "4"
+            },
+            "bandit-code": "B303",
+            "category": "security",
+            "confidence": "MEDIUM",
+            "cwe": [
+              "CWE-327: Use of a Broken or Risky Cryptographic Algorithm"
+            ],
+            "impact": "MEDIUM",
+            "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+            "likelihood": "LOW",
+            "owasp": [
+              "A03:2017 - Sensitive Data Exposure",
+              "A02:2021 - Cryptographic Failures",
+              "A04:2025 - Cryptographic Failures"
+            ],
+            "references": [
+              "https://www.schneier.com/blog/archives/2012/10/when_will_we_se.html",
+              "https://www.trendmicro.com/vinfo/us/security/news/vulnerabilities-and-exploits/sha-1-collision-signals-the-end-of-the-algorithm-s-viability",
+              "http://2012.sharcs.org/slides/stevens.pdf",
+              "https://pycryptodome.readthedocs.io/en/latest/src/hash/sha3_256.html"
+            ],
+            "shortlink": "https://sg.run/ydYx",
+            "source": "https://semgrep.dev/r/python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1",
+            "source-rule-url": "https://github.com/PyCQA/bandit/blob/d5f8fa0d89d7b11442fc6ec80ca42953974354c8/bandit/blacklists/calls.py#L59",
+            "subcategory": [
+              "vuln"
+            ],
+            "technology": [
+              "python"
+            ],
+            "vulnerability_class": [
+              "Cryptographic Issues"
+            ]
+          },
+          "severity": "WARNING",
+          "validation_state": "NO_VALIDATOR"
+        },
+        "path": "tools/dev_worker.py",
+        "start": {
+          "col": 12,
+          "line": 18,
+          "offset": 619
         }
       },
       "risk_score": 6.0,
