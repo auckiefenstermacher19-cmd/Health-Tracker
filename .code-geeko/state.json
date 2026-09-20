@@ -582,7 +582,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.0569,
+          "change_entropy": 2.0454,
           "change_entropy_pct": 0.842,
           "commit_count_90d": 6
         },
@@ -778,7 +778,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.0859,
+          "change_entropy": 2.0742,
           "change_entropy_pct": 0.868,
           "commit_count_90d": 8
         },
@@ -914,9 +914,9 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.4042,
+          "change_entropy": 2.3906,
           "change_entropy_pct": 0.921,
-          "commit_count_90d": 6
+          "commit_count_90d": 5
         },
         "file_path": "consolidate.py",
         "function_name": null,
@@ -1217,37 +1217,14 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.8052,
+          "change_entropy": 1.7951,
           "change_entropy_pct": 0.816,
-          "commit_count_90d": 6
+          "commit_count_90d": 4
         },
         "file_path": "dashboard.js",
         "function_name": null,
-        "health_impact": 0.359,
+        "health_impact": 0.39,
         "reason": "changes are scattered across noisy commits (top 18% change entropy); a strong history-based fault predictor",
-        "severity": "medium"
-      },
-      "risk_score": 5.0,
-      "source": "repowise"
-    },
-    "repowise:dashboard.js:None:churn_risk": {
-      "file": "dashboard.js",
-      "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 2.4x the file's size (907 lines over 379 NLOC, top 3% of repo churn)",
-      "raw": {
-        "biomarker_type": "churn_risk",
-        "details": {
-          "churn_percentile": 0.974,
-          "commit_count_90d": 6,
-          "lines_added_90d": 419,
-          "lines_deleted_90d": 488,
-          "nloc": 379,
-          "relative_churn": 2.39
-        },
-        "file_path": "dashboard.js",
-        "function_name": null,
-        "health_impact": 0.285,
-        "reason": "90-day churn rewrote 2.4x the file's size (907 lines over 379 NLOC, top 3% of repo churn)",
         "severity": "medium"
       },
       "risk_score": 5.0,
@@ -1265,7 +1242,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": null,
-        "health_impact": 0.102,
+        "health_impact": 0.111,
         "reason": "1 bug-fix touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
         "severity": "low"
       },
@@ -1325,7 +1302,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "buildCoaching",
-        "health_impact": 0.472,
+        "health_impact": 0.514,
         "reason": "buildCoaching has been modified across 4 commits (repo p80=2) and carries CCN=35 / nesting=2",
         "severity": "high"
       },
@@ -1384,7 +1361,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "keyMetricDesc",
-        "health_impact": 0.472,
+        "health_impact": 0.514,
         "reason": "keyMetricDesc has been modified across 2 commits (repo p80=2) and carries CCN=22 / nesting=3",
         "severity": "high"
       },
@@ -1443,7 +1420,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "renderCalendar",
-        "health_impact": 0.275,
+        "health_impact": 0.3,
         "reason": "renderCalendar has been modified across 3 commits (repo p80=2) and carries CCN=10 / nesting=3",
         "severity": "medium"
       },
@@ -1500,7 +1477,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "renderCharts",
-        "health_impact": 0.472,
+        "health_impact": 0.514,
         "reason": "renderCharts has been modified across 3 commits (repo p80=2) and carries CCN=25 / nesting=2",
         "severity": "high"
       },
@@ -1561,7 +1538,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "renderDay",
-        "health_impact": 0.787,
+        "health_impact": 0.857,
         "reason": "renderDay has been modified across 6 commits (repo p80=2) and carries CCN=139 / nesting=3",
         "severity": "critical"
       },
@@ -1640,7 +1617,7 @@
         },
         "file_path": "dashboard.js",
         "function_name": "updateFreshness",
-        "health_impact": 0.275,
+        "health_impact": 0.3,
         "reason": "updateFreshness has been modified across 2 commits (repo p80=2) and carries CCN=8 / nesting=3",
         "severity": "medium"
       },
@@ -1862,7 +1839,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.5508,
+          "change_entropy": 3.5308,
           "change_entropy_pct": 0.947,
           "commit_count_90d": 8
         },
@@ -2802,7 +2779,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.0859,
+          "change_entropy": 2.0742,
           "change_entropy_pct": 0.895,
           "commit_count_90d": 7
         },
@@ -2988,7 +2965,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 4.5354,
+          "change_entropy": 4.5099,
           "change_entropy_pct": 0.974,
           "commit_count_90d": 10
         },
