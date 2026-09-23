@@ -238,37 +238,26 @@ def _num(row, field):
         return None
 
 
-def find_meal_log(defs):
-    for rel in defs["config"].get("meal_log_sources", []):
-        p = (REPO_DIR / rel).resolve()
-        if p.exists():
-            return p
-    return None
-
-
 def prefill_meal_log(defs, day, known, notes):
     """Did the food log gain any entry for this day?
 
     Unlike WHOOP, this file is the system of record rather than a synced copy,
     so a day with no rows is a real "did not log", not a missing feed.
+    Read the GitHub copy only: the local MyFitnessClone clone is never pulled,
+    and a stale copy turns every phone-logged day into a false "no".
     """
-    path = find_meal_log(defs)
-    if path is None:
-        notes.append("No meal log found - logged_food left blank.")
+    rows = read_source_rows(defs, "meal_log_sources", notes)
+    if not rows:
+        notes.append("No meal log answered - logged_food left blank.")
         return
 
     field = defs["config"].get("meal_log_date_field", "log_date")
+    if field not in rows[0]:
+        notes.append("Meal log has no " + field
+                     + " column - logged_food left blank.")
+        return
     target = day.isoformat()
-    count = 0
-    with path.open(newline="", encoding="utf-8-sig") as fh:
-        reader = csv.DictReader(fh)
-        if field not in (reader.fieldnames or []):
-            notes.append("Meal log has no " + field
-                         + " column - logged_food left blank.")
-            return
-        for row in reader:
-            if (row.get(field) or "").strip() == target:
-                count += 1
+    count = sum(1 for row in rows if (row.get(field) or "").strip() == target)
 
     known["logged_food"] = "yes" if count else "no"
     notes.append("Meal log: " + str(count) + " entries for " + target

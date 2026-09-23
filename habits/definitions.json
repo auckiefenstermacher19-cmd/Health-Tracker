@@ -11,7 +11,7 @@
     ],
     "whoop_stale_after_days": 2,
     "meal_log_sources": [
-      "../MyFitnessClone/meal_log.csv"
+      "https://raw.githubusercontent.com/auckiefenstermacher19-cmd/MyFitnessClone/main/meal_log.csv"
     ],
     "meal_log_date_field": "log_date",
     "sleep_hours_target": 7.0,

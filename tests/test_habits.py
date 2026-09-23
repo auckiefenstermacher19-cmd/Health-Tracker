@@ -757,3 +757,33 @@ def test_prefill_calls_new_sources(defs, monkeypatch):
         monkeypatch.setattr(habits, name, lambda d, day, k, n, _n=name: seen.append(_n))
     habits.prefill(defs, date(2026, 9, 11))
     assert seen[-3:] == ["prefill_water", "prefill_workout_log", "prefill_calories"]
+
+
+# -- logged_food reads the live meal log, never the stale local mirror --------
+
+MEAL_LOG_URL = "https://raw.githubusercontent.com/auckiefenstermacher19-cmd/MyFitnessClone/main/meal_log.csv"
+
+
+def test_meal_log_source_is_the_github_copy_only(defs):
+    """The local MyFitnessClone clone is never pulled, so reading it recorded
+    false "no"s on every day meals were logged from the phone (2026-09)."""
+    assert defs["config"]["meal_log_sources"] == [MEAL_LOG_URL]
+
+
+def test_logged_food_yes_from_fetched_log(defs, monkeypatch):
+    monkeypatch.setattr(habits, "_fetch_text", lambda url, timeout:
+        "log_date,food\n2026-09-18,eggs\n2026-09-18,rice\n")
+    known, notes = {}, []
+    habits.prefill_meal_log(defs, date(2026, 9, 18), known, notes)
+    assert known["logged_food"] == "yes"
+    known = {}
+    habits.prefill_meal_log(defs, date(2026, 9, 19), known, notes)
+    assert known["logged_food"] == "no"     # the log answered: a real "did not log"
+
+
+def test_logged_food_blank_when_log_unreachable(defs, monkeypatch):
+    monkeypatch.setattr(habits, "_fetch_text", lambda url, timeout:
+        (_ for _ in ()).throw(OSError("no net")))
+    known, notes = {}, []
+    habits.prefill_meal_log(defs, date(2026, 9, 18), known, notes)
+    assert "logged_food" not in known
