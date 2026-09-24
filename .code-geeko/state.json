@@ -582,7 +582,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.0115,
+          "change_entropy": 2.0002,
           "change_entropy_pct": 0.842,
           "commit_count_90d": 6
         },
@@ -778,7 +778,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.0398,
+          "change_entropy": 2.0284,
           "change_entropy_pct": 0.868,
           "commit_count_90d": 8
         },
@@ -914,7 +914,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.351,
+          "change_entropy": 2.3379,
           "change_entropy_pct": 0.921,
           "commit_count_90d": 5
         },
@@ -1217,7 +1217,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.7653,
+          "change_entropy": 1.7555,
           "change_entropy_pct": 0.816,
           "commit_count_90d": 4
         },
@@ -1839,13 +1839,13 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.4723,
+          "change_entropy": 3.9786,
           "change_entropy_pct": 0.947,
-          "commit_count_90d": 8
+          "commit_count_90d": 9
         },
         "file_path": "habits.py",
         "function_name": null,
-        "health_impact": 0.773,
+        "health_impact": 0.73,
         "reason": "changes are scattered across noisy commits (top 5% change entropy); a strong history-based fault predictor",
         "severity": "high"
       },
@@ -1855,24 +1855,24 @@
     "repowise:habits.py:None:churn_risk": {
       "file": "habits.py",
       "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 1.5x the file's size (970 lines over 659 NLOC, top 8% of repo churn)",
+      "message": "90-day churn rewrote 1.5x the file's size (1001 lines over 650 NLOC, top 8% of repo churn)",
       "raw": {
         "biomarker_type": "churn_risk",
         "details": {
           "churn_percentile": 0.921,
-          "commit_count_90d": 8,
-          "lines_added_90d": 902,
-          "lines_deleted_90d": 68,
-          "nloc": 659,
-          "relative_churn": 1.47
+          "commit_count_90d": 9,
+          "lines_added_90d": 912,
+          "lines_deleted_90d": 89,
+          "nloc": 650,
+          "relative_churn": 1.54
         },
         "file_path": "habits.py",
         "function_name": null,
-        "health_impact": 0.154,
-        "reason": "90-day churn rewrote 1.5x the file's size (970 lines over 659 NLOC, top 8% of repo churn)",
-        "severity": "low"
+        "health_impact": 0.339,
+        "reason": "90-day churn rewrote 1.5x the file's size (1001 lines over 650 NLOC, top 8% of repo churn)",
+        "severity": "medium"
       },
-      "risk_score": 2.5,
+      "risk_score": 5.0,
       "source": "repowise"
     },
     "repowise:habits.py:None:error_handling": {
@@ -1987,7 +1987,7 @@
         },
         "file_path": "habits.py",
         "function_name": "cmd_log",
-        "health_impact": 0.594,
+        "health_impact": 0.561,
         "reason": "cmd_log has been modified across 5 commits (repo p80=2) and carries CCN=33 / nesting=4",
         "severity": "high"
       },
@@ -2067,7 +2067,7 @@
         },
         "file_path": "habits.py",
         "function_name": "cmd_show",
-        "health_impact": 0.346,
+        "health_impact": 0.327,
         "reason": "cmd_show has been modified across 2 commits (repo p80=2) and carries CCN=13 / nesting=2",
         "severity": "medium"
       },
@@ -2086,7 +2086,7 @@
         "line_coverage_pct": null,
         "max_ccn": 33,
         "max_nesting": 5,
-        "nloc": 659,
+        "nloc": 650,
         "score": 2.35
       },
       "risk_score": 7.65,
@@ -2146,7 +2146,7 @@
         },
         "file_path": "habits.py",
         "function_name": "normalise",
-        "health_impact": 0.346,
+        "health_impact": 0.327,
         "reason": "normalise has been modified across 2 commits (repo p80=2) and carries CCN=14 / nesting=3",
         "severity": "medium"
       },
@@ -2227,7 +2227,7 @@
         },
         "file_path": "habits.py",
         "function_name": "prefill_whoop",
-        "health_impact": 0.594,
+        "health_impact": 0.561,
         "reason": "prefill_whoop has been modified across 4 commits (repo p80=2) and carries CCN=20 / nesting=3",
         "severity": "high"
       },
@@ -2267,7 +2267,7 @@
         },
         "file_path": "habits.py",
         "function_name": "read_source_rows",
-        "health_impact": 0.346,
+        "health_impact": 0.327,
         "reason": "read_source_rows has been modified across 2 commits (repo p80=2) and carries CCN=5 / nesting=4",
         "severity": "medium"
       },
@@ -2331,7 +2331,7 @@
         },
         "file_path": "habits.py",
         "function_name": "write_rows",
-        "health_impact": 0.346,
+        "health_impact": 0.327,
         "reason": "write_rows has been modified across 2 commits (repo p80=2) and carries CCN=6 / nesting=3",
         "severity": "medium"
       },
@@ -2779,7 +2779,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.0398,
+          "change_entropy": 2.0284,
           "change_entropy_pct": 0.895,
           "commit_count_90d": 7
         },
@@ -2965,9 +2965,9 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 4.4352,
+          "change_entropy": 4.9361,
           "change_entropy_pct": 0.974,
-          "commit_count_90d": 10
+          "commit_count_90d": 11
         },
         "file_path": "tests/test_habits.py",
         "function_name": null,
@@ -2981,21 +2981,21 @@
     "repowise:tests/test_habits.py:None:churn_risk": {
       "file": "tests/test_habits.py",
       "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 1.5x the file's size (827 lines over 542 NLOC, top 5% of repo churn)",
+      "message": "90-day churn rewrote 1.5x the file's size (857 lines over 562 NLOC, top 5% of repo churn)",
       "raw": {
         "biomarker_type": "churn_risk",
         "details": {
           "churn_percentile": 0.947,
-          "commit_count_90d": 10,
-          "lines_added_90d": 793,
+          "commit_count_90d": 11,
+          "lines_added_90d": 823,
           "lines_deleted_90d": 34,
-          "nloc": 542,
-          "relative_churn": 1.53
+          "nloc": 562,
+          "relative_churn": 1.52
         },
         "file_path": "tests/test_habits.py",
         "function_name": null,
         "health_impact": 0.707,
-        "reason": "90-day churn rewrote 1.5x the file's size (827 lines over 542 NLOC, top 5% of repo churn)",
+        "reason": "90-day churn rewrote 1.5x the file's size (857 lines over 562 NLOC, top 5% of repo churn)",
         "severity": "medium"
       },
       "risk_score": 5.0,
@@ -3062,13 +3062,13 @@
       "message": "overall file health score 6.05/10 (max CCN 3, max nesting 1)",
       "raw": {
         "branch_coverage_pct": null,
-        "duplication_pct": 2.13,
+        "duplication_pct": 2.05,
         "file_path": "tests/test_habits.py",
         "has_test_file": true,
         "line_coverage_pct": null,
         "max_ccn": 3,
         "max_nesting": 1,
-        "nloc": 542,
+        "nloc": 562,
         "score": 6.05
       },
       "risk_score": 3.95,
@@ -3697,16 +3697,16 @@
       "risk_score": 6.0,
       "source": "semgrep"
     },
-    "semgrep:habits.py:python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected:425": {
+    "semgrep:habits.py:python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected:414": {
       "file": "habits.py",
-      "finding_id": "python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected:425",
+      "finding_id": "python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected:414",
       "message": "python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected: Detected a dynamic value being used with urllib. urllib supports 'file://' schemes, so a dynamic value controlled by a malicious actor may allow them to read arbitrary files. Audit uses of urllib calls to ensure user data cannot control the URLs, or consider using the 'requests' library instead.",
       "raw": {
         "check_id": "python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected",
         "end": {
           "col": 54,
-          "line": 425,
-          "offset": 14833
+          "line": 414,
+          "offset": 14649
         },
         "extra": {
           "engine_kind": "OSS",
@@ -3752,8 +3752,8 @@
         "path": "habits.py",
         "start": {
           "col": 10,
-          "line": 425,
-          "offset": 14789
+          "line": 414,
+          "offset": 14605
         }
       },
       "risk_score": 6.0,
