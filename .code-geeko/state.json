@@ -813,7 +813,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.9555,
+          "change_entropy": 1.9449,
           "change_entropy_pct": 0.842,
           "commit_count_90d": 6
         },
@@ -1009,7 +1009,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.9831,
+          "change_entropy": 1.9723,
           "change_entropy_pct": 0.868,
           "commit_count_90d": 8
         },
@@ -1145,7 +1145,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.2857,
+          "change_entropy": 2.2733,
           "change_entropy_pct": 0.921,
           "commit_count_90d": 5
         },
@@ -1448,7 +1448,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.7163,
+          "change_entropy": 1.7069,
           "change_entropy_pct": 0.816,
           "commit_count_90d": 4
         },
@@ -2070,7 +2070,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.8897,
+          "change_entropy": 3.8686,
           "change_entropy_pct": 0.947,
           "commit_count_90d": 9
         },
@@ -3010,7 +3010,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.9831,
+          "change_entropy": 1.9723,
           "change_entropy_pct": 0.895,
           "commit_count_90d": 7
         },
@@ -3196,7 +3196,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 4.8259,
+          "change_entropy": 4.7997,
           "change_entropy_pct": 0.974,
           "commit_count_90d": 11
         },
