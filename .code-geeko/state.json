@@ -582,7 +582,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.9343,
+          "change_entropy": 1.9233,
           "change_entropy_pct": 0.842,
           "commit_count_90d": 6
         },
@@ -778,7 +778,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.9615,
+          "change_entropy": 1.9504,
           "change_entropy_pct": 0.868,
           "commit_count_90d": 8
         },
@@ -914,14 +914,37 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.2608,
+          "change_entropy": 2.248,
           "change_entropy_pct": 0.921,
           "commit_count_90d": 5
         },
         "file_path": "consolidate.py",
         "function_name": null,
-        "health_impact": 1.019,
+        "health_impact": 0.946,
         "reason": "changes are scattered across noisy commits (top 8% change entropy); a strong history-based fault predictor",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
+    "repowise:consolidate.py:None:knowledge_loss": {
+      "file": "consolidate.py",
+      "finding_id": "None:knowledge_loss",
+      "message": "Primary owner auckiefenstermacher19-cmd no longer the recent owner",
+      "raw": {
+        "biomarker_type": "knowledge_loss",
+        "details": {
+          "bus_factor": 1,
+          "is_hotspot": true,
+          "primary_owner": "auckiefenstermacher19-cmd",
+          "recent_owner": "Auckie Fenstermacher",
+          "recent_owner_share": 1.0,
+          "small_team": true
+        },
+        "file_path": "consolidate.py",
+        "function_name": null,
+        "health_impact": 0.251,
+        "reason": "Primary owner auckiefenstermacher19-cmd no longer the recent owner",
         "severity": "high"
       },
       "risk_score": 7.5,
@@ -939,7 +962,7 @@
         },
         "file_path": "consolidate.py",
         "function_name": null,
-        "health_impact": 0.394,
+        "health_impact": 0.365,
         "reason": "2 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
         "severity": "medium"
       },
@@ -998,7 +1021,7 @@
         },
         "file_path": "consolidate.py",
         "function_name": "build_consolidated",
-        "health_impact": 1.305,
+        "health_impact": 1.211,
         "reason": "build_consolidated has been modified across 6 commits (repo p80=2) and carries CCN=25 / nesting=2",
         "severity": "critical"
       },
@@ -1148,7 +1171,7 @@
         },
         "file_path": "consolidate.py",
         "function_name": "validate_output",
-        "health_impact": 0.783,
+        "health_impact": 0.727,
         "reason": "validate_output has been modified across 3 commits (repo p80=2) and carries CCN=16 / nesting=3",
         "severity": "high"
       },
@@ -1217,7 +1240,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.6976,
+          "change_entropy": 1.688,
           "change_entropy_pct": 0.816,
           "commit_count_90d": 4
         },
@@ -1624,6 +1647,29 @@
       "risk_score": 5.0,
       "source": "repowise"
     },
+    "repowise:fetch_sources.py:None:knowledge_loss": {
+      "file": "fetch_sources.py",
+      "finding_id": "None:knowledge_loss",
+      "message": "Primary owner auckiefenstermacher19-cmd no longer the recent owner",
+      "raw": {
+        "biomarker_type": "knowledge_loss",
+        "details": {
+          "bus_factor": 1,
+          "is_hotspot": false,
+          "primary_owner": "auckiefenstermacher19-cmd",
+          "recent_owner": "Auckie Fenstermacher",
+          "recent_owner_share": 1.0,
+          "small_team": true
+        },
+        "file_path": "fetch_sources.py",
+        "function_name": null,
+        "health_impact": 0.12,
+        "reason": "Primary owner auckiefenstermacher19-cmd no longer the recent owner",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
     "repowise:fetch_sources.py:fetch_file:complex_method": {
       "file": "fetch_sources.py",
       "finding_id": "fetch_file:complex_method",
@@ -1763,7 +1809,7 @@
     "repowise:fetch_sources.py:metric": {
       "file": "fetch_sources.py",
       "finding_id": "metric",
-      "message": "overall file health score 6.62/10 (max CCN 11, max nesting 4)",
+      "message": "overall file health score 6.5/10 (max CCN 11, max nesting 4)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": null,
@@ -1773,9 +1819,9 @@
         "max_ccn": 11,
         "max_nesting": 4,
         "nloc": 225,
-        "score": 6.62
+        "score": 6.5
       },
-      "risk_score": 3.38,
+      "risk_score": 3.5,
       "source": "repowise"
     },
     "repowise:generate_audit_report.py:load_audit_records:nested_complexity": {
@@ -1839,7 +1885,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.8474,
+          "change_entropy": 3.8257,
           "change_entropy_pct": 0.947,
           "commit_count_90d": 9
         },
@@ -2629,17 +2675,17 @@
         },
         "file_path": "tests/codegeeko/test_run.py",
         "function_name": null,
-        "health_impact": 1.2,
+        "health_impact": 2.0,
         "reason": "3 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
-        "severity": "high"
+        "severity": "critical"
       },
-      "risk_score": 7.5,
+      "risk_score": 10.0,
       "source": "repowise"
     },
     "repowise:tests/codegeeko/test_run.py:metric": {
       "file": "tests/codegeeko/test_run.py",
       "finding_id": "metric",
-      "message": "overall file health score 7.95/10 (max CCN 1, max nesting 0)",
+      "message": "overall file health score 7.15/10 (max CCN 1, max nesting 0)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": 50.79,
@@ -2649,9 +2695,9 @@
         "max_ccn": 1,
         "max_nesting": 0,
         "nloc": 235,
-        "score": 7.95
+        "score": 7.15
       },
-      "risk_score": 2.05,
+      "risk_score": 2.85,
       "source": "repowise"
     },
     "repowise:tests/codegeeko/test_semgrep_collector.py:None:dry_violation": {
@@ -2779,7 +2825,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.9615,
+          "change_entropy": 1.9504,
           "change_entropy_pct": 0.895,
           "commit_count_90d": 7
         },
@@ -2795,11 +2841,11 @@
     "repowise:tests/codegeeko/test_triage.py:None:churn_risk": {
       "file": "tests/codegeeko/test_triage.py",
       "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 24% of repo churn)",
+      "message": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 21% of repo churn)",
       "raw": {
         "biomarker_type": "churn_risk",
         "details": {
-          "churn_percentile": 0.763,
+          "churn_percentile": 0.789,
           "commit_count_90d": 7,
           "lines_added_90d": 306,
           "lines_deleted_90d": 37,
@@ -2809,7 +2855,7 @@
         "file_path": "tests/codegeeko/test_triage.py",
         "function_name": null,
         "health_impact": 0.754,
-        "reason": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 24% of repo churn)",
+        "reason": "90-day churn rewrote 2.3x the file's size (343 lines over 151 NLOC, top 21% of repo churn)",
         "severity": "medium"
       },
       "risk_score": 5.0,
@@ -2965,7 +3011,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 4.7734,
+          "change_entropy": 4.7464,
           "change_entropy_pct": 0.974,
           "commit_count_90d": 11
         },
@@ -3166,6 +3212,29 @@
       "risk_score": 0.3,
       "source": "repowise"
     },
+    "repowise:validate_sources.py:None:knowledge_loss": {
+      "file": "validate_sources.py",
+      "finding_id": "None:knowledge_loss",
+      "message": "Primary owner auckiefenstermacher19-cmd no longer the recent owner",
+      "raw": {
+        "biomarker_type": "knowledge_loss",
+        "details": {
+          "bus_factor": 1,
+          "is_hotspot": false,
+          "primary_owner": "auckiefenstermacher19-cmd",
+          "recent_owner": "Auckie Fenstermacher",
+          "recent_owner_share": 1.0,
+          "small_team": true
+        },
+        "file_path": "validate_sources.py",
+        "function_name": null,
+        "health_impact": 0.12,
+        "reason": "Primary owner auckiefenstermacher19-cmd no longer the recent owner",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
     "repowise:validate_sources.py:compare_schemas:complex_method": {
       "file": "validate_sources.py",
       "finding_id": "compare_schemas:complex_method",
@@ -3209,7 +3278,7 @@
     "repowise:validate_sources.py:metric": {
       "file": "validate_sources.py",
       "finding_id": "metric",
-      "message": "overall file health score 8.15/10 (max CCN 18, max nesting 3)",
+      "message": "overall file health score 8.03/10 (max CCN 18, max nesting 3)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": null,
@@ -3219,9 +3288,9 @@
         "max_ccn": 18,
         "max_nesting": 3,
         "nloc": 302,
-        "score": 8.15
+        "score": 8.03
       },
-      "risk_score": 1.85,
+      "risk_score": 1.97,
       "source": "repowise"
     },
     "repowise:validate_sources.py:print_summary:complex_method": {
