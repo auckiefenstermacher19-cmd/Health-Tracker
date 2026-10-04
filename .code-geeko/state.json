@@ -582,7 +582,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.9026,
+          "change_entropy": 1.8918,
           "change_entropy_pct": 0.842,
           "commit_count_90d": 6
         },
@@ -778,7 +778,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.9294,
+          "change_entropy": 1.9184,
           "change_entropy_pct": 0.868,
           "commit_count_90d": 8
         },
@@ -914,7 +914,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.2238,
+          "change_entropy": 2.2111,
           "change_entropy_pct": 0.921,
           "commit_count_90d": 5
         },
@@ -1240,7 +1240,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.6698,
+          "change_entropy": 1.6603,
           "change_entropy_pct": 0.816,
           "commit_count_90d": 4
         },
@@ -1885,7 +1885,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.7845,
+          "change_entropy": 3.7629,
           "change_entropy_pct": 0.947,
           "commit_count_90d": 9
         },
@@ -1901,11 +1901,11 @@
     "repowise:habits.py:None:churn_risk": {
       "file": "habits.py",
       "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 1.5x the file's size (1001 lines over 650 NLOC, top 8% of repo churn)",
+      "message": "90-day churn rewrote 1.5x the file's size (1001 lines over 650 NLOC, top 5% of repo churn)",
       "raw": {
         "biomarker_type": "churn_risk",
         "details": {
-          "churn_percentile": 0.921,
+          "churn_percentile": 0.947,
           "commit_count_90d": 9,
           "lines_added_90d": 912,
           "lines_deleted_90d": 89,
@@ -1915,7 +1915,7 @@
         "file_path": "habits.py",
         "function_name": null,
         "health_impact": 0.339,
-        "reason": "90-day churn rewrote 1.5x the file's size (1001 lines over 650 NLOC, top 8% of repo churn)",
+        "reason": "90-day churn rewrote 1.5x the file's size (1001 lines over 650 NLOC, top 5% of repo churn)",
         "severity": "medium"
       },
       "risk_score": 5.0,
@@ -2825,7 +2825,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.9294,
+          "change_entropy": 1.9184,
           "change_entropy_pct": 0.895,
           "commit_count_90d": 7
         },
@@ -3011,7 +3011,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 4.6953,
+          "change_entropy": 4.6685,
           "change_entropy_pct": 0.974,
           "commit_count_90d": 11
         },
@@ -3027,11 +3027,11 @@
     "repowise:tests/test_habits.py:None:churn_risk": {
       "file": "tests/test_habits.py",
       "finding_id": "None:churn_risk",
-      "message": "90-day churn rewrote 1.5x the file's size (857 lines over 562 NLOC, top 5% of repo churn)",
+      "message": "90-day churn rewrote 1.5x the file's size (857 lines over 562 NLOC, top 3% of repo churn)",
       "raw": {
         "biomarker_type": "churn_risk",
         "details": {
-          "churn_percentile": 0.947,
+          "churn_percentile": 0.974,
           "commit_count_90d": 11,
           "lines_added_90d": 823,
           "lines_deleted_90d": 34,
@@ -3041,7 +3041,7 @@
         "file_path": "tests/test_habits.py",
         "function_name": null,
         "health_impact": 0.707,
-        "reason": "90-day churn rewrote 1.5x the file's size (857 lines over 562 NLOC, top 5% of repo churn)",
+        "reason": "90-day churn rewrote 1.5x the file's size (857 lines over 562 NLOC, top 3% of repo churn)",
         "severity": "medium"
       },
       "risk_score": 5.0,
