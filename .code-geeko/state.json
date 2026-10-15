@@ -751,26 +751,6 @@
       "risk_score": 0.3,
       "source": "repowise"
     },
-    "repowise:codegeeko/triage.py:None:change_entropy": {
-      "file": "codegeeko/triage.py",
-      "finding_id": "None:change_entropy",
-      "message": "changes are scattered across noisy commits (top 13% change entropy); a strong history-based fault predictor",
-      "raw": {
-        "biomarker_type": "change_entropy",
-        "details": {
-          "change_entropy": 1.815,
-          "change_entropy_pct": 0.868,
-          "commit_count_90d": 4
-        },
-        "file_path": "codegeeko/triage.py",
-        "function_name": null,
-        "health_impact": 0.832,
-        "reason": "changes are scattered across noisy commits (top 13% change entropy); a strong history-based fault predictor",
-        "severity": "medium"
-      },
-      "risk_score": 5.0,
-      "source": "repowise"
-    },
     "repowise:codegeeko/triage.py:None:error_handling": {
       "file": "codegeeko/triage.py",
       "finding_id": "None:error_handling",
@@ -801,7 +781,7 @@
         },
         "file_path": "codegeeko/triage.py",
         "function_name": null,
-        "health_impact": 1.573,
+        "health_impact": 2.0,
         "reason": "6 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
         "severity": "critical"
       },
@@ -862,7 +842,7 @@
         },
         "file_path": "codegeeko/triage.py",
         "function_name": "_run_triage_query",
-        "health_impact": 1.095,
+        "health_impact": 1.392,
         "reason": "_run_triage_query has been modified across 7 commits (repo p80=2) and carries CCN=13 / nesting=3",
         "severity": "high"
       },
@@ -872,7 +852,7 @@
     "repowise:codegeeko/triage.py:metric": {
       "file": "codegeeko/triage.py",
       "finding_id": "metric",
-      "message": "overall file health score 5.35/10 (max CCN 13, max nesting 3)",
+      "message": "overall file health score 5.46/10 (max CCN 13, max nesting 3)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": null,
@@ -882,9 +862,9 @@
         "max_ccn": 13,
         "max_nesting": 3,
         "nloc": 94,
-        "score": 5.35
+        "score": 5.46
       },
-      "risk_score": 4.65,
+      "risk_score": 4.54,
       "source": "repowise"
     },
     "repowise:consolidate.py:None:change_entropy": {
@@ -894,7 +874,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.092,
+          "change_entropy": 2.0805,
           "change_entropy_pct": 0.921,
           "commit_count_90d": 4
         },
@@ -1719,7 +1699,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.5601,
+          "change_entropy": 3.5406,
           "change_entropy_pct": 0.947,
           "commit_count_90d": 9
         },
@@ -2652,26 +2632,6 @@
       "risk_score": 0.3,
       "source": "repowise"
     },
-    "repowise:tests/codegeeko/test_triage.py:None:change_entropy": {
-      "file": "tests/codegeeko/test_triage.py",
-      "finding_id": "None:change_entropy",
-      "message": "changes are scattered across noisy commits (top 11% change entropy); a strong history-based fault predictor",
-      "raw": {
-        "biomarker_type": "change_entropy",
-        "details": {
-          "change_entropy": 1.815,
-          "change_entropy_pct": 0.895,
-          "commit_count_90d": 3
-        },
-        "file_path": "tests/codegeeko/test_triage.py",
-        "function_name": null,
-        "health_impact": 1.057,
-        "reason": "changes are scattered across noisy commits (top 11% change entropy); a strong history-based fault predictor",
-        "severity": "medium"
-      },
-      "risk_score": 5.0,
-      "source": "repowise"
-    },
     "repowise:tests/codegeeko/test_triage.py:None:dry_violation": {
       "file": "tests/codegeeko/test_triage.py",
       "finding_id": "None:dry_violation",
@@ -2738,7 +2698,7 @@
     "repowise:tests/codegeeko/test_triage.py:metric": {
       "file": "tests/codegeeko/test_triage.py",
       "finding_id": "metric",
-      "message": "overall file health score 6.09/10 (max CCN 1, max nesting 0)",
+      "message": "overall file health score 7.15/10 (max CCN 1, max nesting 0)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": 67.86,
@@ -2748,9 +2708,9 @@
         "max_ccn": 1,
         "max_nesting": 0,
         "nloc": 151,
-        "score": 6.09
+        "score": 7.15
       },
-      "risk_score": 3.91,
+      "risk_score": 2.85,
       "source": "repowise"
     },
     "repowise:tests/test_consolidate_water.py:None:dry_violation": {
@@ -2822,7 +2782,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 4.4169,
+          "change_entropy": 4.3928,
           "change_entropy_pct": 0.974,
           "commit_count_90d": 11
         },
