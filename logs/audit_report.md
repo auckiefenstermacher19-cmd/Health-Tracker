@@ -1,10 +1,27 @@
 # Health Tracker — Consolidation Audit Report
 
-*Generated: 2026-10-24 16:44 UTC*  |  *321 run(s) recorded*
+*Generated: 2026-10-25 17:06 UTC*  |  *322 run(s) recorded*
 
 ---
 
-### Run #1 — 2026-10-24 16:44:34 UTC  ❌
+### Run #1 — 2026-10-25 17:06:46 UTC  ❌
+
+| Metric | Value |
+|---|---|
+| Status | **STALE** |
+| Duration | 0.02s |
+| Output rows | 318 |
+| Output columns | 211 |
+| WHOOP columns | 71 |
+| Meal columns | 131 |
+| WHOOP date range | 2024-05-09 → 2026-10-19 |
+| Meal date range | 2026-04-16 → 2026-10-06 |
+| Overlapping dates | 27 |
+| WHOOP-only dates | 289 |
+| Meal-only dates | 2 |
+
+
+### Run #2 — 2026-10-24 16:44:34 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -21,7 +38,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #2 — 2026-10-23 17:54:32 UTC  ❌
+### Run #3 — 2026-10-23 17:54:32 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -38,7 +55,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #3 — 2026-10-22 18:03:17 UTC  ❌
+### Run #4 — 2026-10-22 18:03:17 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -55,7 +72,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #4 — 2026-10-21 18:08:16 UTC  ❌
+### Run #5 — 2026-10-21 18:08:16 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -72,7 +89,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #5 — 2026-10-20 18:02:19 UTC  ❌
+### Run #6 — 2026-10-20 18:02:19 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -89,7 +106,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #6 — 2026-10-19 19:22:55 UTC  ❌
+### Run #7 — 2026-10-19 19:22:55 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -106,7 +123,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #7 — 2026-10-18 16:37:31 UTC  ❌
+### Run #8 — 2026-10-18 16:37:31 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -123,7 +140,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #8 — 2026-10-17 16:31:35 UTC  ❌
+### Run #9 — 2026-10-17 16:31:35 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -140,7 +157,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #9 — 2026-10-16 17:33:05 UTC  ❌
+### Run #10 — 2026-10-16 17:33:05 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -157,7 +174,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #10 — 2026-10-15 17:48:56 UTC  ❌
+### Run #11 — 2026-10-15 17:48:56 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -174,7 +191,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #11 — 2026-10-14 18:04:26 UTC  ❌
+### Run #12 — 2026-10-14 18:04:26 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -191,7 +208,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #12 — 2026-10-13 19:53:49 UTC  ❌
+### Run #13 — 2026-10-13 19:53:49 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -208,7 +225,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #13 — 2026-10-12 21:47:09 UTC  ❌
+### Run #14 — 2026-10-12 21:47:09 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -225,7 +242,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #14 — 2026-10-11 18:11:47 UTC  ❌
+### Run #15 — 2026-10-11 18:11:47 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -242,7 +259,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #15 — 2026-10-10 17:54:46 UTC  ❌
+### Run #16 — 2026-10-10 17:54:46 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -259,7 +276,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #16 — 2026-10-09 18:52:46 UTC  ❌
+### Run #17 — 2026-10-09 18:52:46 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -276,7 +293,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #17 — 2026-10-08 19:19:43 UTC  ✅
+### Run #18 — 2026-10-08 19:19:43 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -293,7 +310,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #18 — 2026-10-07 19:24:38 UTC  ✅
+### Run #19 — 2026-10-07 19:24:38 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -310,7 +327,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #19 — 2026-10-07 00:56:09 UTC  ✅
+### Run #20 — 2026-10-07 00:56:09 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -327,7 +344,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #20 — 2026-10-06 22:03:22 UTC  ✅
+### Run #21 — 2026-10-06 22:03:22 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -344,7 +361,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #21 — 2026-10-06 18:57:06 UTC  ✅
+### Run #22 — 2026-10-06 18:57:06 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -361,7 +378,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #22 — 2026-10-06 18:31:33 UTC  ✅
+### Run #23 — 2026-10-06 18:31:33 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -378,7 +395,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #23 — 2026-10-06 14:15:35 UTC  ✅
+### Run #24 — 2026-10-06 14:15:35 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -395,7 +412,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #24 — 2026-10-06 14:15:21 UTC  ✅
+### Run #25 — 2026-10-06 14:15:21 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -412,7 +429,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #25 — 2026-10-06 14:15:04 UTC  ✅
+### Run #26 — 2026-10-06 14:15:04 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -429,7 +446,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #26 — 2026-10-06 12:38:24 UTC  ❌
+### Run #27 — 2026-10-06 12:38:24 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -446,7 +463,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #27 — 2026-10-05 21:19:54 UTC  ✅
+### Run #28 — 2026-10-05 21:19:54 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -463,7 +480,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #28 — 2026-10-05 14:07:44 UTC  ✅
+### Run #29 — 2026-10-05 14:07:44 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -480,7 +497,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #29 — 2026-10-04 17:42:14 UTC  ❌
+### Run #30 — 2026-10-04 17:42:14 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -497,7 +514,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #30 — 2026-10-03 19:33:45 UTC  ❌
+### Run #31 — 2026-10-03 19:33:45 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -514,7 +531,7 @@
 | Meal-only dates | 3 |
 
 
-### Run #31 — 2026-10-03 19:33:32 UTC  ❌
+### Run #32 — 2026-10-03 19:33:32 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -531,7 +548,7 @@
 | Meal-only dates | 3 |
 
 
-### Run #32 — 2026-10-03 19:32:45 UTC  ❌
+### Run #33 — 2026-10-03 19:32:45 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -548,7 +565,7 @@
 | Meal-only dates | 3 |
 
 
-### Run #33 — 2026-10-03 17:27:21 UTC  ❌
+### Run #34 — 2026-10-03 17:27:21 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -565,7 +582,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #34 — 2026-10-02 18:32:54 UTC  ❌
+### Run #35 — 2026-10-02 18:32:54 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -582,7 +599,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #35 — 2026-10-01 18:56:35 UTC  ✅
+### Run #36 — 2026-10-01 18:56:35 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -599,7 +616,7 @@
 | Meal-only dates | 3 |
 
 
-### Run #36 — 2026-10-01 17:20:55 UTC  ✅
+### Run #37 — 2026-10-01 17:20:55 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -616,7 +633,7 @@
 | Meal-only dates | 3 |
 
 
-### Run #37 — 2026-10-01 17:20:23 UTC  ✅
+### Run #38 — 2026-10-01 17:20:23 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -633,7 +650,7 @@
 | Meal-only dates | 3 |
 
 
-### Run #38 — 2026-10-01 17:20:12 UTC  ✅
+### Run #39 — 2026-10-01 17:20:12 UTC  ✅
 
 | Metric | Value |
 |---|---|
@@ -650,7 +667,7 @@
 | Meal-only dates | 3 |
 
 
-### Run #39 — 2026-09-30 18:28:51 UTC  ❌
+### Run #40 — 2026-09-30 18:28:51 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -667,7 +684,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #40 — 2026-09-30 00:11:46 UTC  ❌
+### Run #41 — 2026-09-30 00:11:46 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -684,7 +701,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #41 — 2026-09-30 00:11:30 UTC  ❌
+### Run #42 — 2026-09-30 00:11:30 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -701,7 +718,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #42 — 2026-09-29 18:44:00 UTC  ❌
+### Run #43 — 2026-09-29 18:44:00 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -718,7 +735,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #43 — 2026-09-28 20:09:44 UTC  ❌
+### Run #44 — 2026-09-28 20:09:44 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -735,7 +752,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #44 — 2026-09-27 17:50:39 UTC  ❌
+### Run #45 — 2026-09-27 17:50:39 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -752,7 +769,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #45 — 2026-09-26 17:17:30 UTC  ❌
+### Run #46 — 2026-09-26 17:17:30 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -769,7 +786,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #46 — 2026-09-25 17:59:39 UTC  ❌
+### Run #47 — 2026-09-25 17:59:39 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -786,7 +803,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #47 — 2026-09-25 17:26:47 UTC  ❌
+### Run #48 — 2026-09-25 17:26:47 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -803,7 +820,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #48 — 2026-09-24 17:53:32 UTC  ❌
+### Run #49 — 2026-09-24 17:53:32 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -820,7 +837,7 @@
 | Meal-only dates | 2 |
 
 
-### Run #49 — 2026-09-23 17:52:52 UTC  ❌
+### Run #50 — 2026-09-23 17:52:52 UTC  ❌
 
 | Metric | Value |
 |---|---|
@@ -837,21 +854,4 @@
 | Meal-only dates | 2 |
 
 
-### Run #50 — 2026-09-22 17:40:13 UTC  ❌
-
-| Metric | Value |
-|---|---|
-| Status | **STALE** |
-| Duration | 0.01s |
-| Output rows | 290 |
-| Output columns | 211 |
-| WHOOP columns | 71 |
-| Meal columns | 131 |
-| WHOOP date range | 2024-05-09 → 2026-09-20 |
-| Meal date range | 2026-04-16 → 2026-09-18 |
-| Overlapping dates | 24 |
-| WHOOP-only dates | 264 |
-| Meal-only dates | 2 |
-
-
-> *… 271 older run(s) not shown. See `logs/consolidation_audit.jsonl` for full history.*
+> *… 272 older run(s) not shown. See `logs/consolidation_audit.jsonl` for full history.*
