@@ -1,50 +1,45 @@
 # Handoff
 
-Written 2026-09-11 (evening). Read `CONTEXT.md` first, then `habits\README.md`.
+Refreshed 2026-10-29 from folder state (ICM audit; no session work). Read
+`CONTEXT.md` first, then `habits\README.md`.
 
 ## What we were doing
 
-Standing up the phone habit page and wiring it into the existing habit
-record. Done and live:
+Last session work on disk (2026-10-01): locking the habit Worker
+`habit-tracker-proxy` so only Auckie's devices can read or write
+`habits.csv`. The plan and the steps Auckie must do are in
+`cloudflare-worker\LOCK-PLAN.md`. Nothing is live until those steps are done.
 
-- `https://auckiefenstermacher19-cmd.github.io/Health-Tracker/habits.html`
-  is on Auckie's iPhone home screen as "Habits". He logged 2026-09-11 from it
-  (commit `habits: phone log 2026-09-11`).
-- Cloudflare Worker `habit-tracker-proxy` is deployed via Wrangler from
-  `cloudflare-worker\` (Wrangler logged in on this PC); the GitHub token is
-  set as its `GITHUB_PAT` secret by Auckie.
-- 10 habits are automatic (WHOOP x5, food logged, calories on target, water,
-  workout, learning), filled at 07:00 the next morning by the WHOOP sync task.
-  Its script now commits stray dashboard ticks and pulls before writing, so
-  the phone's nightly commit and the morning fill do not collide.
-- Screentime is a yes/no defined by a 2-hour iOS App Limit on the apps that
-  count (Clock, Spotify, Workout Tracker excluded). Auckie sets the limit on
-  the phone himself; Apple's total cannot be exported.
+Running normally (from git log and `logs\consolidation_audit.jsonl`):
+
+- Merge: runs daily, but **meal and water are stale**. In
+  `logs\consolidation_audit.jsonl` (newest line 2026-10-28) both source
+  ranges end 2026-10-06 while WHOOP runs to 2026-10-28. Either logging
+  stopped or the MyFitnessClone feed broke; check `..\MyFitnessClone\` first.
+- Habits: the 07:00 WHOOP Daily Sync fills yesterday's row each morning.
+- Code-Geeko nightly and the Monday schema check commit as expected.
+- Phone page: last phone log commit 2026-09-29.
 
 ## What changed this session
 
-Health-Tracker: `habits.html`, `habits-core.js`, `habits-config.js`,
-`habits.webmanifest` + icons, `cloudflare-worker\` (worker + `wrangler.toml`),
-`tools\dev_worker.py`, `habits.py` (three new derivations), `habits\definitions.json`
-(phone flags, `auto_source`, `calories_on_target` column, screentime yes/no),
-`habits\README.md`, `CONTEXT.md`, tests (80 pytest, 10 node), design spec and
-plan under `docs\superpowers\`. whoop-data: `run-once.ps1` (commit ticks,
-pull first, abort on conflict, named failure reason).
+Docs only: `CONTEXT.md` and `README.md` corrected (meal source is no longer
+frozen, the weekly schema check is listed as a machine, `whoop_updated`
+dispatch marked unused). This file rewritten.
 
 ## Open decisions waiting on Auckie
 
-- Set the 2-hour App Limit in iOS Screen Time (Settings, Screen Time, App
-  Limits). Nothing in the repo depends on it, but the screentime answer is a
-  guess until it exists.
+- Worker lock: do the steps in `cloudflare-worker\LOCK-PLAN.md`, or drop the
+  change. Uncommitted: `cloudflare-worker\habits-worker.js`,
+  `cloudflare-worker\wrangler.toml`, `habits.html`, `habits\README.md`,
+  `cloudflare-worker\LOCK-PLAN.md`, `tests\habits-worker.test.mjs`.
+- Set the 2-hour App Limit in iOS Screen Time if not done; the screentime
+  answer is a guess until it exists.
 
 ## Blockers
 
-None.
+None known.
 
 ## Best next move
 
-Tomorrow after 07:00, confirm the automatic fill landed for 2026-09-11:
-`python habits.py show --last 2` should show WHOOP, water, workout and
-calories values on that row, and `..\whoop-data\state\local-run.log` should
-end with a `run end (exit 0)` line. If the row is blank, the failure-signal
-table in `habits\README.md` says which stage to look at.
+Finish or abandon the Worker lock, then commit or revert the uncommitted
+files above so the working tree matches what is deployed.

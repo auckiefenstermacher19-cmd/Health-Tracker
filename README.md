@@ -9,8 +9,9 @@ master table, and holds the nightly habit log. This folder does not collect WHOO
 
 The daily merge runs on GitHub Actions and has been landing every day.
 `.github/workflows/consolidate.yml` is live: cron `30 13 * * *`, plus
-`repository_dispatch` events (`whoop_updated`, `meal_updated`) from the
-upstream repos. GitHub queues scheduled runs late, so in practice the commit
+`repository_dispatch` events from MyFitnessClone (`meal_updated`,
+`water_updated`). The workflow still accepts `whoop_updated`, but nothing has
+sent it since 2026-08-19: WHOOP now syncs locally and the 13:30 cron picks it up. GitHub queues scheduled runs late, so in practice the commit
 lands somewhere between about 16:00 and 19:30 UTC, not at 13:30.
 
 The run does, in order: `fetch_sources.py` (GitHub API fetch of both source
@@ -67,15 +68,13 @@ valid when water appears. Water is warn-only for freshness, like meals.
 
 Sources (siblings, not this folder):
 
-- WHOOP: `..\whoop-data\data\daily_consolidated.csv` — current, one day behind
-  at most.
-- Meals: `..\MyFitnessClone\` (`Meal_Data_Dashboard.csv`) — **frozen since
-  2026-07-25.** Nothing has written a meal row since. Every run since the
-  freshness gate was added on 2026-08-26 records `"stale_sources": ["meal"]`
-  and `"status": "STALE"` in `logs/consolidation_audit.jsonl`, and shows as
-  failed in `logs/audit_report.md`. `meal` is warn-only, so the workflow
-  itself stays green. Treat a green run as saying nothing about meal
-  freshness.
+- WHOOP: `..\whoop-data\data\daily_consolidated.csv`, refreshed by the local
+  07:00 WHOOP Daily Sync task. Its age is in `source_ages_days` in the newest
+  line of `logs/consolidation_audit.jsonl`.
+- Meals: `..\MyFitnessClone\` (`Meal_Data_Dashboard.csv`). `meal` is
+  warn-only, so a stale meal source leaves the workflow green. Treat a green
+  run as saying nothing about meal freshness: read `source_ages_days` in the
+  newest audit line.
 - Water: `..\MyFitnessClone\` (`Water_Data_Dashboard.csv`) — one row per date
   with `water_fl_oz` against a `water_goal_fl_oz` of 128 (one gallon), plus the
   big/small bottle counts. Written by MyFitnessClone's water workflow from
@@ -105,7 +104,7 @@ Health-Tracker\
 ├── generate_audit_report.py
 ├── habits.py
 ├── habits.csv                    ← habit log (date-keyed)
-├── cross_repo_trigger_setup.md   ← how the upstream repos fire repository_dispatch
+├── cross_repo_trigger_setup.md   ← dispatch setup notes (its whoop_updated part is unused)
 ├── index.html + dashboard.js     ← local dashboard over the master CSV
 │                                   (with vendored chart.umd.min.js, papaparse.min.js)
 ├── habits\
