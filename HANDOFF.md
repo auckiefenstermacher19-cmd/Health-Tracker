@@ -12,10 +12,9 @@ Last session work on disk (2026-10-01): locking the habit Worker
 
 Running normally (from git log and `logs\consolidation_audit.jsonl`):
 
-- Merge: runs daily, but **meal and water are stale**. In
-  `logs\consolidation_audit.jsonl` (newest line 2026-10-28) both source
-  ranges end 2026-10-06 while WHOOP runs to 2026-10-28. Either logging
-  stopped or the MyFitnessClone feed broke; check `..\MyFitnessClone\` first.
+- Merge: runs daily. Meal and water data end 2026-10-06 because Auckie
+  stopped logging them (his word, 2026-10-29); nothing is broken. A STALE
+  audit line for those two sources is expected until he logs again.
 - Habits: the 07:00 WHOOP Daily Sync fills yesterday's row each morning.
 - Code-Geeko nightly and the Monday schema check commit as expected.
 - Phone page: last phone log commit 2026-09-29.
