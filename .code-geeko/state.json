@@ -874,13 +874,13 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.881,
+          "change_entropy": 1.8709,
           "change_entropy_pct": 0.921,
           "commit_count_90d": 4
         },
         "file_path": "consolidate.py",
         "function_name": null,
-        "health_impact": 0.946,
+        "health_impact": 1.812,
         "reason": "changes are scattered across noisy commits (top 8% change entropy); a strong history-based fault predictor",
         "severity": "high"
       },
@@ -903,7 +903,7 @@
         },
         "file_path": "consolidate.py",
         "function_name": null,
-        "health_impact": 0.251,
+        "health_impact": 0.48,
         "reason": "Primary owner auckiefenstermacher19-cmd no longer the recent owner",
         "severity": "high"
       },
@@ -922,7 +922,7 @@
         },
         "file_path": "consolidate.py",
         "function_name": null,
-        "health_impact": 0.365,
+        "health_impact": 0.7,
         "reason": "2 bug-fixes touched this file in the last ~6 months; recent defect history is the strongest cost-effective predictor of further defects",
         "severity": "medium"
       },
@@ -962,27 +962,6 @@
         "function_name": "build_consolidated",
         "health_impact": 0.563,
         "reason": "build_consolidated has cyclomatic complexity 25",
-        "severity": "critical"
-      },
-      "risk_score": 10.0,
-      "source": "repowise"
-    },
-    "repowise:consolidate.py:build_consolidated:function_hotspot": {
-      "file": "consolidate.py",
-      "finding_id": "build_consolidated:function_hotspot",
-      "message": "build_consolidated has been modified across 6 commits (repo p80=2) and carries CCN=25 / nesting=2",
-      "raw": {
-        "biomarker_type": "function_hotspot",
-        "details": {
-          "ccn": 25,
-          "max_nesting": 2,
-          "modification_count": 6,
-          "repo_p80": 2
-        },
-        "file_path": "consolidate.py",
-        "function_name": "build_consolidated",
-        "health_impact": 1.211,
-        "reason": "build_consolidated has been modified across 6 commits (repo p80=2) and carries CCN=25 / nesting=2",
         "severity": "critical"
       },
       "risk_score": 10.0,
@@ -1064,7 +1043,7 @@
     "repowise:consolidate.py:metric": {
       "file": "consolidate.py",
       "finding_id": "metric",
-      "message": "overall file health score 5.0/10 (max CCN 25, max nesting 3)",
+      "message": "overall file health score 5.51/10 (max CCN 25, max nesting 3)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": null,
@@ -1074,9 +1053,9 @@
         "max_ccn": 25,
         "max_nesting": 3,
         "nloc": 479,
-        "score": 5.0
+        "score": 5.51
       },
-      "risk_score": 5.0,
+      "risk_score": 4.49,
       "source": "repowise"
     },
     "repowise:consolidate.py:previous_output_has_water:hot_path_sync_io": {
@@ -1112,27 +1091,6 @@
         "function_name": "validate_output",
         "health_impact": 0.338,
         "reason": "validate_output has cyclomatic complexity 16",
-        "severity": "high"
-      },
-      "risk_score": 7.5,
-      "source": "repowise"
-    },
-    "repowise:consolidate.py:validate_output:function_hotspot": {
-      "file": "consolidate.py",
-      "finding_id": "validate_output:function_hotspot",
-      "message": "validate_output has been modified across 3 commits (repo p80=2) and carries CCN=16 / nesting=3",
-      "raw": {
-        "biomarker_type": "function_hotspot",
-        "details": {
-          "ccn": 16,
-          "max_nesting": 3,
-          "modification_count": 3,
-          "repo_p80": 2
-        },
-        "file_path": "consolidate.py",
-        "function_name": "validate_output",
-        "health_impact": 0.727,
-        "reason": "validate_output has been modified across 3 commits (repo p80=2) and carries CCN=16 / nesting=3",
         "severity": "high"
       },
       "risk_score": 7.5,
@@ -1699,7 +1657,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.2011,
+          "change_entropy": 3.184,
           "change_entropy_pct": 0.947,
           "commit_count_90d": 9
         },
@@ -2782,7 +2740,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.9715,
+          "change_entropy": 3.9503,
           "change_entropy_pct": 0.974,
           "commit_count_90d": 11
         },
