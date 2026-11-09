@@ -874,7 +874,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.82,
+          "change_entropy": 1.809,
           "change_entropy_pct": 0.921,
           "commit_count_90d": 4
         },
@@ -1657,7 +1657,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.0973,
+          "change_entropy": 3.0786,
           "change_entropy_pct": 0.947,
           "commit_count_90d": 9
         },
@@ -2740,7 +2740,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.8428,
+          "change_entropy": 3.8195,
           "change_entropy_pct": 0.974,
           "commit_count_90d": 11
         },
