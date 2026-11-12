@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#0f1117">
+  <meta name="color-scheme" content="dark">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Habits">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -27,6 +28,8 @@
       --font:      -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
+    html { -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
+
     body {
       background: var(--bg);
       color: var(--text);
@@ -37,7 +40,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 24px 16px 48px;
+      /* Opened from the home-screen icon the page runs under the clock and the home bar. */
+      padding: calc(24px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(48px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -99,7 +103,11 @@
     .pill.on.no  { background: #3a1717; border-color: #ef4444; color: #ef4444; }
     .pill.on.blank { border-color: var(--accent); color: var(--text); }
     .ro { color: var(--muted); font-size: 14px; }
-    #toast { position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 80px); background: var(--surface); border: 1px solid var(--border); padding: 12px 18px; border-radius: var(--radius); transition: transform .25s; max-width: 90vw; font-size: 14px; z-index: 100; pointer-events: none; }
+    /* Controls: no text selection or link preview on long-press, no tap delay. */
+    .btn, .tile, .skip, .pill { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+    .skip:active, .pill:active { opacity: 0.55; }
+
+    #toast { position: fixed; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translate(-50%, calc(100% + 32px + env(safe-area-inset-bottom, 0px))); background: var(--surface); border: 1px solid var(--border); padding: 12px 18px; border-radius: var(--radius); transition: transform .25s; max-width: 90vw; font-size: 14px; z-index: 100; pointer-events: none; }
     #toast.show { transform: translate(-50%, 0); }
     #toast.error { border-color: var(--error); }
     #toast.ok { border-color: #22c55e; }
