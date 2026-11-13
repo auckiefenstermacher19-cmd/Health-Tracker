@@ -317,7 +317,7 @@
     "repowise:codegeeko/collectors/semgrep_collector.py:metric": {
       "file": "codegeeko/collectors/semgrep_collector.py",
       "finding_id": "metric",
-      "message": "overall file health score 7.8/10 (max CCN 12, max nesting 2)",
+      "message": "overall file health score 6.41/10 (max CCN 12, max nesting 2)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": null,
@@ -327,9 +327,9 @@
         "max_ccn": 12,
         "max_nesting": 2,
         "nloc": 179,
-        "score": 7.8
+        "score": 6.41
       },
-      "risk_score": 2.2,
+      "risk_score": 3.59,
       "source": "repowise"
     },
     "repowise:codegeeko/collectors/semgrep_collector.py:parse_semgrep_output:complex_method": {
@@ -350,6 +350,27 @@
         "severity": "medium"
       },
       "risk_score": 5.0,
+      "source": "repowise"
+    },
+    "repowise:codegeeko/collectors/semgrep_collector.py:parse_semgrep_output:function_hotspot": {
+      "file": "codegeeko/collectors/semgrep_collector.py",
+      "finding_id": "parse_semgrep_output:function_hotspot",
+      "message": "parse_semgrep_output has been modified across 5 commits (repo p80=2) and carries CCN=12 / nesting=2",
+      "raw": {
+        "biomarker_type": "function_hotspot",
+        "details": {
+          "ccn": 12,
+          "max_nesting": 2,
+          "modification_count": 5,
+          "repo_p80": 2
+        },
+        "file_path": "codegeeko/collectors/semgrep_collector.py",
+        "function_name": "parse_semgrep_output",
+        "health_impact": 1.392,
+        "reason": "parse_semgrep_output has been modified across 5 commits (repo p80=2) and carries CCN=12 / nesting=2",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
       "source": "repowise"
     },
     "repowise:codegeeko/collectors/semgrep_collector.py:run_semgrep:bumpy_road": {
@@ -853,7 +874,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.7793,
+          "change_entropy": 1.7697,
           "change_entropy_pct": 0.921,
           "commit_count_90d": 4
         },
@@ -1636,7 +1657,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.028,
+          "change_entropy": 3.0116,
           "change_entropy_pct": 0.947,
           "commit_count_90d": 9
         },
@@ -2719,7 +2740,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.7568,
+          "change_entropy": 3.7365,
           "change_entropy_pct": 0.974,
           "commit_count_90d": 11
         },
