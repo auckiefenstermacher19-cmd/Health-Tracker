@@ -828,31 +828,10 @@
       "risk_score": 5.0,
       "source": "repowise"
     },
-    "repowise:codegeeko/triage.py:_run_triage_query:function_hotspot": {
-      "file": "codegeeko/triage.py",
-      "finding_id": "_run_triage_query:function_hotspot",
-      "message": "_run_triage_query has been modified across 7 commits (repo p80=2) and carries CCN=13 / nesting=3",
-      "raw": {
-        "biomarker_type": "function_hotspot",
-        "details": {
-          "ccn": 13,
-          "max_nesting": 3,
-          "modification_count": 7,
-          "repo_p80": 2
-        },
-        "file_path": "codegeeko/triage.py",
-        "function_name": "_run_triage_query",
-        "health_impact": 1.392,
-        "reason": "_run_triage_query has been modified across 7 commits (repo p80=2) and carries CCN=13 / nesting=3",
-        "severity": "high"
-      },
-      "risk_score": 7.5,
-      "source": "repowise"
-    },
     "repowise:codegeeko/triage.py:metric": {
       "file": "codegeeko/triage.py",
       "finding_id": "metric",
-      "message": "overall file health score 5.46/10 (max CCN 13, max nesting 3)",
+      "message": "overall file health score 6.85/10 (max CCN 13, max nesting 3)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": null,
@@ -862,9 +841,9 @@
         "max_ccn": 13,
         "max_nesting": 3,
         "nloc": 94,
-        "score": 5.46
+        "score": 6.85
       },
-      "risk_score": 4.54,
+      "risk_score": 3.15,
       "source": "repowise"
     },
     "repowise:consolidate.py:None:change_entropy": {
@@ -874,7 +853,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.7602,
+          "change_entropy": 1.7503,
           "change_entropy_pct": 0.921,
           "commit_count_90d": 4
         },
@@ -1657,7 +1636,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.9956,
+          "change_entropy": 2.9787,
           "change_entropy_pct": 0.947,
           "commit_count_90d": 9
         },
@@ -2740,7 +2719,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.7165,
+          "change_entropy": 3.6956,
           "change_entropy_pct": 0.974,
           "commit_count_90d": 11
         },
