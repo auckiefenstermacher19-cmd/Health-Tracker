@@ -832,7 +832,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 1.7402,
+          "change_entropy": 1.7302,
           "change_entropy_pct": 0.921,
           "commit_count_90d": 4
         },
@@ -1615,7 +1615,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.9614,
+          "change_entropy": 2.9444,
           "change_entropy_pct": 0.947,
           "commit_count_90d": 9
         },
@@ -2629,6 +2629,24 @@
       "risk_score": 2.85,
       "source": "repowise"
     },
+    "repowise:tests/habits-core.test.js:None:hot_path_sync_io": {
+      "file": "tests/habits-core.test.js",
+      "finding_id": "None:hot_path_sync_io",
+      "message": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+      "raw": {
+        "biomarker_type": "hot_path_sync_io",
+        "details": {
+          "boundary_kind": "filesystem"
+        },
+        "file_path": "tests/habits-core.test.js",
+        "function_name": null,
+        "health_impact": 0.0,
+        "reason": "a blocking filesystem call runs on a hot, request-reachable path; its latency is paid on every call through this function",
+        "severity": "low"
+      },
+      "risk_score": 2.5,
+      "source": "repowise"
+    },
     "repowise:tests/test_consolidate_water.py:None:dry_violation": {
       "file": "tests/test_consolidate_water.py",
       "finding_id": "None:dry_violation",
@@ -2698,7 +2716,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.6742,
+          "change_entropy": 3.6531,
           "change_entropy_pct": 0.974,
           "commit_count_90d": 11
         },
