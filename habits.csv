@@ -79,3 +79,8 @@ date,day_of_week,made_bed,workout,morning_vitamins,shower_teeth,water,read_ficti
 2026-11-12,Thursday,,no,,,,,,yes,,,,,,,no,,,yes,no,yes,no,no,,,,,,,,,,,,,,
 2026-11-13,Friday,,no,,,,,,no,,,,,,,no,,,yes,no,yes,no,no,,,,,,,,,,,,,,
 2026-11-14,Saturday,,no,,,,,,no,,,,,,,no,,,yes,no,no,no,no,,,,,,,,,,,,,,
+2026-11-15,Sunday,,yes,,,,,,no,,,,,,,no,,,yes,yes,yes,no,yes,,,,,,,,,,,,,,
+2026-11-16,Monday,,no,,,,,,no,,,,,,,no,,,no,no,no,no,no,,,,,,,,,,,,,,
+2026-11-17,Tuesday,,no,,,,,,no,,,,,,,no,,,no,no,no,no,no,,,,,,,,,,,,,,
+2026-11-18,Wednesday,,no,,,,,,no,,,,,,,no,,,no,yes,yes,no,no,,,,,,,,,,,,,,
+2026-11-19,Thursday,,yes,,,,,,,,,,,,,no,,,,,,no,yes,,,,,,,,,,,,,,
