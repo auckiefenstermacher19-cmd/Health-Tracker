@@ -5,237 +5,6 @@
     "semgrep": "ok"
   },
   "findings": {
-    "ci_log:None:44621212043": {
-      "file": null,
-      "finding_id": "44621212043",
-      "message": "Workflow 'Health Tracker Consolidation' failed on 2026-11-19T21:40:58Z (https://github.com/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/44621212043)",
-      "raw": {
-        "actor": {
-          "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
-          "events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/events{/privacy}",
-          "followers_url": "https://api.github.com/users/auckiefenstermacher19-cmd/followers",
-          "following_url": "https://api.github.com/users/auckiefenstermacher19-cmd/following{/other_user}",
-          "gists_url": "https://api.github.com/users/auckiefenstermacher19-cmd/gists{/gist_id}",
-          "gravatar_id": "",
-          "html_url": "https://github.com/auckiefenstermacher19-cmd",
-          "id": 238894793,
-          "login": "auckiefenstermacher19-cmd",
-          "node_id": "U_kgDODj0-yQ",
-          "organizations_url": "https://api.github.com/users/auckiefenstermacher19-cmd/orgs",
-          "received_events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/received_events",
-          "repos_url": "https://api.github.com/users/auckiefenstermacher19-cmd/repos",
-          "site_admin": false,
-          "starred_url": "https://api.github.com/users/auckiefenstermacher19-cmd/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/auckiefenstermacher19-cmd/subscriptions",
-          "type": "User",
-          "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
-          "user_view_type": "public"
-        },
-        "artifacts_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/44621212043/artifacts",
-        "cancel_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/44621212043/cancel",
-        "check_suite_id": 120787119148,
-        "check_suite_node_id": "CS_kwDOS8vfO88AAAAcH3ksLA",
-        "check_suite_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/check-suites/120787119148",
-        "conclusion": "failure",
-        "created_at": "2026-11-19T21:40:58Z",
-        "display_title": "Health Tracker Consolidation",
-        "event": "schedule",
-        "head_branch": "main",
-        "head_commit": {
-          "author": {
-            "email": "code-geeko@users.noreply.github.com",
-            "name": "code-geeko[bot]"
-          },
-          "committer": {
-            "email": "code-geeko@users.noreply.github.com",
-            "name": "code-geeko[bot]"
-          },
-          "id": "e92adc28d308b5232d2be5bbf8014cd1bbaf2200",
-          "message": "chore: update code-geeko state",
-          "timestamp": "2026-11-19T14:51:59Z",
-          "tree_id": "c1ea8da88b6dab14c9ecb8bce01b242cb4f64744"
-        },
-        "head_repository": {
-          "archive_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/{archive_format}{/ref}",
-          "assignees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/assignees{/user}",
-          "blobs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/blobs{/sha}",
-          "branches_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/branches{/branch}",
-          "collaborators_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/collaborators{/collaborator}",
-          "comments_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/comments{/number}",
-          "commits_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/commits{/sha}",
-          "compare_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/compare/{base}...{head}",
-          "contents_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/contents/{+path}",
-          "contributors_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/contributors",
-          "deployments_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/deployments",
-          "description": null,
-          "downloads_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/downloads",
-          "events_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/events",
-          "fork": false,
-          "forks_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/forks",
-          "full_name": "auckiefenstermacher19-cmd/Health-Tracker",
-          "git_commits_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/commits{/sha}",
-          "git_refs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/refs{/sha}",
-          "git_tags_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/tags{/sha}",
-          "hooks_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/hooks",
-          "html_url": "https://github.com/auckiefenstermacher19-cmd/Health-Tracker",
-          "id": 1271652155,
-          "issue_comment_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues/comments{/number}",
-          "issue_events_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues/events{/number}",
-          "issues_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues{/number}",
-          "keys_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/keys{/key_id}",
-          "labels_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/labels{/name}",
-          "languages_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/languages",
-          "merges_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/merges",
-          "milestones_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/milestones{/number}",
-          "name": "Health-Tracker",
-          "node_id": "R_kgDOS8vfOw",
-          "notifications_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/notifications{?since,all,participating}",
-          "owner": {
-            "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
-            "events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/events{/privacy}",
-            "followers_url": "https://api.github.com/users/auckiefenstermacher19-cmd/followers",
-            "following_url": "https://api.github.com/users/auckiefenstermacher19-cmd/following{/other_user}",
-            "gists_url": "https://api.github.com/users/auckiefenstermacher19-cmd/gists{/gist_id}",
-            "gravatar_id": "",
-            "html_url": "https://github.com/auckiefenstermacher19-cmd",
-            "id": 238894793,
-            "login": "auckiefenstermacher19-cmd",
-            "node_id": "U_kgDODj0-yQ",
-            "organizations_url": "https://api.github.com/users/auckiefenstermacher19-cmd/orgs",
-            "received_events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/received_events",
-            "repos_url": "https://api.github.com/users/auckiefenstermacher19-cmd/repos",
-            "site_admin": false,
-            "starred_url": "https://api.github.com/users/auckiefenstermacher19-cmd/starred{/owner}{/repo}",
-            "subscriptions_url": "https://api.github.com/users/auckiefenstermacher19-cmd/subscriptions",
-            "type": "User",
-            "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
-            "user_view_type": "public"
-          },
-          "private": false,
-          "pulls_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/pulls{/number}",
-          "releases_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/releases{/id}",
-          "stargazers_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/stargazers",
-          "statuses_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/statuses/{sha}",
-          "subscribers_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/subscribers",
-          "subscription_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/subscription",
-          "tags_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/tags",
-          "teams_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/teams",
-          "trees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/trees{/sha}",
-          "url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker"
-        },
-        "head_sha": "e92adc28d308b5232d2be5bbf8014cd1bbaf2200",
-        "html_url": "https://github.com/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/44621212043",
-        "id": 44621212043,
-        "jobs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/44621212043/jobs",
-        "logs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/44621212043/logs",
-        "name": "Health Tracker Consolidation",
-        "node_id": "WFR_kwLOS8vfO88AAAAKY6Gpiw",
-        "path": ".github/workflows/consolidate.yml",
-        "previous_attempt_url": null,
-        "pull_requests": [],
-        "referenced_workflows": [],
-        "repository": {
-          "archive_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/{archive_format}{/ref}",
-          "assignees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/assignees{/user}",
-          "blobs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/blobs{/sha}",
-          "branches_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/branches{/branch}",
-          "collaborators_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/collaborators{/collaborator}",
-          "comments_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/comments{/number}",
-          "commits_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/commits{/sha}",
-          "compare_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/compare/{base}...{head}",
-          "contents_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/contents/{+path}",
-          "contributors_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/contributors",
-          "deployments_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/deployments",
-          "description": null,
-          "downloads_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/downloads",
-          "events_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/events",
-          "fork": false,
-          "forks_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/forks",
-          "full_name": "auckiefenstermacher19-cmd/Health-Tracker",
-          "git_commits_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/commits{/sha}",
-          "git_refs_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/refs{/sha}",
-          "git_tags_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/tags{/sha}",
-          "hooks_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/hooks",
-          "html_url": "https://github.com/auckiefenstermacher19-cmd/Health-Tracker",
-          "id": 1271652155,
-          "issue_comment_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues/comments{/number}",
-          "issue_events_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues/events{/number}",
-          "issues_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/issues{/number}",
-          "keys_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/keys{/key_id}",
-          "labels_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/labels{/name}",
-          "languages_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/languages",
-          "merges_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/merges",
-          "milestones_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/milestones{/number}",
-          "name": "Health-Tracker",
-          "node_id": "R_kgDOS8vfOw",
-          "notifications_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/notifications{?since,all,participating}",
-          "owner": {
-            "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
-            "events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/events{/privacy}",
-            "followers_url": "https://api.github.com/users/auckiefenstermacher19-cmd/followers",
-            "following_url": "https://api.github.com/users/auckiefenstermacher19-cmd/following{/other_user}",
-            "gists_url": "https://api.github.com/users/auckiefenstermacher19-cmd/gists{/gist_id}",
-            "gravatar_id": "",
-            "html_url": "https://github.com/auckiefenstermacher19-cmd",
-            "id": 238894793,
-            "login": "auckiefenstermacher19-cmd",
-            "node_id": "U_kgDODj0-yQ",
-            "organizations_url": "https://api.github.com/users/auckiefenstermacher19-cmd/orgs",
-            "received_events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/received_events",
-            "repos_url": "https://api.github.com/users/auckiefenstermacher19-cmd/repos",
-            "site_admin": false,
-            "starred_url": "https://api.github.com/users/auckiefenstermacher19-cmd/starred{/owner}{/repo}",
-            "subscriptions_url": "https://api.github.com/users/auckiefenstermacher19-cmd/subscriptions",
-            "type": "User",
-            "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
-            "user_view_type": "public"
-          },
-          "private": false,
-          "pulls_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/pulls{/number}",
-          "releases_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/releases{/id}",
-          "stargazers_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/stargazers",
-          "statuses_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/statuses/{sha}",
-          "subscribers_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/subscribers",
-          "subscription_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/subscription",
-          "tags_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/tags",
-          "teams_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/teams",
-          "trees_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/git/trees{/sha}",
-          "url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker"
-        },
-        "rerun_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/44621212043/rerun",
-        "run_attempt": 1,
-        "run_number": 355,
-        "run_started_at": "2026-11-19T21:40:58Z",
-        "status": "completed",
-        "triggering_actor": {
-          "avatar_url": "https://avatars.githubusercontent.com/u/238894793?v=4",
-          "events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/events{/privacy}",
-          "followers_url": "https://api.github.com/users/auckiefenstermacher19-cmd/followers",
-          "following_url": "https://api.github.com/users/auckiefenstermacher19-cmd/following{/other_user}",
-          "gists_url": "https://api.github.com/users/auckiefenstermacher19-cmd/gists{/gist_id}",
-          "gravatar_id": "",
-          "html_url": "https://github.com/auckiefenstermacher19-cmd",
-          "id": 238894793,
-          "login": "auckiefenstermacher19-cmd",
-          "node_id": "U_kgDODj0-yQ",
-          "organizations_url": "https://api.github.com/users/auckiefenstermacher19-cmd/orgs",
-          "received_events_url": "https://api.github.com/users/auckiefenstermacher19-cmd/received_events",
-          "repos_url": "https://api.github.com/users/auckiefenstermacher19-cmd/repos",
-          "site_admin": false,
-          "starred_url": "https://api.github.com/users/auckiefenstermacher19-cmd/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/auckiefenstermacher19-cmd/subscriptions",
-          "type": "User",
-          "url": "https://api.github.com/users/auckiefenstermacher19-cmd",
-          "user_view_type": "public"
-        },
-        "updated_at": "2026-11-19T21:41:14Z",
-        "url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/runs/44621212043",
-        "workflow_id": 297258464,
-        "workflow_url": "https://api.github.com/repos/auckiefenstermacher19-cmd/Health-Tracker/actions/workflows/297258464"
-      },
-      "risk_score": 8.0,
-      "source": "ci_log"
-    },
     "repowise:cloudflare-worker/habits-worker.js:None:dry_violation": {
       "file": "cloudflare-worker/habits-worker.js",
       "finding_id": "None:dry_violation",
@@ -863,6 +632,27 @@
       "risk_score": 5.0,
       "source": "repowise"
     },
+    "repowise:codegeeko/run.py:main:function_hotspot": {
+      "file": "codegeeko/run.py",
+      "finding_id": "main:function_hotspot",
+      "message": "main has been modified across 6 commits (repo p80=2) and carries CCN=11 / nesting=4",
+      "raw": {
+        "biomarker_type": "function_hotspot",
+        "details": {
+          "ccn": 11,
+          "max_nesting": 4,
+          "modification_count": 6,
+          "repo_p80": 2
+        },
+        "file_path": "codegeeko/run.py",
+        "function_name": "main",
+        "health_impact": 1.392,
+        "reason": "main has been modified across 6 commits (repo p80=2) and carries CCN=11 / nesting=4",
+        "severity": "high"
+      },
+      "risk_score": 7.5,
+      "source": "repowise"
+    },
     "repowise:codegeeko/run.py:main:io_in_loop": {
       "file": "codegeeko/run.py",
       "finding_id": "main:io_in_loop",
@@ -909,7 +699,7 @@
     "repowise:codegeeko/run.py:metric": {
       "file": "codegeeko/run.py",
       "finding_id": "metric",
-      "message": "overall file health score 6.87/10 (max CCN 11, max nesting 4)",
+      "message": "overall file health score 5.47/10 (max CCN 11, max nesting 4)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": null,
@@ -919,9 +709,9 @@
         "max_ccn": 11,
         "max_nesting": 4,
         "nloc": 109,
-        "score": 6.87
+        "score": 5.47
       },
-      "risk_score": 3.13,
+      "risk_score": 4.53,
       "source": "repowise"
     },
     "repowise:codegeeko/state.py:None:prior_defect": {
@@ -1077,26 +867,6 @@
       "risk_score": 4.54,
       "source": "repowise"
     },
-    "repowise:consolidate.py:None:change_entropy": {
-      "file": "consolidate.py",
-      "finding_id": "None:change_entropy",
-      "message": "changes are scattered across noisy commits (top 8% change entropy); a strong history-based fault predictor",
-      "raw": {
-        "biomarker_type": "change_entropy",
-        "details": {
-          "change_entropy": 1.6728,
-          "change_entropy_pct": 0.921,
-          "commit_count_90d": 4
-        },
-        "file_path": "consolidate.py",
-        "function_name": null,
-        "health_impact": 1.812,
-        "reason": "changes are scattered across noisy commits (top 8% change entropy); a strong history-based fault predictor",
-        "severity": "high"
-      },
-      "risk_score": 7.5,
-      "source": "repowise"
-    },
     "repowise:consolidate.py:None:knowledge_loss": {
       "file": "consolidate.py",
       "finding_id": "None:knowledge_loss",
@@ -1105,7 +875,7 @@
         "biomarker_type": "knowledge_loss",
         "details": {
           "bus_factor": 1,
-          "is_hotspot": true,
+          "is_hotspot": false,
           "primary_owner": "auckiefenstermacher19-cmd",
           "recent_owner": "Auckie Fenstermacher",
           "recent_owner_share": 1.0,
@@ -1113,11 +883,11 @@
         },
         "file_path": "consolidate.py",
         "function_name": null,
-        "health_impact": 0.48,
+        "health_impact": 0.12,
         "reason": "Primary owner auckiefenstermacher19-cmd no longer the recent owner",
-        "severity": "high"
+        "severity": "low"
       },
-      "risk_score": 7.5,
+      "risk_score": 2.5,
       "source": "repowise"
     },
     "repowise:consolidate.py:None:prior_defect": {
@@ -1253,7 +1023,7 @@
     "repowise:consolidate.py:metric": {
       "file": "consolidate.py",
       "finding_id": "metric",
-      "message": "overall file health score 5.51/10 (max CCN 25, max nesting 3)",
+      "message": "overall file health score 7.68/10 (max CCN 25, max nesting 3)",
       "raw": {
         "branch_coverage_pct": null,
         "duplication_pct": null,
@@ -1263,9 +1033,9 @@
         "max_ccn": 25,
         "max_nesting": 3,
         "nloc": 479,
-        "score": 5.51
+        "score": 7.68
       },
-      "risk_score": 4.49,
+      "risk_score": 2.32,
       "source": "repowise"
     },
     "repowise:consolidate.py:previous_output_has_water:hot_path_sync_io": {
@@ -1867,7 +1637,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.8468,
+          "change_entropy": 2.8311,
           "change_entropy_pct": 0.947,
           "commit_count_90d": 9
         },
@@ -2950,7 +2720,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.5319,
+          "change_entropy": 3.5124,
           "change_entropy_pct": 0.974,
           "commit_count_90d": 11
         },
