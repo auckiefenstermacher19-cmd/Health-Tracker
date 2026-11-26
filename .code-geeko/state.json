@@ -1637,7 +1637,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 2.8156,
+          "change_entropy": 2.8002,
           "change_entropy_pct": 0.947,
           "commit_count_90d": 9
         },
@@ -2720,7 +2720,7 @@
       "raw": {
         "biomarker_type": "change_entropy",
         "details": {
-          "change_entropy": 3.4932,
+          "change_entropy": 3.4742,
           "change_entropy_pct": 0.974,
           "commit_count_90d": 11
         },
