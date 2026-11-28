@@ -120,3 +120,4 @@
 {"action": "log", "date": "2026-11-25", "changes": {}, "source": "whoop+manual", "ts": "2026-11-26T12:00:13.413433+00:00"}
 {"action": "log", "date": "2026-11-26", "changes": {"logged_food": {"from": "", "to": "no"}, "learning_consumed": {"from": "", "to": "no"}}, "source": "whoop+manual", "ts": "2026-11-27T11:00:14.769678+00:00"}
 {"action": "log", "date": "2026-11-26", "changes": {}, "source": "whoop+manual", "ts": "2026-11-27T12:00:13.978771+00:00"}
+{"action": "log", "date": "2026-11-27", "changes": {"logged_food": {"from": "", "to": "no"}, "learning_consumed": {"from": "", "to": "no"}}, "source": "whoop+manual", "ts": "2026-11-28T11:00:17.561252+00:00"}
